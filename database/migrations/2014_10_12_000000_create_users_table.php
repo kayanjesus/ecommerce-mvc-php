@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('data_nasc', 10)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('access_level')->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

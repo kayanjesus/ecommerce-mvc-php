@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,14 +25,14 @@ Route::get('/', function () {
 //     return view('welcome');
 // });
 
-Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function(){
+Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
         return view('dashboard');
     })->name('dashboard');
 
     Route::get('/users', function () {
         return view('users');
-    })->name('dashboard.users'); 
+    })->name('dashboard.users');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -40,8 +41,10 @@ Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function(){
 });
 
 
+Route::middleware('auth')->group(function () {
+    Route::get('cadastro', [PagesController::class, 'cadastro'])
+        ->name('cadastro')
+        ->middleware('can:access');
+});
 
-// Route::middleware('auth')->group(function () {
-
-// });
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
