@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('cpf', 14)->nullable()->unique();
-            $table->string('data_nasc', 10)->nullable();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('cpf')->nullable()->unique();
+            $table->string('data_nasc')->nullable();
             $table->string('password');
             $table->string('access_level')->default('user');
+            $table->timestamp('email_verified_at')->nullable();
+            // $table->string('cpf_hash');
             $table->rememberToken();
             $table->timestamps();
         });

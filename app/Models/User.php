@@ -21,6 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name', 
         'email',
         'cpf',
+        'cpf_hash',
         'data_nasc',
         'password',
         'access_level',
@@ -36,6 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+   
+
     /**
      * The attributes that should be cast.
      *
@@ -44,5 +47,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'name' => 'encrypted',
+        'email' => 'encrypted',
+        'cpf' => 'encrypted',
+        'data_nasc' => 'encrypted',
     ];
 }
