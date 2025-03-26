@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('data_nasc')->nullable();
             $table->string('password');
             $table->string('access_level')->default('user');
-            $table->timestamp('email_verified_at')->nullable();
-            // $table->string('cpf_hash');
+             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
