@@ -7,5 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class CupomDesconto extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'nome',
+        'localizador',
+        'desconto',
+        'modo_desconto',
+        'limite',
+        'modo_limite',
+        'dther_validade',
+        'ativo'
+    ];
 }
