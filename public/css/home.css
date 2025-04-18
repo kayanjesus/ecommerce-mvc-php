@@ -380,6 +380,7 @@ button {
     justify-content: space-around; 
     flex-wrap: wrap; 
     cursor: pointer;
+    gap: 20px;
 }
 
 .retangulo {
@@ -391,6 +392,8 @@ button {
     transition: transform 0.5s ease;
     position: relative;
     cursor: pointer;
+    width: calc(25% - 65px);
+    box-sizing: border-box;
 }
 .imagem-best-seller {
     width: 180px; 
@@ -429,6 +432,25 @@ width: 100%;
 button:hover {
 background-color: #d62839;
 }
+
+.comprar-link {
+    background-color: #9b2a2a;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    display: inline-block; /* Faz o link se comportar como um botão */
+    text-align: center;
+    text-decoration: none; /* Remove o sublinhado do link */
+}
+
+.comprar-link:hover {
+    background-color: #d62839;
+}
+
 
 .season {
     display: flex;

@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('produtos', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome');
-            $table->text('descricao');
-            $table->decimal('valor', 6, 2);
-            $table->string('imagem')->nullable();
-            $table->enum('ativo', ['S', 'N'])->default('S');
+        // Tabela de Carrinhos
+        Schema::create('carrinhos', function (Blueprint $table) {
+            $table->id('id_carrinho');
+            $table->unsignedBigInteger('id_usuario');
             $table->timestamps();
+
+            $table->foreign('id_usuario')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('produtos');
+        Schema::dropIfExists('carrinhos');
     }
 };

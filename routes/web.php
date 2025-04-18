@@ -3,6 +3,8 @@
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProdutoController;
+use App\Http\Controllers\SiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,12 +16,19 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/', [ProdutoController::class, 'index']);
+Route::resource('produtos', ProdutoController::class);
 
-Route::get('/', function () {
-    return view('site.index');
-});
+Route::get('/', [SiteController::class, 'index'])->name('home.index');
+
+Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.details');
+
+Route::get('/categoria/{id}', [SiteController::class, 'categoria'])->name('home.categoria');
 
 
+// Route::get('/', function () {
+//     return view('home.index');
+// });
 
 // Route::get('/', function () {
 //     return view('welcome');

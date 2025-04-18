@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/home.css">
-    
-    
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -110,17 +110,29 @@
         </section>
 
         <section class="categorias">
-            <h2 class="titulo-categorias">Mais Vendidos</h2>
+            <h2 class="titulo-categorias">Produtos</h2>
             <div class="faixa"></div>
             <div class="item"></div>
             <div class="retangulos-best-seller">
-                <div class="retangulo">
-                    <img src="img/carossel/algo2img.jpg" alt="" class="imagem-best-seller">
-                    <span class="Descricao">Vestido colorido Feminino</span>
-                    <span class="Precinho">R$60,00</span>
-                    <button>Comprar</button>
-                </div>
-                <div class="retangulo">
+
+
+                @foreach ($produtos as $produto)
+                    <div class="retangulo">
+                        <a href="{{ route('home.details', $produto->slug) }}">
+                        <img src="{{ $produto->img }}" alt="" class="imagem-best-seller">
+                        </a>
+                        <span class="Descricao">{{ $produto->nome_produto }}</span>
+                        <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
+                        <span class="Precinho">R$60,00</span>
+                        <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
+                        
+                    </div>
+                    </a>
+                @endforeach
+
+
+
+                <!-- <div class="retangulo">
                     <img src="img/produtos/retangulo/algo6img.jpg" alt="" class="imagem-best-seller">
                     <span class="Descricao">Conjunto laranja masculino</span>
                     <span class="Precinho">R$69,00</span>
@@ -137,7 +149,7 @@
                     <span class="Descricao">Conjunto macacão masculino</span>
                     <span class="Precinho">R$80,00</span>
                     <button>Comprar</button>
-                </div>
+                </div> -->
             </div>
             </div>
         </section>
@@ -149,25 +161,25 @@
                     <img src="img/carossel/algo4img.jpg" alt="" class="imagem-best-seller">
                     <span class="Descricao">Conjuntos</span>
                     <span class="Precinho">R$60,00</span>
-                    <button>Comprar</button>
+                    <a class="comprar-link">Comprar</a>
                 </div>
                 <div class="retangulo">
                     <img src="img/carossel/algo2img.jpg" alt="" class="imagem-best-seller">
                     <span class="Descricao">Camisetas</span>
                     <span class="Precinho">R$69,00</span>
-                    <button>Comprar</button>
+                    <a class="comprar-link">Comprar</a>
                 </div>
                 <div class="retangulo">
                     <img src="img/produtos/circulo/circulo2.webp" alt="img/circulo2.webp" class="imagem-best-seller">
                     <span class="Descricao">Calças</span>
                     <span class="Precinho">R$70,00</span>
-                    <button>Comprar</button>
+                    <a class="comprar-link">Comprar</a>
                 </div>
                 <div class="retangulo">
                     <img src="img/produtos/circulo/circulo1.jpg" alt="img/circulo.jpg" class="imagem-best-seller">
                     <span class="Descricao">Vestidos</span>
                     <span class="Precinho">R$80,00</span>
-                    <button>Comprar</button>
+                    <a class="comprar-link">Comprar</a>
                 </div>
             </div>
         </section>
