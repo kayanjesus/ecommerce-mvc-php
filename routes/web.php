@@ -23,7 +23,7 @@ Route::get('/', [SiteController::class, 'index'])->name('home.index');
 
 Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.details');
 
-Route::get('/categoria/{id}', [SiteController::class, 'categoria'])->name('home.categoria');
+Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
 
 
 // Route::get('/', function () {

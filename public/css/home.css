@@ -21,7 +21,7 @@ header{
     position: relative;
     width: 100%;
     margin: 0%;
-    margin-top: -0%;
+    margin: -0%;
 }
 
 @media (max-width: 768px) {
@@ -43,12 +43,13 @@ header{
 .social-icons {
     height: 2px;
     width: 67%;
-    margin-top: -0.5%;
+    margin-top: -1.1%;
+    font-size: 23px;
 }
 
 .top-nav {
     height: 2px;
-    width: 30%;
+    width: 31%;
     margin-top: -0.5%;
 }
 
@@ -444,8 +445,22 @@ background-color: #d62839;
     width: 100%;
     display: inline-block; /* Faz o link se comportar como um botão */
     text-align: center;
-    text-decoration: none; /* Remove o sublinhado do link */
+    text-decoration: none; /* Remove o sublinhado */
 }
+
+/* .comprar-link {
+    background-color: #9b2a2a;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    display: inline-block; /* Faz o link se comportar como um botão */
+    /* text-align: center;
+    text-decoration: none; /* Remove o sublinhado do link }
+    */
 
 .comprar-link:hover {
     background-color: #d62839;

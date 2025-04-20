@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Respect\Validation\Validator as v;
 use Illuminate\Support\Facades\Validator; 
+use App\Models\Categoria;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,10 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('cpf', function ($attribute, $value, $parameters, $validator) {
             return v::cpf()->validate($value);
         });
+
+
+        $categoriasMenu = Categoria::all();
+        view()->share('categoriasMenu', $categoriasMenu);
+
     }
 }

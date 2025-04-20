@@ -21,7 +21,7 @@
             <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-                <a href="#"><i class="fas fa-shopping-cart"></i> Compras</a>
+                <a href="#"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
         </nav>
         <section class="search-bar">
@@ -29,21 +29,27 @@
             <button type="submit"><i class="fas fa-search"></i></button>
         </section>
         <div class="logo">
-            <a href="{{ route('home.index') }}">
-                <img src="../img/logo/ft_logo.png" alt="logo" class="logo-medium" class="logo-img">
+            <a href="{{ url('/') }}">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="logo" class="logo-medium" class="logo-img">
             </a>
             <div class="nav">
                 <div class="login-link">
                     <i class="fas fa-user"></i>
-                    <a href="../html/cadastro.html" class="login-link">Faça seu login ou cadastre-se</a>
+                    <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
                 </div>
+
                 <section class="generes">
-                    <a class="generes-button">Bebê</a>
-                    <a class="generes-button">Menina</a>
-                    <a class="generes-button">Menino</a>
+                    @foreach ($categoriasTopo as $categoria)
+                        <a class="generes-button" href="{{ route('home.categoria', $categoria->id_categoria) }}">
+                            {{ $categoria->nome_categoria }}
+                        </a>
+                    @endforeach
                 </section>
+
             </div>
+        </div>
     </header>
+
 
     <div class="shipping-info">
         <p>Frete Grátis - Sul e Sudeste a partir de R$250, demais regiões a partir de R$399</p>
@@ -105,7 +111,7 @@
                             </span>
                             PIX
                         </h3>
-                        <p class="price">{{$produto->preco}}</p>
+                        <p class="price">R${{ number_format($produto->preco,2, ',', '.') }}</p>
                     </div>
 
                     <div class="discounts">

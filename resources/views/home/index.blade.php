@@ -24,7 +24,7 @@
             <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-                <a href="#"><i class="fas fa-shopping-cart"></i> Carrinh</a>
+                <a href="#"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
         </nav>
         <section class="search-bar">
@@ -38,12 +38,17 @@
                     <i class="fas fa-user"></i>
                     <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
                 </div>
+
                 <section class="generes">
-                    <a class="generes-button">Bebê</a>
-                    <a class="generes-button">Menina</a>
-                    <a class="generes-button">Menino</a>
+                    @foreach ($categoriasTopo as $categoria)
+                        <a class="generes-button" href="{{ route('home.categoria', $categoria->id_categoria) }}">
+                            {{ $categoria->nome_categoria }}
+                        </a>
+                    @endforeach
                 </section>
+
             </div>
+        </div>
     </header>
     <main>
         <section class="banner">
@@ -86,13 +91,43 @@
                 <img src="img/produtos/retangulo/algo6img.jpg" alt="" class="product-image">
             </div>
         </section>
+        <h2 class="titulo-categorias">Navegue pelas Categorias</h2>
+        <div class="circulos-container">
+            @foreach ($categoriasMenu as $categoria)
+                <a href="{{ route('home.categoria', $categoria->id_categoria) }}">
+                    <div class="circulo">
+                        <img src="img/produtos/circulo/circulo{{ $loop->iteration }}.jpg" alt="img circulo"
+                            class="imagem-circulo">
+                        <span class="Descricao">{{ $categoria->nome_categoria }}</span>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+
+
+        <!-- 
+        @foreach ($categoriasMenu as $categoria)
+            <a href="{{ route('home.categoria', $categoria->id_categoria) }}">
+                <div class="circulo">
+                    <img src="img/produtos/circulo/circulo{{ $loop->iteration }}.jpg" alt="" class="imagem-circulo">
+                    <span class="Descricao">{{ $categoria->nome_categoria }}</span>
+                </div>
+            </a>
+        @endforeach -->
+
+        <!-- 
+        @foreach ($categoriasMenu as $categoriaM)
+            <li><a href="{{ route('home.categoria', $categoriaM->id_categoria) }}">{{ $categoriaM->nome_categoria }}</a></li>
+        @endforeach
+
+
         <section class="categorias">
             <h2 class="titulo-categorias">Navegue pelas Categorias</h2>
             <div class="faixa"></div>
             <div class="circulos-container">
                 <div class="circulo">
                     <img src="img/produtos/circulo/circulo1.jpg" alt="" class="imagem-circulo">
-                    <span class="Descricao">Conjuntos</span>
+                    <span><a href="" class="Descricao">Conjuntos</span>
                 </div>
                 <div class="circulo">
                     <img src="img/produtos/circulo/circulo2.webp" alt="" class="imagem-circulo">
@@ -107,7 +142,7 @@
                     <span class="Descricao">Vestidos</span>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <section class="categorias">
             <h2 class="titulo-categorias">Produtos</h2>
@@ -119,13 +154,13 @@
                 @foreach ($produtos as $produto)
                     <div class="retangulo">
                         <a href="{{ route('home.details', $produto->slug) }}">
-                        <img src="{{ $produto->img }}" alt="" class="imagem-best-seller">
+                            <img src="{{ $produto->img }}" alt="" class="imagem-best-seller">
                         </a>
                         <span class="Descricao">{{ $produto->nome_produto }}</span>
                         <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
                         <span class="Precinho">R$60,00</span>
                         <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-                        
+
                     </div>
                     </a>
                 @endforeach
@@ -157,6 +192,7 @@
             <h2 class="titulo-categorias">Novidades</h2>
             <div class="faixa"></div>
             <div class="retangulos-best-seller">
+
                 <div class="retangulo">
                     <img src="img/carossel/algo4img.jpg" alt="" class="imagem-best-seller">
                     <span class="Descricao">Conjuntos</span>
