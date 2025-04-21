@@ -28,7 +28,8 @@ use App\Http\Controllers\CarrinhoController;
 // });
 
 
-Route::get('/', [ProdutoController::class, 'index']);
+Route::get('/produtos-home', [ProdutoController::class, 'index'])->name('produtos.home');
+
 Route::resource('produtos', ProdutoController::class);
 
 Route::get('/', [SiteController::class, 'index'])->name('home.index');
@@ -38,19 +39,26 @@ Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.de
 Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
 
 
-Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])->name('home.carrinho');
+// Carrinho
+Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])
+    ->name('home.carrinho')
+    ->middleware('auth');
+// Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])->name('home.carrinho');
 Route::post('/carrinho', [CarrinhoController::class, 'adicionaCarrinho'])->name('home.addcarrinho');
+Route::post('/remover', [CarrinhoController::class, 'removeCarrinho'])->name('home.removecarrinho');
+Route::post('/atualizar', [CarrinhoController::class, 'atualizaCarrinho'])->name('home.atualizacarrinho');
+Route::get('/limpar', [CarrinhoController::class, 'limparCarrinho'])->name('home.limparcarrinho');
 
 
-
+// login/cadastro
 Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
-        return view('dashboard');
+        return view('home.dashboard');
     })->name('dashboard');
 
-    Route::get('/users', function () {
-        return view('users');
-    })->name('dashboard.users');
+    // Route::get('/users', function () {
+    //     return view('users');
+    // })->name('dashboard.users');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -64,5 +72,10 @@ Route::middleware('auth')->group(function () {
         ->name('cadastro')
         ->middleware('can:access');
 });
+
+// Sistema
+// Em routes/web.php
+Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');;
+
 
 require __DIR__ . '/auth.php';

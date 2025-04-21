@@ -21,22 +21,56 @@
             <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-                <a href="#"><i class="fas fa-shopping-cart"></i> Carrinho</a>
+                <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
+
+            <!-- <section class="top-nav">
+                <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
+                <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
+
+                <div class="carrinho-container">
+                    <a href="javascript:void(0);" id="btn-carrinho">
+                        <i class="fas fa-shopping-cart"></i> Carrinho
+                    </a>
+
+                    <div id="dropdown-carrinho" class="dropdown-carrinho">
+                        <p>Item 1 - R$50</p>
+                        <p>Item 2 - R$30</p>
+                        <p><strong>Total: R$80</strong></p>
+                    </div>
+                </div>
+            </section> -->
+
+
         </nav>
         <section class="search-bar">
             <input type="text" placeholder="Pesquise aqui...">
             <button type="submit"><i class="fas fa-search"></i></button>
         </section>
         <div class="logo">
-            <a href="{{ url('/') }}">
+            <a href="{{ route('home.index') }}">
                 <img src="{{ asset('img/logo/ft_logo.png') }}" alt="logo" class="logo-medium" class="logo-img">
             </a>
             <div class="nav">
                 <div class="login-link">
                     <i class="fas fa-user"></i>
-                    <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
+
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="login-link">
+                            {{ Auth::user()->name }}
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="login-link">
+                            Faça seu login ou cadastre-se
+                        </a>
+                    @endauth
                 </div>
+
+
+                <!-- <div class="login-link">
+                    <i class="fas fa-user"></i>
+                    <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
+                </div> -->
 
                 <section class="generes">
                     @foreach ($categoriasTopo as $categoria)
@@ -125,7 +159,7 @@
             </div>
             </a>
         @endforeach -->
-        <section class="produtos    ">
+        <section class="produtos">
             @foreach ($produtos as $produto)
                 <div class="produto">
                     <a href="{{ route('home.details', $produto->slug) }}">
@@ -133,7 +167,7 @@
                     </a>
                     <h4>{{ $produto->nome_produto }}</h4>
                     <h4>{{ Str::limit($produto->descricao, 25) }}</h4>
-                    <p class="preco">R${{ number_format($produto->preco,2, ',', '.') }}</p>
+                    <p class="preco">R${{ number_format($produto->preco, 2, ',', '.') }}</p>
                     <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
                 </div>
             @endforeach

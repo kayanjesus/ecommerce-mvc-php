@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nome_produto');
             $table->string('slug')->unique();
             $table->text('descricao')->nullable();
+            $table->string('genero');
             $table->decimal('preco', 10, 2);
             // $table->unsignedBigInteger('id_categoria');
             $table->string('img');

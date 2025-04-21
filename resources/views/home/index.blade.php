@@ -15,18 +15,20 @@
 </head>
 
 <body>
+
     <header>
         <nav class="header-line">
             <section class="social-icons">
                 <a href="#"><i class="fab fa-instagram"></i></a>
                 <a href="#"><i class="fab fa-whatsapp"></i></a>
             </section>
-            <!-- <section class="top-nav">
+            <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-                <a href="#"><i class="fas fa-shopping-cart"></i> Carrinho</a>
-            </section> -->
-            <section class="top-nav">
+                <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
+            </section>
+
+            <!-- <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
 
@@ -41,7 +43,7 @@
                         <p><strong>Total: R$80</strong></p>
                     </div>
                 </div>
-            </section>
+            </section> -->
 
 
         </nav>
@@ -50,12 +52,29 @@
             <button type="submit"><i class="fas fa-search"></i></button>
         </section>
         <div class="logo">
-            <img src="img/logo/ft_logo.png" alt="logo" class="logo-medium" class="logo-img">
+            <a href="{{ route('home.index') }}">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="logo" class="logo-medium" class="logo-img">
+            </a>
             <div class="nav">
                 <div class="login-link">
                     <i class="fas fa-user"></i>
-                    <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
+
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="login-link">
+                            {{ Auth::user()->name }}
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="login-link">
+                            Faça seu login ou cadastre-se
+                        </a>
+                    @endauth
                 </div>
+
+
+                <!-- <div class="login-link">
+                    <i class="fas fa-user"></i>
+                    <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
+                </div> -->
 
                 <section class="generes">
                     @foreach ($categoriasTopo as $categoria)
@@ -319,7 +338,7 @@
         </div>
     </footer>
     <script src="{{ asset('js/carrosel.js') }}"></script>
-    <script src="{{ asset('js/carrinho.js') }}"></script>
+    <!-- <script src="{{ asset('js/carrinho.js') }}"></script> -->
 
 
 
