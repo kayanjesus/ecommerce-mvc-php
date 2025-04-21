@@ -21,11 +21,29 @@
                 <a href="#"><i class="fab fa-instagram"></i></a>
                 <a href="#"><i class="fab fa-whatsapp"></i></a>
             </section>
-            <section class="top-nav">
+            <!-- <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
                 <a href="#"><i class="fas fa-shopping-cart"></i> Carrinho</a>
+            </section> -->
+            <section class="top-nav">
+                <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
+                <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
+
+                <div class="carrinho-container">
+                    <a href="javascript:void(0);" id="btn-carrinho">
+                        <i class="fas fa-shopping-cart"></i> Carrinho
+                    </a>
+
+                    <div id="dropdown-carrinho" class="dropdown-carrinho">
+                        <p>Item 1 - R$50</p>
+                        <p>Item 2 - R$30</p>
+                        <p><strong>Total: R$80</strong></p>
+                    </div>
+                </div>
             </section>
+
+
         </nav>
         <section class="search-bar">
             <input type="text" placeholder="Pesquise aqui...">
@@ -301,6 +319,10 @@
         </div>
     </footer>
     <script src="{{ asset('js/carrosel.js') }}"></script>
+    <script src="{{ asset('js/carrinho.js') }}"></script>
+
+
+
 
 </body>
 

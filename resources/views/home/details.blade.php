@@ -111,7 +111,7 @@
                             </span>
                             PIX
                         </h3>
-                        <p class="price">R${{ number_format($produto->preco,2, ',', '.') }}</p>
+                        <p class="price">R${{ number_format($produto->preco, 2, ',', '.') }}</p>
                     </div>
 
                     <div class="discounts">
@@ -139,7 +139,7 @@
                     </div>
                 </div>
 
-                <div class="action-container">
+                <!-- <div class="action-container">
                     <div class="quantity-container">
                         <div class="quantity-box">
                             <div class="quantity-label">Quantidade</div>
@@ -151,17 +151,30 @@
                                 <div class="quantity-number">1</div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
-                    <button class="add-to-cart">Adicionar ao carrinho</button>
-                </div>
+                <form action="{{ route('home.addcarrinho') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" value="{{ $produto->id_produto }}">
+                    <input type="hidden" name="name" value="{{ $produto->nome_produto }}">
+                    <input type="hidden" name="price" value="{{ $produto->preco }}">
+                    <div class="action-container">
+                        <div class="quantity-container">
+                            <div class="quantity-box">
+                                <div class="quantity-label">Quantidade</div>
+                                <input type="number" name="qnt" value="1">
+                            </div>
+                        </div>
+                        <input type="hidden" name="img" value="{{ $produto->img }}">
+                        <button class="add-to-cart">Adicionar ao carrinho</button>
+                </form>
+            </div>
+            <div class="actions">
 
-                <div class="actions">
-
-                    <button class="add-to-favorites">
-                        <i class="far fa-heart"></i> Adicionar aos favoritos
-                    </button>
-                </div>
+                <button class="add-to-favorites">
+                    <i class="far fa-heart"></i> Adicionar aos favoritos
+                </button>
+            </div>
             </div>
         </section>
 

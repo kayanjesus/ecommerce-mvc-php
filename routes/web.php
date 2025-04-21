@@ -1,10 +1,12 @@
 <?php
 
+
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\CarrinhoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +18,16 @@ use App\Http\Controllers\SiteController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Route::get('/', function () {
+//     return view('home.index');
+// });
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+
 Route::get('/', [ProdutoController::class, 'index']);
 Route::resource('produtos', ProdutoController::class);
 
@@ -26,13 +38,10 @@ Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.de
 Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
 
 
-// Route::get('/', function () {
-//     return view('home.index');
-// });
+Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])->name('home.carrinho');
+Route::post('/carrinho', [CarrinhoController::class, 'adicionaCarrinho'])->name('home.addcarrinho');
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+
 
 Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', function () {
