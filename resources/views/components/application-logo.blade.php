@@ -3,5 +3,5 @@
 </svg> -->
 
 <a href="{{ url('/') }}">
-    <img src="img/logo/ft_logo.png" alt="Logo" width="150" height="100">
+    <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo" width="150" height="100">
 </a>

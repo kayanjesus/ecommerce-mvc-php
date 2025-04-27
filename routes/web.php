@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\CarrinhoController;
-
+use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,6 +37,8 @@ Route::get('/', [SiteController::class, 'index'])->name('home.index');
 Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.details');
 
 Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
+Route::get('/temporada/{temporada}', [SiteController::class, 'temporada'])->name('temporada');
+
 
 
 // Carrinho
@@ -75,7 +77,9 @@ Route::middleware('auth')->group(function () {
 
 // Sistema
 // Em routes/web.php
-Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');;
+Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');
 
+
+Route::get('/vendas', [DashboardController::class, 'index'])->name('vendas');
 
 require __DIR__ . '/auth.php';

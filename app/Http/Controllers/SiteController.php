@@ -14,12 +14,16 @@ class SiteController extends Controller
     {
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
-
-        // Buscando os produtos
-        $produtos = Produto::paginate(4); // ou alguma lógica mais específica
-
-        return view('home.index', compact('categoriasTopo', 'categoriasMenu', 'produtos'));
+    
+        // Buscando os produtos (paginados)
+        $produtos = Produto::paginate(4);
+    
+        // Buscando os últimos 4 produtos inseridos (novidades)
+        $novidades = Produto::orderBy('created_at', 'desc')->take(4)->get();
+    
+        return view('home.index', compact('categoriasTopo', 'categoriasMenu', 'produtos', 'novidades'));
     }
+    
 
 
     // public function index()
@@ -29,6 +33,33 @@ class SiteController extends Controller
     //     return view('home.index', compact('produtos'));
     // }
 
+    public function temporada($temporada, Request $request)
+    {
+        $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
+        $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
+
+        // Definindo o id da categoria conforme a temporada
+        $id_categoria = null;
+        if ($temporada == 'inverno') {
+            $id_categoria = 8; // ID da categoria Inverno
+        } elseif ($temporada == 'verao') {
+            $id_categoria = 9; // ID da categoria Verão
+        }
+
+        // Buscando a categoria pelo ID
+        $categoria = Categoria::findOrFail($id_categoria);
+        $produtos = $categoria->produtos;
+
+        // Filtrando por gênero, caso seja passado no request
+        if ($request->has('genero')) {
+            $produtos = $produtos->where('genero', $request->genero);
+        }
+
+        // Passando as variáveis para a view home.categoria
+        return view('home.categoria', compact('categoria', 'produtos', 'categoriasTopo', 'categoriasMenu'));
+    }
+
+
     public function details($slug)
     {
         $produto = Produto::where('slug', $slug)->first(); // adiciona o firstOrFail
@@ -36,17 +67,31 @@ class SiteController extends Controller
         return view('home.details', compact('produto', 'categoriasTopo'));
     }
 
-    public function categoria($id_categoria)
+    public function categoria($id_categoria, Request $request)
     {
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
-    
+
         $categoria = Categoria::with('produtos')->findOrFail($id_categoria);
         $produtos = $categoria->produtos;
-    
+
+        if ($request->has('genero')) {
+            $produtos = $produtos->where('genero', $request->genero);
+        }
+
         return view('home.categoria', compact('categoria', 'produtos', 'categoriasTopo', 'categoriasMenu'));
     }
-    
+
+
+    public function novidades()
+    {
+        // Buscar os últimos 4 produtos inseridos no banco
+        $novidades = Produto::latest()->take(4)->get();
+
+        // Passar os produtos para a view
+        return view('sua-view', compact('novidades'));
+    }
+
     // public function categoria($id_categoria)
     // {
     //     $categoria = Categoria::with('produtos')->findOrFail($id_categoria);

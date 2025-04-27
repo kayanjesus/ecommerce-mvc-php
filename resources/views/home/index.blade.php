@@ -120,14 +120,23 @@
                 </div>
             </div>
         </section>
+
         <section class="products">
-            <div class="retangulão">
-                <img src="img/produtos/retangulo/algo5img.jpg" alt="" class="product-image">
-            </div>
-            <div class="retangulão">
-                <img src="img/produtos/retangulo/algo6img.jpg" alt="" class="product-image">
-            </div>
+            <a href="{{ route('home.categoria', ['id_categoria' => 4, 'genero' => 'Masculino']) }}">
+                <div class="retangulão">
+                    <img src="img/produtos/retangulo/algo5img.jpg" alt="Conjunto Menino" class="product-image">
+                </div>
+            </a>
+
+            <a href="{{ route('home.categoria', ['id_categoria' => 4, 'genero' => 'Feminino']) }}">
+                <div class="retangulão">
+                    <img src="img/produtos/retangulo/algo6img.jpg" alt="Conjunto Menina" class="product-image">
+                </div>
+            </a>
         </section>
+
+
+
         <h2 class="titulo-categorias">Navegue pelas Categorias</h2>
         <div class="circulos-container">
             @foreach ($categoriasMenu as $categoria)
@@ -225,47 +234,46 @@
             </div>
             </div>
         </section>
+
+
+
         <section class="categorias">
             <h2 class="titulo-categorias">Novidades</h2>
             <div class="faixa"></div>
             <div class="retangulos-best-seller">
-
-                <div class="retangulo">
-                    <img src="img/carossel/algo4img.jpg" alt="" class="imagem-best-seller">
-                    <span class="Descricao">Conjuntos</span>
-                    <span class="Precinho">R$60,00</span>
-                    <a class="comprar-link">Comprar</a>
-                </div>
-                <div class="retangulo">
-                    <img src="img/carossel/algo2img.jpg" alt="" class="imagem-best-seller">
-                    <span class="Descricao">Camisetas</span>
-                    <span class="Precinho">R$69,00</span>
-                    <a class="comprar-link">Comprar</a>
-                </div>
-                <div class="retangulo">
-                    <img src="img/produtos/circulo/circulo2.webp" alt="img/circulo2.webp" class="imagem-best-seller">
-                    <span class="Descricao">Calças</span>
-                    <span class="Precinho">R$70,00</span>
-                    <a class="comprar-link">Comprar</a>
-                </div>
-                <div class="retangulo">
-                    <img src="img/produtos/circulo/circulo1.jpg" alt="img/circulo.jpg" class="imagem-best-seller">
-                    <span class="Descricao">Vestidos</span>
-                    <span class="Precinho">R$80,00</span>
-                    <a class="comprar-link">Comprar</a>
-                </div>
+                @foreach($novidades as $produto)
+                    <div class="retangulo">
+                        <img src="{{ asset($produto->img) }}" alt="{{ $produto->nome }}" class="imagem-best-seller">
+                        <span class="Descricao">{{ $produto->nome }}</span>
+                        <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
+                        <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
+                    </div>
+                @endforeach
             </div>
         </section>
+
+
+
+
         <section class="season">
             <div class="season-container">
+                <!-- Inverno -->
                 <div class="season-retangulão">
-                    <img src="img/produtos/retangulo/algo5img.jpg" alt="Imagem 1" class="season-image">
+                    <a href="{{ route('temporada', ['temporada' => 'inverno']) }}">
+                        <img src="img/produtos/retangulo/algo5img.jpg" alt="Imagem Inverno" class="season-image">
+                    </a>
                 </div>
+
+                <!-- Verão -->
                 <div class="season-retangulão">
-                    <img src="img/carossel/algo2img.jpg" alt="Imagem 2" class="season-image">
+                    <a href="{{ route('temporada', ['temporada' => 'verao']) }}">
+                        <img src="img/produtos/retangulo/algo5img.jpg" alt="Imagem Verão" class="season-image">
+                    </a>
                 </div>
             </div>
         </section>
+
+
     </main>
 
     <section class="customer-reviews">

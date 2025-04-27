@@ -1,0 +1,170 @@
+SHOW COLUMNS FROM produtos;
+SHOW COLUMNS FROM categoria_produto;
+
+UPDATE users
+SET access_level = 'admin'
+WHERE email = 'kayansilva773@gmail.com';
+
+UPDATE users
+SET created_at = '2024-04-21 19:54:45'
+WHERE email = 'kayansilva773@gmail.com';
+
+UPDATE users
+SET created_at = '2024-04-21 19:54:45'
+WHERE email = 'afaa@gmail.com';
+
+UPDATE users
+SET created_at = '2024-04-21 19:54:45'
+WHERE email = 'kayan2@gmail.com';
+
+UPDATE users
+SET created_at = '2023-04-21 19:54:45'
+WHERE email = 'kayan@gmail.com';
+
+SELECT * FROM carrinhos
+SELECT * FROM users
+SELECT * FROM produtos
+SELECT * FROM categorias
+SELECT * FROM categoria_produto
+
+
+UPDATE produtos SET created_at = NOW() WHERE created_at IS NULL;
+
+UPDATE produtos SET created_at = '2025-04-01 10:00:00' WHERE nome_produto = 'Borboleta vermelho';
+UPDATE produtos SET created_at = '2025-04-02 10:00:00' WHERE nome_produto = 'Manga longa';
+UPDATE produtos SET created_at = '2025-04-03 10:00:00' WHERE nome_produto = 'Camisa Social';
+UPDATE produtos SET created_at = '2025-04-04 10:00:00' WHERE nome_produto = 'Conjunto';
+UPDATE produtos SET created_at = '2025-04-05 10:00:00' WHERE nome_produto = 'Love Branca';
+UPDATE produtos SET created_at = '2025-04-06 10:00:00' WHERE nome_produto = 'Reto em linho';
+UPDATE produtos SET created_at = '2025-04-07 10:00:00' WHERE nome_produto = 'Peaky Blinders';
+UPDATE produtos SET created_at = '2025-04-08 10:00:00' WHERE nome_produto = 'Vestido Listrado';
+
+
+#categoria
+INSERT INTO categorias (nome_categoria)
+VALUES ('Bebê');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Menina');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Menino');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Conjunto');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Camisetas');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Calças');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Vestidos');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Inverno');
+
+INSERT INTO categorias (nome_categoria)
+VALUES ('Verão');
+
+
+#produtos
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Borboleta vermelho', 'Borboleta vermelho', 'Blusa vermelha feminina', 'Feminino', 59.99, 'img/produtos/home/Borboleta vermelho - F.webp');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Manga longa', 'Manga longa', 'Blusa manga longa preta masculina', 'Masculino', 59.99, 'img/produtos/home/camisa manga longa - M.jpg');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Camisa Social', 'Camisa Social', 'Blusa socila branca feminina', 'Feminino', 59.99, 'img/produtos/home/Camisa Social - F.jpg');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Conjunto', 'Conjunto', 'Conjunto Pink Ninas feminino', 'Feminino', 59.99, 'img/produtos/home/conjunto - F.webp');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Love Branca', 'Love Branca', 'Blusa Branca feminina', 'Feminino', 59.99, 'img/produtos/home/menina love branca - F.webp');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Reto em linho', 'Reto em linho', 'Blusa manga longa Bege masculina', 'Masculino', 59.99, 'img/produtos/home/Reto em linho - M.jpg');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Peaky Blinders', 'Peaky Blinders', 'Terno Peaky Blinders bebê', 'Masculino', 59.99, 'img/produtos/home/terno infantil - M.jpg');
+
+INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
+VALUES ('Vestido Listrado', 'Vestido Listrado', 'Vestido listrado com laço', 'Feminino', 59.99, 'img/produtos/home/Vestido listrado - F.jpg');
+
+#categoria produto
+
+
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (1, 5);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (1, 2);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (2, 5);
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (2, 3);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (3, 5);
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (3, 2);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (4, 4);
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (4, 2);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (5, 5);
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (5, 2);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (6, 5);
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (6, 3);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (7, 4);
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (7, 1);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (8, 2); -- Menina
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (8, 7); -- Vestidos
+
+#verão   =  9 
+# 1,4,5,8
+#inverno =  8
+# 2,3,6,7
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (1, 9);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (4, 9);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (5, 9);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (8, 9);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (2, 8);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (3, 8);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (6, 8);
+
+INSERT INTO categoria_produto (id_produto, id_categoria) 
+VALUES (7, 8);
+
+

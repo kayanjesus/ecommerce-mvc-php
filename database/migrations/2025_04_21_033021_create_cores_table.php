@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cores', function (Blueprint $table) {
-            $table->id('id_cor');
+            $table->id();  // Isso cria a chave primária com o nome 'id'
             $table->string('nome');
             $table->timestamps();
         });
     }
+    
 
     /**
      * Reverse the migrations.

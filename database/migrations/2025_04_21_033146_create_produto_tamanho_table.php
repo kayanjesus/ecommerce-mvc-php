@@ -12,11 +12,12 @@ return new class extends Migration {
     {
         Schema::create('produto_tamanho', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_produto')->constrained('produtos')->onDelete('cascade');
-            $table->foreignId('id_tamanho')->constrained('tamanhos')->onDelete('cascade');
+            $table->foreignId('id_produto')->constrained('produtos', 'id_produto')->onDelete('cascade');
+            $table->foreignId('id_tamanho')->constrained('tamanhos', 'id_tamanho')->onDelete('cascade');
             $table->timestamps();
         });
     }
+    
 
     /**
      * Reverse the migrations.

@@ -171,6 +171,10 @@
                     <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
                 </div>
             @endforeach
+
+   
+
+
             <!-- <div class="produto">
                 <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto Ursinho Feminino">
                 <h4>Conjunto Ursinho Feminino</h4>

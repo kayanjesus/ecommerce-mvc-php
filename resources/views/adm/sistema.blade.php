@@ -32,7 +32,9 @@
                 <button class="menu-btn">Produtos e estoque</button>
                 <button class="menu-btn">Cadastro de produtos</button>
                 <button class="menu-btn">Usuários cadastrados</button>
-                <button class="menu-btn">Vendas</button>
+                <a href="{{ route('vendas') }}">
+                    <button class="menu-btn">Vendas</button>
+                </a>
             </nav>
             <button class="logout">SAIR</button>
         </aside>

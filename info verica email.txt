@@ -1,0 +1,10 @@
+LINK SITE-->https://ethereal.email/login
+
+
+Hospedar	smtp.ethereal.email
+Porta	587
+Segurança	STARTTLS
+Nome de usuário	arvilla20@ethereal.email <--USER SITE
+Senha	rf1aYprb4P9aVwgqqq <--SENHA DO SITE
+
+
