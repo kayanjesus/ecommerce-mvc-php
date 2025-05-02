@@ -12,11 +12,6 @@
                     
                     <p> Olá {{ Auth::user()->name }}</p>
                     <br>
-                    <!-- RESTRINGE O QUE CADA LOGIN PODE VER -->
-                    @can('access')
-                        <button>
-                            <a href="{{ url('adm.sistema') }}">BUTÃO ADM</a>
-                        </button>
 
                         <div class="py-12">
                             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -28,7 +23,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endcan
+                    
                     
                 </div>
             </div>

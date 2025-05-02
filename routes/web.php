@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\CarrinhoController;
+use App\Http\Controllers\FavoritosController;
 use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
@@ -51,12 +52,29 @@ Route::post('/remover', [CarrinhoController::class, 'removeCarrinho'])->name('ho
 Route::post('/atualizar', [CarrinhoController::class, 'atualizaCarrinho'])->name('home.atualizacarrinho');
 Route::get('/limpar', [CarrinhoController::class, 'limparCarrinho'])->name('home.limparcarrinho');
 
+Route::get('/favoritos', [CarrinhoController::class, 'favoritosLista'])
+    ->name('home.favoritos')
+    ->middleware('auth');
+
+Route::post('/favoritos', [FavoritosController::class, 'adicionaFavoritos'])->name('home.addfavoritos');
+Route::post('/remover', [FavoritosController::class, 'removeFavoritos'])->name('home.removefavoritos');
+Route::post('/atualizar', [FavoritosController::class, 'atualizaFavoritos'])->name('home.atualizafavoritos');
+Route::get('/limpar', [FavoritosController::class, 'limparFavoritos'])->name('home.limparfavoritos');
+
+
 
 // login/cadastro
 Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', function () {
+    // Admin
+    Route::get('/admin/dashboard', function () {
+        return view('adm.dashboard');
+    })->name('adm.dashboard');
+
+    // Usuário
+    Route::get('/user/dashboard', function () {
         return view('home.dashboard');
-    })->name('dashboard');
+    })->name('home.dashboard');
+
 
     // Route::get('/users', function () {
     //     return view('users');
@@ -75,11 +93,16 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:access');
 });
 
-// Sistema
+// Admin
 // Em routes/web.php
-Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');
+// Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');
 
 
-Route::get('/vendas', [DashboardController::class, 'index'])->name('vendas');
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('adm.dashboard');
+Route::get('/pedidos', [DashboardController::class, 'pedidos'])->name('adm.pedidos');
+Route::get('/pdtestoque', [DashboardController::class, 'pdtestoque'])->name('adm.pdtestoque');
+Route::get('/cdtproduto', [DashboardController::class, 'cdtproduto'])->name('adm.cdtproduto');
+Route::get('/usercadastrado', [DashboardController::class, 'usercadastrado'])->name('adm.usercadastrado');
+Route::get('/vendas', [DashboardController::class, 'vendas'])->name('adm.vendas');
 
 require __DIR__ . '/auth.php';

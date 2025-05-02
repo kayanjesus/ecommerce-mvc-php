@@ -205,13 +205,21 @@
                         <button class="add-to-cart">Adicionar ao carrinho</button>
                 </form>
             </div>
-            <div class="actions">
 
-                <button class="add-to-favorites">
-                    <i class="far fa-heart"></i> Adicionar aos favoritos
-                </button>
+            
+            <div class="actions">
+                <form action="{{ route('home.addfavoritos') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" value="{{ $produto->id_produto }}">
+                    <input type="hidden" name="name" value="{{ $produto->nome_produto }}">
+                    <input type="hidden" name="price" value="{{ $produto->preco }}">
+                    <input type="hidden" name="img" value="{{ $produto->img }}">
+                    <button type="submit" class="add-to-favorites">
+                        <i class="far fa-heart"></i> Adicionar aos favoritos
+                    </button>
+                </form>
             </div>
-            </div>
+
         </section>
 
         <section class="product-description">
@@ -228,28 +236,19 @@
         <section class="related-products">
             <h2>Relacionados</h2>
             <div class="products-grid">
-                <div class="product-card">
-                    <img src="conjunto-laranja.jpg" alt="Conjunto laranja masculino">
-                    <h3>Conjunto laranja masculino</h3>
-                    <p class="price">R$ 69,99</p>
-                    <button class="buy-button">Comprar</button>
-                </div>
-
-                <div class="product-card">
-                    <img src="conjunto-ursinho.jpg" alt="Conjunto Ursinho Feminino">
-                    <h3>Conjunto Ursinho Feminino</h3>
-                    <p class="price">R$ 70,00</p>
-                    <button class="buy-button">Comprar</button>
-                </div>
-
-                <div class="product-card">
-                    <img src="conjunto-macacao.jpg" alt="Conjunto macacão masculino">
-                    <h3>Conjunto macacão masculino</h3>
-                    <p class="price">R$ 80,00</p>
-                    <button class="buy-button">Comprar</button>
-                </div>
+                @foreach ($produtos as $produto)
+                    <div class="product-card">
+                        <a href="{{ route('home.details', $produto->slug) }}">
+                            <img src="{{ asset($produto->img) }}" alt="" class="imagem-best-seller">
+                        </a>
+                        <h3>{{ $produto->nome_produto }}</h3>
+                        <p class="price">R$ {{ number_format($produto->preco, 2, ',', '.') }}</p>
+                        <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
+                    </div>
+                @endforeach
             </div>
         </section>
+
 
         <section class="reviews">
             <h2>Avaliações do produto</h2>

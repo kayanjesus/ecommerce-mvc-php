@@ -1,0 +1,359 @@
+ body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+}
+
+.logo {
+    text-align: center;
+    cursor: pointer;
+}
+
+.logo-img {
+    width: 200px;
+    height: auto;
+}
+
+.search-bar {
+    display: flex;
+    width: 80%;
+    margin: 20px 0;
+    
+    
+}
+
+.search-bar input[type="text"] {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-bar button {
+    background-color: #9b2a2a;
+    border: none;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.header-line {
+    height: 50px;
+    width: 100%;
+    background-color: #9b2a2a;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.social-icons a, .top-nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.categories {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.categories a {
+    background-color: #9b2a2a;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.banner {
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    height: 300px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    margin: 20px auto;
+}
+
+.banner-slide {
+    display: none;
+}
+
+.banner-slide.active {
+    display: block;
+}
+
+.banner-slide img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.banner-controls {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+}
+
+.banner-controls button {
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.products {
+    display: flex;
+    justify-content: space-between;
+    padding: 50px;
+    flex-direction:row-reverse;
+    margin: 20px;
+    
+}
+
+.product {
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 100px;
+    margin: 10px;
+    text-align: center;
+    width:700px;
+}
+
+.product-image {
+    width: 100%;
+    height: auto;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    border-top: 2px solid #c4c4c4;
+    color: #9b2a2a;
+}
+
+
+@media (max-width: 768px) {
+    .product {
+        width: calc(100% - 40px); 
+    }
+
+    .search-bar {
+        flex-direction: column;
+        position: relative;
+        margin-top: -80px;
+        display: flex;
+        width: 300px;
+        margin-left: 90px;
+    }
+
+    .search-bar input[type="text"] {
+       padding: 15px;
+       border: 2px solid #5f1111;
+       outline: none;
+       width: 30%;
+       border-radius: 50px;
+       flex: 1;
+
+    }
+
+    .banner {
+        height: 500px;
+        position: relative;
+        width: 90%;
+        max-width: 1000px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        box-shadow: 4px 8px;
+
+        
+    }
+}
+.category-banner {
+    background-color: #FDE6E6;
+    height: 5px; 
+    width: 100%;
+    margin: 10px 0; 
+    
+}
+
+.login-info {
+    display: flex;
+    align-items: center;
+     padding-left: 30px;
+     margin-left: 50%;
+     margin-top: -50px;
+     box-shadow: #9b2a2a;
+     cursor: pointer;
+}
+
+.login-info i {
+    margin-right: 5px;
+    color: #9b2a2a; 
+}
+.login-link {
+    color: #424040;
+    text-decoration: none; 
+    
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+.informacoes-frete {
+    display: flex;
+    justify-content: center; 
+    margin-top: 20px;
+}
+
+.informacoes-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f7f7f7;
+    padding: 15px 20px;
+    border-radius: 15px; /* Bordas arredondadas */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 90%; /* Largura do container */
+    max-width: 1000px; /* Largura máxima */
+}
+
+.frete-info,
+.avaliacoes-info {
+    display: flex;
+    align-items: center;
+}
+
+.frete-info i,
+.avaliacoes-info i {
+    margin-right: 8px; 
+    color: #9b2a2a; 
+    font-size: 20px; 
+}
+
+.frete-texto {
+    color: #333; 
+}
+.titulo-categorias {
+    text-align: center;
+    color: #5f1111;
+    font-family: 'Arial', sans-serif; 
+    font-size: 1.8em;
+    margin: 20px 0 10px; 
+}
+
+.faixa {
+    width: 60%; 
+    height: 5px; 
+    background-color: #FDE6E6;
+    margin: 0 auto 20px; 
+    border-radius: 5px; 
+}
+
+.circulos-container {
+    display: flex;
+    justify-content: space-around; 
+    flex-wrap: wrap; 
+}
+
+.circulo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    text-align: center;
+}
+
+.imagem-circulo {
+    width: 150px; 
+    height: 150px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    margin-bottom: 5px; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+    border: 2px solid #ff99cc; 
+    background-color: #fff; }
+
+
+
+
+
+/*CSS DO CADASTRO*/
+
+.cadastro {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0; /* Borda leve */
+}
+
+.cadastro h2 {
+    text-align: center;
+    color: #9b2a2a;
+    margin-bottom: 20px;
+    font-size: 1.8em; 
+}
+
+.form-cadastro {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: bold; 
+}
+
+.form-group input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s; }
+
+.form-group input:focus {
+    border-color: #9b2a2a; 
+    outline: none; 
+}
+
+.btn-cadastro {
+    background-color: #9b2a2a;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 8px; 
+    cursor: pointer;
+    font-size: 1em; 
+    transition: background-color 0.3s;
+}
+
+.btn-cadastro:hover {
+    background-color: #7f2222; 
+}
