@@ -10,11 +10,15 @@
 </head>
 
 <body>
-    <a href="{{ route('dashboard') }}" class="botao-link">voltar</a>
     <header>
         <a href="{{ route('home.index') }}" class="botao-link">
             CANTINHO DA ISA
         </a>
+        <form method="POST" action="{{ route('logout') }}" class="botao-link">
+            @csrf
+            <button type="submit">Sair</button>
+        </form>
+
     </header>
 
     <div class="container">
@@ -27,12 +31,27 @@
                 <input type="text" id="username" value="{{ Auth::user()->email }}" />
             </div>
             <nav class="menu">
-                <button class="menu-btn active">Inicial</button>
+                <!-- <button class="menu-btn active">Inicial</button>
                 <button class="menu-btn" a href="../html/pedidos.html">Pedidos</button>
                 <button class="menu-btn">Produtos e estoque</button>
                 <button class="menu-btn">Cadastro de produtos</button>
-                <button class="menu-btn">Usuários cadastrados</button>
-                <a href="{{ route('vendas') }}">
+                <button class="menu-btn">Usuários cadastrados</button> -->
+                <a href="{{ route('adm.dashboard') }}">
+                    <button class="menu-btn">Inicial</button>
+                </a>
+                <a href="{{ route('adm.pedidos') }}">
+                    <button class="menu-btn">Pedidos</button>
+                </a>
+                <a href="{{ route('adm.pdtestoque') }}">
+                    <button class="menu-btn">Produtos e estoque</button>
+                </a>
+                <a href="{{ route('adm.cdtproduto') }}">
+                    <button class="menu-btn">Cadastro de produtos</button>
+                </a>
+                <a href="{{ route('adm.usercadastrado') }}">
+                    <button class="menu-btn">Usuários cadastrados</button>
+                </a>
+                <a href="{{ route('adm.vendas') }}">
                     <button class="menu-btn">Vendas</button>
                 </a>
             </nav>

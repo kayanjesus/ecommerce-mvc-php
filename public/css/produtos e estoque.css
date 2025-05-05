@@ -1,0 +1,192 @@
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+  }
+  
+  header {
+    background-color: #9b2a2a;
+    color: white;
+    padding: 15px 20px;
+    font-size: 50%;
+  }
+  
+  .container {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .sidebar {
+    background-color: #d9d9d9;
+    padding: 20px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .user-info i {
+    font-size: 30px;
+    color: #9b2a2a;
+    margin-bottom: 10px;
+  }
+  
+  .user-info input[type="text"] {
+    border: none;
+    text-align: center;
+    background-color: transparent;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .menu {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .menu-btn {
+    background-color: white;
+    border: none;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: 500;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .menu-btn:hover,
+  .menu-btn.active {
+    background-color: #9b2a2a;
+    color: white;
+  }
+  
+  .logout {
+    background-color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  
+  .logout:hover {
+    background-color: #9b2a2a;
+    color: white;
+  }
+  
+  .conteudo {
+    flex: 1;
+    padding: 40px;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+    border: 2px solid #9b2a2a;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+}
+
+.search-bar button {
+    background-color: #9b2a2a;
+    color: #f5f5f5;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #7b1a1a;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.recent-title {
+    font-size: 1.2em;
+    font-weight: normal;
+    margin-bottom: 10px;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.products-table th, .products-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.products-table th {
+    background-color: #f2f2f2;
+}
+
+.products-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.Produto img {
+  max-width: 100%;
+  height: auto;
+  max-height: 100px;
+}
+
+.delete-btn {
+  position: absolute;
+  right: 10px;
+  top: 55%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9b2a2a;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.delete-btn:hover {
+  color: #7b1a1a;
+}
+
+.delete-product {
+  position: absolute;
+  right: 10px;
+  top: 40%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9b2a2a;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.delete-product:hover {
+  color: #7b1a1a;
+}

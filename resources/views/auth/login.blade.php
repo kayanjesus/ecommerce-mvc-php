@@ -1,64 +1,75 @@
-<a href="{{ url('/') }}">Home</a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+   <title>Login - Cantinho da Isa</title>
+</head>
 
+<body>
+    <nav class="header-line">
+      <div class="social-icons">
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+      <div class="top-nav">
+        <a href="#" aria-label="Meus pedidos"><i class="fas fa-box"></i> Meus pedidos</a>
+        <a href="#" aria-label="Favoritos"><i class="fas fa-heart"></i> Favoritos</a>
+        <a href="#" aria-label="Carrinho"><i class="fas fa-shopping-cart"></i> Meu carrinho</a>
+      </div>
+    </nav>
 
-<x-guest-layout>
-
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" autofocus
-                required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <header>
+        <div class="logo">
+            <img src="../img/logo/ft_logo.png" alt="logo" class="logo-img">
         </div>
+    </header>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    <main>
+        <section class="login">
+            <h2>Faça seu login</h2>
 
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-
-        <div class="flex items-center justify-between mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
+            @if (session('status'))
+                <div class="status">{{ session('status') }}</div>
             @endif
 
-            @if (Route::has('register'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    href="{{ route('register') }}">
-                    {{ __('Sign up') }}
-                </a>
-            @endif
+            <form action="{{ route('login') }}" method="POST" class="form-login">
+                @csrf
 
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required placeholder="Digite seu e-mail" value="{{ old('email') }}">
+                    @error('email')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
 
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="password" required placeholder="Digite sua senha">
+                    @error('password')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
 
+                <button type="submit" class="btn-login">Entrar</button>
 
+                <div class="esqueci-senha">
+                    <a href="{{ route('password.request') }}" class="link-esqueci-senha">Esqueceu sua senha?</a>
+                </div>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+                <div class="registrar-conta">
+                    <p>Não tem uma conta? <a href="{{ route('register') }}">Registre-se</a></p>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        © 2024 Cantinho da Isa. Todos os direitos reservados.
+    </footer>
+
+</body>
+</html>

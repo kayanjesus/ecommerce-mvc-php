@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Respect\Validation\Validator as v;
-use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Validator;
 use App\Models\Categoria;
+use Illuminate\Support\Facades\Schema;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,8 +34,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
 
-        $categoriasMenu = Categoria::all();
-        view()->share('categoriasMenu', $categoriasMenu);
-
+        if (Schema::hasTable('categorias')) {
+            $categoriasMenu = Categoria::all();
+            view()->share('categoriasMenu', $categoriasMenu);
+        }
     }
 }

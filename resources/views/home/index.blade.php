@@ -24,7 +24,7 @@
             </section>
             <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
-                <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
+                <a href="{{ route('home.favoritos') }}"><i class="fas fa-heart"></i> Favoritos</a>
                 <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
 
@@ -51,6 +51,8 @@
             <input type="text" placeholder="Pesquise aqui...">
             <button type="submit"><i class="fas fa-search"></i></button>
         </section>
+
+
         <div class="logo">
             <a href="{{ route('home.index') }}">
                 <img src="{{ asset('img/logo/ft_logo.png') }}" alt="logo" class="logo-medium" class="logo-img">
@@ -60,7 +62,8 @@
                     <i class="fas fa-user"></i>
 
                     @auth
-                        <a href="{{ route('dashboard') }}" class="login-link">
+                        <a
+                            href="{{ Auth::user()->access_level === 'admin' ? route('adm.dashboard') : route('home.dashboard') }}">
                             {{ Auth::user()->name }}
                         </a>
                     @else
@@ -70,11 +73,6 @@
                     @endauth
                 </div>
 
-
-                <!-- <div class="login-link">
-                    <i class="fas fa-user"></i>
-                    <a href="{{ route('login') }}" class="login-link">Faça seu login ou cadastre-se</a>
-                </div> -->
 
                 <section class="generes">
                     @foreach ($categoriasTopo as $categoria)
@@ -87,7 +85,10 @@
             </div>
         </div>
     </header>
+
+
     <main>
+
         <section class="banner">
             <div class="banner-slide active"><img src="img/carossel/algo1img.jpg" alt="Banner 1"></div>
             <div class="banner-slide"><img src="img/carossel/algo2img.jpg" alt="Banner 2"></div>
@@ -103,6 +104,9 @@
                 <span class="indicator" onclick="goToSlide(3)"></span>
             </div>
         </section>
+
+
+
         <section class="informacoes-frete">
             <div class="informacoes-container">
                 <div class="frete-info">
@@ -120,6 +124,8 @@
                 </div>
             </div>
         </section>
+
+
 
         <section class="products">
             <a href="{{ route('home.categoria', ['id_categoria' => 4, 'genero' => 'Masculino']) }}">
@@ -151,51 +157,13 @@
         </div>
 
 
-        <!-- 
-        @foreach ($categoriasMenu as $categoria)
-            <a href="{{ route('home.categoria', $categoria->id_categoria) }}">
-                <div class="circulo">
-                    <img src="img/produtos/circulo/circulo{{ $loop->iteration }}.jpg" alt="" class="imagem-circulo">
-                    <span class="Descricao">{{ $categoria->nome_categoria }}</span>
-                </div>
-            </a>
-        @endforeach -->
 
-        <!-- 
-        @foreach ($categoriasMenu as $categoriaM)
-            <li><a href="{{ route('home.categoria', $categoriaM->id_categoria) }}">{{ $categoriaM->nome_categoria }}</a></li>
-        @endforeach
-
-
-        <section class="categorias">
-            <h2 class="titulo-categorias">Navegue pelas Categorias</h2>
-            <div class="faixa"></div>
-            <div class="circulos-container">
-                <div class="circulo">
-                    <img src="img/produtos/circulo/circulo1.jpg" alt="" class="imagem-circulo">
-                    <span><a href="" class="Descricao">Conjuntos</span>
-                </div>
-                <div class="circulo">
-                    <img src="img/produtos/circulo/circulo2.webp" alt="" class="imagem-circulo">
-                    <span class="Descricao">Camisetas</span>
-                </div>
-                <div class="circulo">
-                    <img src="img/produtos/circulo/circulo1.jpg" alt="img circulo" class="imagem-circulo">
-                    <span class="Descricao">Calças</span>
-                </div>
-                <div class="circulo">
-                    <img src="img/produtos/circulo/circulo2.webp" alt="img circulo" class="imagem-circulo">
-                    <span class="Descricao">Vestidos</span>
-                </div>
-            </div>
-        </section> -->
-
+        <!-- Produtos -->
         <section class="categorias">
             <h2 class="titulo-categorias">Produtos</h2>
             <div class="faixa"></div>
             <div class="item"></div>
             <div class="retangulos-best-seller">
-
 
                 @foreach ($produtos as $produto)
                     <div class="retangulo">
@@ -204,39 +172,15 @@
                         </a>
                         <span class="Descricao">{{ $produto->nome_produto }}</span>
                         <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
-                        <span class="Precinho">R$60,00</span>
+                        <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
                         <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-
                     </div>
-                    </a>
                 @endforeach
 
-
-
-                <!-- <div class="retangulo">
-                    <img src="img/produtos/retangulo/algo6img.jpg" alt="" class="imagem-best-seller">
-                    <span class="Descricao">Conjunto laranja masculino</span>
-                    <span class="Precinho">R$69,00</span>
-                    <button>Comprar</button>
-                </div>
-                <div class="retangulo">
-                    <img src="img/produtos/circulo/circulo2.webp" alt="img/circulo2.webp" class="imagem-best-seller">
-                    <span class="Descricao">Conjunto Ursinho Feminino</span>
-                    <span class="Precinho">R$70,00</span>
-                    <button>Comprar</button>
-                </div>
-                <div class="retangulo">
-                    <img src="img/produtos/circulo/circulo1.jpg" alt="img/circulo.jpg" class="imagem-best-seller">
-                    <span class="Descricao">Conjunto macacão masculino</span>
-                    <span class="Precinho">R$80,00</span>
-                    <button>Comprar</button>
-                </div> -->
-            </div>
             </div>
         </section>
 
-
-
+        <!-- Inverno -->
         <section class="categorias">
             <h2 class="titulo-categorias">Novidades</h2>
             <div class="faixa"></div>
@@ -251,8 +195,6 @@
                 @endforeach
             </div>
         </section>
-
-
 
 
         <section class="season">

@@ -31,29 +31,48 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validação de entrada, incluindo a verificação do CPF hash
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'cpf' => ['required', 'cpf', 'unique:users,cpf'],  // Validação para garantir CPF único
+            'cpf' => [
+                'required',
+                'cpf',
+                'unique:users,cpf',
+                function ($attribute, $value, $fail) {
+                    // Gerar o hash do CPF
+                    $cpfHash = hash('sha256', $value);
+
+                    // Verificar se o hash do CPF já existe no banco de dados
+                    if (User::where('cpf_hash', $cpfHash)->exists()) {
+                        $fail('Este CPF já está cadastrado.');
+                    }
+                }
+            ],
         ]);
 
-        // Criptografar o CPF
-        $cpf_criptografado = Crypt::encryptString($request->cpf);
+        // Obter CPF original do request
+        $cpfOriginal = $request->cpf;
 
-        // Verificar se já existe um usuário com esse CPF criptografado
-        if (User::where('cpf', $cpf_criptografado)->exists()) {
-            return redirect()->back()->withErrors(['cpf' => 'Este CPF já está cadastrado.']);
-        }
+        // Criptografar o CPF para armazenar de forma segura
+        $cpfEncrypted = Crypt::encryptString($cpfOriginal);
 
-        // Criar o usuário com CPF criptografado
+        // Gerar o hash fixo do CPF para comparação futura
+        $cpfHash = hash('sha256', $cpfOriginal);
+
+
+        // Criar o usuário com CPF criptografado e o hash do CPF
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'cpf' => $cpf_criptografado,  // Armazenar o CPF criptografado
+            'cpf' => $cpfEncrypted,  // Armazenar o CPF criptografado
+            'cpf_hash' => $cpfHash,  // Armazenar o hash fixo do CPF para verificação
             'data_nasc' => $request->data_nasc,
             'password' => Hash::make($request->password),
         ]);
+        // Adicionar o dd() para verificar os dados antes de salvar
+        // dd($user);
 
         event(new Registered($user));
 

@@ -14,16 +14,16 @@ class SiteController extends Controller
     {
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
-    
+
         // Buscando os produtos (paginados)
         $produtos = Produto::paginate(4);
-    
+
         // Buscando os últimos 4 produtos inseridos (novidades)
         $novidades = Produto::orderBy('created_at', 'desc')->take(4)->get();
-    
+
         return view('home.index', compact('categoriasTopo', 'categoriasMenu', 'produtos', 'novidades'));
     }
-    
+
 
 
     // public function index()
@@ -62,10 +62,14 @@ class SiteController extends Controller
 
     public function details($slug)
     {
-        $produto = Produto::where('slug', $slug)->first(); // adiciona o firstOrFail
+        $produto = Produto::where('slug', $slug)->firstOrFail();
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
-        return view('home.details', compact('produto', 'categoriasTopo'));
+        $produtos = Produto::where('id_produto', '!=', $produto->id_produto)->take(3)->get(); // busca outros produtos relacionados
+
+        return view('home.details', compact('produto', 'categoriasTopo', 'produtos'));
     }
+
+
 
     public function categoria($id_categoria, Request $request)
     {
