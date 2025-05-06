@@ -187,7 +187,9 @@
             <div class="retangulos-best-seller">
                 @foreach($novidades as $produto)
                     <div class="retangulo">
-                        <img src="{{ asset($produto->img) }}" alt="{{ $produto->nome }}" class="imagem-best-seller">
+                        <a href="{{ route('home.details', $produto->slug) }}">
+                            <img src="{{ asset($produto->img) }}" alt="{{ $produto->nome }}" class="imagem-best-seller">
+                        </a>
                         <span class="Descricao">{{ $produto->nome }}</span>
                         <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
                         <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>

@@ -23,7 +23,9 @@
 
     <header>
         <div class="logo">
-            <img src="../img/logo/ft_logo.png" alt="logo" class="logo-img">
+        <a href="{{ route('home.index') }}">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="logo" class="logo-medium" class="logo-img">
+            </a>
         </div>
     </header>
 

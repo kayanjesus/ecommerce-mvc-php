@@ -1,0 +1,249 @@
+/* style.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background-color: #f9f9f9;
+}
+
+header {
+  background-color: #9b2a2a;
+  color: white;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.botao-link {
+  background-color: #9b2a2a;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 23px;
+}
+
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background-color: #d9d9d9;
+  padding: 20px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.user-info i {
+  font-size: 30px;
+  color: #9b2a2a;
+  margin-bottom: 10px;
+}
+
+.user-info input[type="text"] {
+  border: none;
+  pointer-events: none;
+  text-align: center;
+  background-color: transparent;
+  font-weight: bold;
+  color: #333;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-btn {
+  background-color: white;
+  border: none;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+}
+
+.menu-btn:hover,
+.menu-btn.active {
+  background-color: #9b2a2a;
+  color: white;
+}
+
+.logout {
+  background-color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.logout:hover {
+  background-color: #9b2a2a;
+  color: white;
+}
+/*aki*/
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+header {
+  background-color: #9b2a2a;
+  color: white;
+  padding: 15px 20px;
+  font-size: 50%;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background-color: #d9d9d9;
+  padding: 20px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.user-info i {
+  font-size: 30px;
+  color: #9b2a2a;
+  margin-bottom: 10px;
+}
+
+.user-info input[type="text"] {
+  border: none;
+  text-align: center;
+  background-color: transparent;
+  font-weight: bold;
+  color: #333;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-btn {
+  background-color: white;
+  border: none;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+}
+
+.menu-btn:hover,
+.menu-btn.active {
+  background-color: #9b2a2a;
+  color: white;
+}
+
+.logout {
+  background-color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.logout:hover {
+  background-color: #9b2a2a;
+  color: white;
+}
+
+.conteudo {
+  flex: 1;
+  padding: 40px;
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+}
+
+.admin-section {
+  padding: 20px;
+}
+
+.sales-record {
+  margin-top: 20px;
+}
+
+.user-sale:hover {
+  background-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+
+.data-pedido {
+  background-color: #9b2a2a;
+  color: white;
+  padding: 8px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+
+.user-sale {
+  background-color: #e6e6e6;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.user-sale ul {
+  margin-left: 20px;
+}
+
+.hora-pedido {
+  float: right;
+}
+
+.total-pedido {
+  text-align: right;
+  margin-top: 10px;
+}

@@ -8,13 +8,14 @@ class FavoritosController extends Controller
 {
     public function favoritosLista()
     {
-        $itens = \Cart::getContent();
+        $itens = \Cart::session('favoritos')->getContent();
         return view('home.favoritos', compact('itens'));
     }
+    
 
     public function adicionaFavoritos(Request $request)
     {
-        \Cart::add([
+        \Cart::session('favoritos')->add([
             'id' => $request->id,
             'name' => $request->name,
             'price' => $request->price,
@@ -29,7 +30,7 @@ class FavoritosController extends Controller
 
     public function removeFavoritos(Request $request)
     {
-        \Cart::remove($request->id);
+        \Cart::session('favoritos')->remove($request->id);
         return redirect()->route('home.favoritos')->with('sucesso', 'Produto removido do favoritos com sucesso!');
 
     }
@@ -37,7 +38,7 @@ class FavoritosController extends Controller
 
     public function atualizaFavoritos(Request $request)
     {
-        \Cart::update($request->id, [
+        \Cart::session('favoritos')->update($request->id, [
             'quantity' => [
                 'relative' => false,
                 'value' => abs($request->quantity),
@@ -49,7 +50,7 @@ class FavoritosController extends Controller
 
     public function limparFavoritos(Request $request)
     {
-        \Cart::clear();
+        \Cart::session('favoritos')->clear();
         return redirect()->route('home.favoritos')->with('aviso', 'Seu favoritos esta vazio!');
 
     }

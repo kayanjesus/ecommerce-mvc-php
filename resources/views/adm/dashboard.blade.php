@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel - Cantinho da Isa</title>
-    <link rel="stylesheet" href="{{ asset('css/sistema.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/adm/sistema.css') }}">
     <link rel=" stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 
@@ -14,11 +14,6 @@
         <a href="{{ route('home.index') }}" class="botao-link">
             CANTINHO DA ISA
         </a>
-        <form method="POST" action="{{ route('logout') }}" class="botao-link">
-            @csrf
-            <button type="submit">Sair</button>
-        </form>
-
     </header>
 
     <div class="container">
@@ -27,17 +22,13 @@
                 <label for="profile-img" class="profile-icon">
                     <i class="fas fa-user"></i>
                 </label>
-                <input type="file" id="profile-img" accept="image/*" style="display:none">
-                <input type="text" id="username" value="{{ Auth::user()->email }}" />
+                <!-- type="file" CASO FOR COLOCAR FOTO PERFIL -->
+                <input type="text" id="profile-img" accept="image/*" style="display:none">
+                <input type="text" id="username" value="{{ Auth::user()->email }}" readonly />
             </div>
             <nav class="menu">
-                <!-- <button class="menu-btn active">Inicial</button>
-                <button class="menu-btn" a href="../html/pedidos.html">Pedidos</button>
-                <button class="menu-btn">Produtos e estoque</button>
-                <button class="menu-btn">Cadastro de produtos</button>
-                <button class="menu-btn">Usuários cadastrados</button> -->
                 <a href="{{ route('adm.dashboard') }}">
-                    <button class="menu-btn">Inicial</button>
+                    <button class="menu-btn active">Inicial</button>
                 </a>
                 <a href="{{ route('adm.pedidos') }}">
                     <button class="menu-btn">Pedidos</button>
@@ -55,7 +46,11 @@
                     <button class="menu-btn">Vendas</button>
                 </a>
             </nav>
-            <button class="logout">SAIR</button>
+            <form method="POST" class="logout" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="logout">SAIR</button>
+            </form>
+
         </aside>
         <main class="conteudo">
             <div class="dashboard-metrics">

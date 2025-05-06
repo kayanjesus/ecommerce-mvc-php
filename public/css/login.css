@@ -122,3 +122,8 @@ header {
     border-top: 2px solid #c4c4c4;
     color: #9b2a2a;
 }
+
+.logo-medium{
+    width: 200px;
+    height: auto;
+}

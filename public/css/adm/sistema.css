@@ -19,16 +19,16 @@
 }
 
 .botao-link {
-    background-color: #9b2a2a;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    display: inline-block;
-    font-weight: bold;
-    transform: scale(1.2); /* Aumenta o tamanho da fonte */
-    transform-origin: center; /* Para garantir que o aumento ocorra a partir do centro */
+  background-color: #9b2a2a;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 23px;
 }
+
 
   
   .container {
@@ -60,6 +60,7 @@
   
   .user-info input[type="text"] {
     border: none;
+    pointer-events: none;
     text-align: center;
     background-color: transparent;
     font-weight: bold;
@@ -90,7 +91,7 @@
     color: white;
   }
   
-  .logout {
+  .logout button {
     background-color: white;
     padding: 10px;
     border: none;
@@ -100,10 +101,11 @@
     transition: 0.3s;
   }
   
-  .logout:hover {
+  .logout button:hover {
     background-color: #9b2a2a;
     color: white;
   }
+  
   
   .conteudo {
     flex: 1;

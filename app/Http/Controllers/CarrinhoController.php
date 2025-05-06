@@ -37,6 +37,7 @@ class CarrinhoController extends Controller
 
     public function atualizaCarrinho(Request $request)
     {
+
         \Cart::update($request->id, [
             'quantity' => [
                 'relative' => false,
@@ -44,7 +45,7 @@ class CarrinhoController extends Controller
             ],
         ]);
         return redirect()->route('home.carrinho')->with('sucesso', 'Produto atualizado do carrinho com sucesso!');
-      
+
     }
 
     public function limparCarrinho(Request $request)

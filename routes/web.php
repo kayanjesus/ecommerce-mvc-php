@@ -52,15 +52,15 @@ Route::post('/remover', [CarrinhoController::class, 'removeCarrinho'])->name('ho
 Route::post('/atualizar', [CarrinhoController::class, 'atualizaCarrinho'])->name('home.atualizacarrinho');
 Route::get('/limpar', [CarrinhoController::class, 'limparCarrinho'])->name('home.limparcarrinho');
 
-Route::get('/favoritos', [CarrinhoController::class, 'favoritosLista'])
+// Favoritos
+Route::get('/favoritos/lista', [FavoritosController::class, 'favoritosLista'])
     ->name('home.favoritos')
     ->middleware('auth');
 
-Route::post('/favoritos', [FavoritosController::class, 'adicionaFavoritos'])->name('home.addfavoritos');
-Route::post('/remover', [FavoritosController::class, 'removeFavoritos'])->name('home.removefavoritos');
-Route::post('/atualizar', [FavoritosController::class, 'atualizaFavoritos'])->name('home.atualizafavoritos');
-Route::get('/limpar', [FavoritosController::class, 'limparFavoritos'])->name('home.limparfavoritos');
-
+Route::post('/add/favoritos', [FavoritosController::class, 'adicionaFavoritos'])->name('home.addfavoritos');
+Route::post('/favoritos/remover', [FavoritosController::class, 'removeFavoritos'])->name('home.removefavoritos');
+Route::post('/favoritos/atualizar', [FavoritosController::class, 'atualizaFavoritos'])->name('home.atualizafavoritos');
+Route::get('/favoritos/limpar', [FavoritosController::class, 'limparFavoritos'])->name('home.limparfavoritos');
 
 
 // login/cadastro
@@ -104,5 +104,4 @@ Route::get('/pdtestoque', [DashboardController::class, 'pdtestoque'])->name('adm
 Route::get('/cdtproduto', [DashboardController::class, 'cdtproduto'])->name('adm.cdtproduto');
 Route::get('/usercadastrado', [DashboardController::class, 'usercadastrado'])->name('adm.usercadastrado');
 Route::get('/vendas', [DashboardController::class, 'vendas'])->name('adm.vendas');
-
 require __DIR__ . '/auth.php';

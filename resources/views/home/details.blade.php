@@ -56,7 +56,8 @@
                     <i class="fas fa-user"></i>
 
                     @auth
-                        <a href="{{ route('dashboard') }}" class="login-link">
+                        <a
+                            href="{{ Auth::user()->access_level === 'admin' ? route('adm.dashboard') : route('home.dashboard') }}">
                             {{ Auth::user()->name }}
                         </a>
                     @else
