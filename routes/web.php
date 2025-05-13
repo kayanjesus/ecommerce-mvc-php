@@ -35,6 +35,9 @@ Route::resource('produtos', ProdutoController::class);
 
 Route::get('/', [SiteController::class, 'index'])->name('home.index');
 
+
+Route::post('/produtos', [ProdutoController::class, 'store'])->name('produtos.cadastro ');
+
 Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.details');
 
 Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
