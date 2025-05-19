@@ -47,10 +47,14 @@
 
 
         </nav>
-        <section class="search-bar">
-            <input type="text" placeholder="Pesquise aqui...">
-            <button type="submit"><i class="fas fa-search"></i></button>
-        </section>
+
+        <form action="{{ route('home.index') }}" method="GET">
+            <section class="search-bar">
+                <input type="text" name="search" placeholder="Pesquise aqui..." value="{{ request('search') }}">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </section>
+        </form>
+
 
 
         <div class="logo">

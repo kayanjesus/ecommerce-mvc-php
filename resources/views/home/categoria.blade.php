@@ -7,6 +7,9 @@
     <title>Produtos</title>
     <link rel="stylesheet" href="{{ asset('css/categoria.css') }}">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 
 
 </head>
@@ -56,7 +59,8 @@
                     <i class="fas fa-user"></i>
 
                     @auth
-                        <a href="{{ route('dashboard') }}" class="login-link">
+                        <a
+                            href="{{ Auth::user()->access_level === 'admin' ? route('adm.dashboard') : route('home.dashboard') }}">
                             {{ Auth::user()->name }}
                         </a>
                     @else
@@ -87,6 +91,12 @@
 
     <main>
         <aside class="filtros">
+            <!-- @if($search)
+                <h2>Pesquisa: {{ $search }}</h2>
+                <h3>Filtros</h3>
+            @else
+                <h3>Filtros</h3>
+                @endif -->
             <h3>Filtros</h3>
             <button class="remover">Remover filtros</button>
 
@@ -124,7 +134,7 @@
             <div class="categoria">
                 <h4>Tamanho</h4>
                 <label><input type="checkbox"> P </label>
-                <label><input type="checkbox"> M</label>
+                <label><input type="checkbox"> M </label>
                 <label><input type="checkbox"> G </label>
                 <label><input type="checkbox"> GG </label>
                 <label><input type="checkbox"> 1 </label>
@@ -144,21 +154,11 @@
                 <h4>Gêneros</h4>
                 <label><input type="checkbox"> Masculino</label><br>
                 <label><input type="checkbox"> Feminino</label><br>
-        </aside>
-        <!-- <h3>Categoria: </h3>
-         @foreach ($produtos as $produto)
-            <div class="retangulo">
-                <a href="{{ route('home.details', $produto->slug) }}">
-                    <img src="{{ $produto->img }}" alt="" class="imagem-best-seller">
-                </a>
-                <span class="Descricao">{{ $produto->nome_produto }}</span>
-                <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
-                <span class="Precinho">R$60,00</span>
-                <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-
             </div>
-            </a>
-        @endforeach -->
+        </aside>
+
+
+
         <section class="produtos">
             @foreach ($produtos as $produto)
                 <div class="produto">
@@ -171,114 +171,14 @@
                     <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
                 </div>
             @endforeach
-
-   
-
-
-            <!-- <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto Ursinho Feminino">
-                <h4>Conjunto Ursinho Feminino</h4>
-                <p class="preco">70,00</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto macacão masculino">
-                <h4>Conjunto macacão masculino</h4>
-                <p class="preco">80,00</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto laranja masculino">
-                <h4>Conjunto laranja masculino</h4>
-                <p class="preco">69,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto Ursinho Feminino">
-                <h4>Conjunto Ursinho Feminino</h4>
-                <p class="preco">70,00</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto macacão masculino">
-                <h4>Conjunto macacão masculino</h4>
-                <p class="preco">80,00</p>
-                <button>Comprar</button>
-
-
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto laranja masculino">
-                <h4>Conjunto laranja masculino</h4>
-                <p class="preco">69,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto Ursinho Feminino">
-                <h4>Conjunto Ursinho Feminino</h4>
-                <p class="preco">70,00</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto macacão masculino">
-                <h4>Conjunto macacão masculino</h4>
-                <p class="preco">80,00</p>
-                <button>Comprar</button>
-
-
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto laranja masculino">
-                <h4>Conjunto laranja masculino</h4>
-                <p class="preco">69,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto Ursinho Feminino">
-                <h4>Conjunto Ursinho Feminino</h4>
-                <p class="preco">70,00</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto macacão masculino">
-                <h4>Conjunto macacão masculino</h4>
-                <p class="preco">80,00</p>
-                <button>Comprar</button>
-
-
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto laranja masculino">
-                <h4>Conjunto laranja masculino</h4>
-                <p class="preco">69,90</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto Ursinho Feminino">
-                <h4>Conjunto Ursinho Feminino</h4>
-                <p class="preco">70,00</p>
-                <button>Comprar</button>
-            </div>
-
-            <div class="produto">
-                <img src="../img/produtos/retangulo/algo6img.jpg" alt="Conjunto macacão masculino">
-                <h4>Conjunto macacão masculino</h4>
-                <p class="preco">80,00</p>
-                <button>Comprar</button>
-            </div> -->
+            @if(count($produtos) == 0 && $search)
+                <p>Não foi possivel encontrar nenhum produto com "{{ $search }}" <a
+                        href="{{ route('home.index') }}">Voltar</a></p>
+            @elseif(count($produtos) == 0)
+                <p>Não há produtos</p>
+            @endif
         </section>
+
     </main>
 </body>
 

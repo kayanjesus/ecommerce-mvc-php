@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,15 +13,12 @@ return new class extends Migration
         Schema::create('categoria_produto', function (Blueprint $table) {
             $table->unsignedBigInteger('id_produto');
             $table->unsignedBigInteger('id_categoria');
-        
+
             $table->foreign('id_produto')->references('id_produto')->on('produtos')->onDelete('cascade');
-            $table->foreign('id_categojn   b
-            
-            
-            ria')->references('id_categoria')->on('categorias')->onDelete('cascade');
-        
+            $table->foreign('id_categoria')->references('id_categoria')->on('categorias')->onDelete('cascade');
+
             $table->primary(['id_produto', 'id_categoria']);
-        });        
+        });
     }
 
     /**

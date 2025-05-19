@@ -7,23 +7,77 @@ use Illuminate\Http\Request;
 use App\Models\Produto;
 use App\Models\Categoria;
 
+
 class SiteController extends Controller
 {
 
     public function index()
     {
+        $search = request('search');
+
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
-
-        // Buscando os produtos (paginados)
-        $produtos = Produto::paginate(4);
-
-        // Buscando os últimos 4 produtos inseridos (novidades)
         $novidades = Produto::orderBy('created_at', 'desc')->take(4)->get();
 
-        return view('home.index', compact('categoriasTopo', 'categoriasMenu', 'produtos', 'novidades'));
+        if ($search) {
+            $produtos = Produto::where('nome_produto', 'like', '%' . $search . '%')->get();
+
+            return view('home.categoria', [
+                'produtos' => $produtos,
+                'search' => $search,
+                'categoriasTopo' => $categoriasTopo,
+                'categoriasMenu' => $categoriasMenu,
+                'novidades' => $novidades,
+            ]);
+        }
+
+        // Sem busca, exibe a home padrão
+        $produtos = Produto::paginate(4);
+
+        return view('home.index', [
+            'categoriasTopo' => $categoriasTopo,
+            'categoriasMenu' => $categoriasMenu,
+            'produtos' => $produtos,
+            'novidades' => $novidades,
+        ]);
     }
 
+
+
+
+
+
+
+    // public function index()
+    // {
+    //     // Buscando na / de pesquisa...
+    //     $search = request('search');
+    //     if ($search) {
+
+    //         $events = Event::where([
+    //             ['title', 'like', '%' . $search . '%']
+    //         ])->get();
+
+    //     } else {
+    //         $events = Event::all();
+    //     }
+    //     return view('home.categoria', ['events' => $events, 'search' => $search]);
+
+
+
+
+    //     $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
+    //     $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
+
+    //     // Buscando os produtos (paginados)
+    //     $produtos = Produto::paginate(4);
+
+    //     // Buscando os últimos 4 produtos inseridos (novidades)
+    //     $novidades = Produto::orderBy('created_at', 'desc')->take(4)->get();
+
+    //     return view('home.index', compact('categoriasTopo', 'categoriasMenu', 'produtos', 'novidades'));
+    // }
+//////////////////
 
 
     // public function index()

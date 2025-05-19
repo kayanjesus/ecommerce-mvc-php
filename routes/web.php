@@ -29,13 +29,18 @@ use App\Http\Controllers\DashboardController;
 // });
 
 
-Route::get('/produtos-home', [ProdutoController::class, 'index'])->name('produtos.home');
-
-Route::resource('produtos', ProdutoController::class);
-
 Route::get('/', [SiteController::class, 'index'])->name('home.index');
 
+Route::get('/produtos-home', [ProdutoController::class, 'index'])->name('produtos.home');
+Route::resource('produtos', ProdutoController::class);
+
+Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('produtos.create');
+Route::post('/produtos/store', [ProdutoController::class, 'store'])->name('produtos.store');
+
+
 Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.details');
+
+
 
 Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
 Route::get('/temporada/{temporada}', [SiteController::class, 'temporada'])->name('temporada');

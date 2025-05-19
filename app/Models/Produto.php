@@ -4,36 +4,50 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-// app/Models/Categoria.php
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-
 
 class Produto extends Model
 {
-    // Definir a tabela e chave primária
+    use HasFactory;
+
     protected $table = 'produtos';
     protected $primaryKey = 'id_produto';
 
-    // Indicar que a chave primária não é auto-incrementada, se necessário
-    // public $incrementing = false;
+    protected $fillable = [
+        'nome_produto',
+        'slug',
+        'descricao',
+        'genero',
+        'preco',
+        'img'
+    ];
 
-    // Definir os campos que podem ser preenchidos
-    protected $fillable = ['nome', 'descricao', 'preco', 'imagem'];
+    public $timestamps = true;
 
-    // Relacionamento: muitos para muitos com Categoria
+    // Muitos para muitos: Produto-Categoria
     public function categorias()
     {
         return $this->belongsToMany(Categoria::class, 'categoria_produto', 'id_produto', 'id_categoria');
     }
 
-    // Caso queira que o modelo use as colunas created_at e updated_at
-    public $timestamps = true;
+    // Um para muitos: Produto tem vários itens de estoque
+    public function estoque()
+    {
+        return $this->hasMany(EstoqueDetalhado::class, 'id_produto');
+    }
 
-    // Se precisar de alguma customização para os campos de data:
-    // protected $dates = ['created_at', 'updated_at'];
+    // Muitos para muitos: Produto-Cor
+    public function cores()
+    {
+        return $this->belongsToMany(Cor::class, 'cor_produto', 'id_produto', 'id_cor');
+    }
+
+    // Muitos para muitos: Produto-Tamanho
+    public function tamanhos()
+    {
+        return $this->belongsToMany(Tamanho::class, 'produto_tamanho', 'id_produto', 'id_tamanho');
+    }
 }
+
 
 
 

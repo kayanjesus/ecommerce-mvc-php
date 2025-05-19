@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produto;
 use Illuminate\Http\Request;
+use App\Models\Produto;
+use App\Models\Categoria;
+use App\Models\Cor;
+use App\Models\Tamanho;
+use App\Models\EstoqueDetalhado;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProdutoController extends Controller
 {
@@ -18,7 +24,11 @@ class ProdutoController extends Controller
      */
     public function create()
     {
-        //
+        $categorias = Categoria::all();
+        $cores = Cor::all();
+        $tamanhos = Tamanho::all();
+
+        return view('produtos.create', compact('categorias', 'cores', 'tamanhos'));
     }
 
     /**
@@ -26,8 +36,37 @@ class ProdutoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nome_produto' => 'required',
+            'slug' => 'required|unique:produtos,slug',
+            'descricao' => 'nullable',
+            'genero' => 'required',
+            'preco' => 'required|numeric',
+            'img' => 'required|image',
+            'categorias' => 'array',
+            'cores' => 'array',
+            'tamanhos' => 'array',
+        ]);
+
+        $imagem = $request->file('img')->store('produtos', 'public');
+
+        $produto = Produto::create([
+            'nome_produto' => $request->nome_produto,
+            'slug' => $request->slug,
+            'descricao' => $request->descricao,
+            'genero' => $request->genero,
+            'preco' => $request->preco,
+            'img' => $imagem,
+        ]);
+
+        $produto->categorias()->sync($request->categorias);
+        $produto->cores()->sync($request->cores);
+        $produto->tamanhos()->sync($request->tamanhos);
+
+        return redirect()->route('produtos.create')->with('success', 'Produto cadastrado com sucesso!');
     }
+
+
 
     /**
      * Display the specified resource.

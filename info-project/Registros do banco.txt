@@ -1,6 +1,15 @@
+#Verificar tabelas
 SHOW COLUMNS FROM produtos;
 SHOW COLUMNS FROM categoria_produto;
+SELECT * FROM carrinhos
+SELECT * FROM users
+SELECT * FROM produtos
+SELECT * FROM categorias
+SELECT * FROM categoria_produto
 
+
+
+#Testes grafico e nomear adm
 UPDATE users
 SET access_level = 'admin'
 WHERE email = 'kayansilva773@gmail.com';
@@ -21,23 +30,6 @@ UPDATE users
 SET created_at = '2023-04-21 19:54:45'
 WHERE email = 'kayan@gmail.com';
 
-SELECT * FROM carrinhos
-SELECT * FROM users
-SELECT * FROM produtos
-SELECT * FROM categorias
-SELECT * FROM categoria_produto
-
-
-UPDATE produtos SET created_at = NOW() WHERE created_at IS NULL;
-
-UPDATE produtos SET created_at = '2025-04-01 10:00:00' WHERE nome_produto = 'Borboleta vermelho';
-UPDATE produtos SET created_at = '2025-04-02 10:00:00' WHERE nome_produto = 'Manga longa';
-UPDATE produtos SET created_at = '2025-04-03 10:00:00' WHERE nome_produto = 'Camisa Social';
-UPDATE produtos SET created_at = '2025-04-04 10:00:00' WHERE nome_produto = 'Conjunto';
-UPDATE produtos SET created_at = '2025-04-05 10:00:00' WHERE nome_produto = 'Love Branca';
-UPDATE produtos SET created_at = '2025-04-06 10:00:00' WHERE nome_produto = 'Reto em linho';
-UPDATE produtos SET created_at = '2025-04-07 10:00:00' WHERE nome_produto = 'Peaky Blinders';
-UPDATE produtos SET created_at = '2025-04-08 10:00:00' WHERE nome_produto = 'Vestido Listrado';
 
 
 #categoria
@@ -69,6 +61,7 @@ INSERT INTO categorias (nome_categoria)
 VALUES ('Verão');
 
 
+
 #produtos
 INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
 VALUES ('Borboleta vermelho', 'Borboleta vermelho', 'Blusa vermelha feminina', 'Feminino', 59.99, 'img/produtos/home/Borboleta vermelho - F.webp');
@@ -94,10 +87,9 @@ VALUES ('Peaky Blinders', 'Peaky Blinders', 'Terno Peaky Blinders bebê', 'Mascu
 INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
 VALUES ('Vestido Listrado', 'Vestido Listrado', 'Vestido listrado com laço', 'Feminino', 59.99, 'img/produtos/home/Vestido listrado - F.jpg');
 
+
+
 #categoria produto
-
-
-
 INSERT INTO categoria_produto (id_produto, id_categoria) 
 VALUES (1, 5);
 
@@ -166,5 +158,20 @@ VALUES (6, 8);
 
 INSERT INTO categoria_produto (id_produto, id_categoria) 
 VALUES (7, 8);
+
+
+
+#Mudando created_at
+UPDATE produtos SET created_at = NOW() WHERE created_at IS NULL;
+
+UPDATE produtos SET created_at = '2025-04-01 10:00:00' WHERE nome_produto = 'Borboleta vermelho';
+UPDATE produtos SET created_at = '2025-04-02 10:00:00' WHERE nome_produto = 'Manga longa';
+UPDATE produtos SET created_at = '2025-04-03 10:00:00' WHERE nome_produto = 'Camisa Social';
+UPDATE produtos SET created_at = '2025-04-04 10:00:00' WHERE nome_produto = 'Conjunto';
+UPDATE produtos SET created_at = '2025-04-05 10:00:00' WHERE nome_produto = 'Love Branca';
+UPDATE produtos SET created_at = '2025-04-06 10:00:00' WHERE nome_produto = 'Reto em linho';
+UPDATE produtos SET created_at = '2025-04-07 10:00:00' WHERE nome_produto = 'Peaky Blinders';
+UPDATE produtos SET created_at = '2025-04-08 10:00:00' WHERE nome_produto = 'Vestido Listrado';
+
 
 
