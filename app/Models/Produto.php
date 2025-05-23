@@ -14,10 +14,13 @@ class Produto extends Model
 
     protected $fillable = [
         'nome_produto',
+        'tipo',
         'slug',
         'descricao',
-        'genero',
+        'marca',
         'preco',
+        'tecido',
+        'genero',
         'img'
     ];
 
@@ -46,13 +49,26 @@ class Produto extends Model
     {
         return $this->belongsToMany(Tamanho::class, 'produto_tamanho', 'id_produto', 'id_tamanho');
     }
+
+    public function variacoes()
+    {
+        return $this->hasMany(ProdutoVariacoes::class, 'produto_id', 'id_produto'); // tava ProdutoVariacao
+    }
+
+    // No model Produto.php
+    public function imagens()
+    {
+        return $this->hasMany(ProdutoImagem::class, 'produto_id', 'id_produto');
+    }
+
+
 }
 
 
 
 
-    // public function categorias()
-    // {
-    //     return $this->belongsToMany(Categoria::class, 'categoria_produto', 'id_produto', 'id_categoria');
-    // }
+// public function categorias()
+// {
+//     return $this->belongsToMany(Categoria::class, 'categoria_produto', 'id_produto', 'id_categoria');
+// }
 

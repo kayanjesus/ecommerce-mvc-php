@@ -34,7 +34,7 @@ Route::get('/', [SiteController::class, 'index'])->name('home.index');
 Route::get('/produtos-home', [ProdutoController::class, 'index'])->name('produtos.home');
 Route::resource('produtos', ProdutoController::class);
 
-Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('produtos.create');
+Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('adm.pdtestoque');
 Route::post('/produtos/store', [ProdutoController::class, 'store'])->name('produtos.store');
 
 

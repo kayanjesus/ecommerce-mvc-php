@@ -1,12 +1,19 @@
+CREATE DATABASE ecommerce;
+USE ecommerce;
+
 #Verificar tabelas
 SHOW COLUMNS FROM produtos;
 SHOW COLUMNS FROM categoria_produto;
-SELECT * FROM carrinhos
-SELECT * FROM users
-SELECT * FROM produtos
-SELECT * FROM categorias
-SELECT * FROM categoria_produto
-
+SELECT * FROM carrinhos;
+SELECT * FROM users;
+SELECT * FROM produtos;
+SELECT * FROM cores;
+SELECT * FROM tamanhos;
+SELECT * FROM categorias;
+SELECT * FROM categoria_produto;
+SELECT * FROM estoque_detalhado;
+SELECT * FROM produto_variacoes;
+SELECT * FROM produto_imagens;
 
 
 #Testes grafico e nomear adm
@@ -29,6 +36,76 @@ WHERE email = 'kayan2@gmail.com';
 UPDATE users
 SET created_at = '2023-04-21 19:54:45'
 WHERE email = 'kayan@gmail.com';
+
+#tamanhos
+INSERT INTO tamanhos (nome, tipo, created_at, updated_at) VALUES
+-- Bebê
+('RN', 'bebe', NOW(), NOW()),
+('P', 'bebe', NOW(), NOW()),
+('M', 'bebe', NOW(), NOW()),
+('G', 'bebe', NOW(), NOW()),
+('GG', 'bebe', NOW(), NOW()),
+
+-- Infantil
+('1', 'infantil', NOW(), NOW()),
+('2', 'infantil', NOW(), NOW()),
+('3', 'infantil', NOW(), NOW()),
+('4', 'infantil', NOW(), NOW()),
+('5', 'infantil', NOW(), NOW()),
+('6', 'infantil', NOW(), NOW()),
+('8', 'infantil', NOW(), NOW()),
+('10', 'infantil', NOW(), NOW()),
+('12', 'infantil', NOW(), NOW()),
+('14', 'infantil', NOW(), NOW()),
+('16', 'infantil', NOW(), NOW()),
+
+-- Adulto por letra
+('PP', 'adulto', NOW(), NOW()),
+('P', 'adulto', NOW(), NOW()),
+('M', 'adulto', NOW(), NOW()),
+('G', 'adulto', NOW(), NOW()),
+('GG', 'adulto', NOW(), NOW()),
+('XG', 'adulto', NOW(), NOW()),
+('XGG', 'adulto', NOW(), NOW()),
+
+-- Adulto por número
+('34', 'adulto', NOW(), NOW()),
+('36', 'adulto', NOW(), NOW()),
+('38', 'adulto', NOW(), NOW()),
+('40', 'adulto', NOW(), NOW()),
+('42', 'adulto', NOW(), NOW()),
+('44', 'adulto', NOW(), NOW()),
+('46', 'adulto', NOW(), NOW()),
+('48', 'adulto', NOW(), NOW()),
+('50', 'adulto', NOW(), NOW()),
+('52', 'adulto', NOW(), NOW()),
+('54', 'adulto', NOW(), NOW()),
+('56', 'adulto', NOW(), NOW());
+
+
+
+#RODA esse comando no terminal-> cores-> php artisan db:seed
+#cores
+INSERT INTO cores (nome, created_at, updated_at) VALUES
+('Preto', NOW(), NOW()),
+('Branco', NOW(), NOW()),
+('Cinza', NOW(), NOW()),
+('Vermelho', NOW(), NOW()),
+('Azul', NOW(), NOW()),
+('Verde', NOW(), NOW()),
+('Amarelo', NOW(), NOW()),
+('Rosa', NOW(), NOW()),
+('Roxo', NOW(), NOW()),
+('Laranja', NOW(), NOW()),
+('Marrom', NOW(), NOW()),
+('Bege', NOW(), NOW()),
+('Bordô', NOW(), NOW()),
+('Dourado', NOW(), NOW()),
+('Prata', NOW(), NOW()),
+('Azul Marinho', NOW(), NOW()),
+('Verde Musgo', NOW(), NOW());
+
+
 
 
 
@@ -60,35 +137,30 @@ VALUES ('Inverno');
 INSERT INTO categorias (nome_categoria)
 VALUES ('Verão');
 
+UPDATE categorias SET created_at = NOW() WHERE created_at IS NULL;
 
 
+#INSERIR PELO PROJETO
 #produtos
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Borboleta vermelho', 'Borboleta vermelho', 'Blusa vermelha feminina', 'Feminino', 59.99, 'img/produtos/home/Borboleta vermelho - F.webp');
+INSERT INTO produtos (nome_produto, tipo, slug, descricao, marca, preco, tecido, genero, img) VALUES
+('Borboleta Vermelho', 'blusa', 'borboleta-vermelho', 'Blusa vermelha feminina', 'MarcaX', 59.99, 'algodao', 'Feminino', 'img/produtos/home/borboleta-vermelho-f.webp'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Manga longa', 'Manga longa', 'Blusa manga longa preta masculina', 'Masculino', 59.99, 'img/produtos/home/camisa manga longa - M.jpg');
+('Manga Longa', 'blusa', 'manga-longa', 'Blusa manga longa preta masculina', 'MarcaY', 59.99, 'algodao', 'Masculino', 'img/produtos/home/camisa-manga-longa-m.jpg'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Camisa Social', 'Camisa Social', 'Blusa socila branca feminina', 'Feminino', 59.99, 'img/produtos/home/Camisa Social - F.jpg');
+('Camisa Social', 'blusa', 'camisa-social', 'Blusa social branca feminina', 'MarcaZ', 59.99, 'linho', 'Feminino', 'img/produtos/home/camisa-social-f.jpg'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Conjunto', 'Conjunto', 'Conjunto Pink Ninas feminino', 'Feminino', 59.99, 'img/produtos/home/conjunto - F.webp');
+('Conjunto', 'conjunto', 'conjunto', 'Conjunto Pink Ninas feminino', 'MarcaX', 59.99, 'algodao', 'Feminino', 'img/produtos/home/conjunto-f.webp'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Love Branca', 'Love Branca', 'Blusa Branca feminina', 'Feminino', 59.99, 'img/produtos/home/menina love branca - F.webp');
+('Love Branca', 'blusa', 'love-branca', 'Blusa branca feminina', 'MarcaY', 59.99, 'algodao', 'Feminino', 'img/produtos/home/menina-love-branca-f.webp'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Reto em linho', 'Reto em linho', 'Blusa manga longa Bege masculina', 'Masculino', 59.99, 'img/produtos/home/Reto em linho - M.jpg');
+('Reto em Linho', 'blusa', 'reto-em-linho', 'Blusa manga longa bege masculina', 'MarcaZ', 59.99, 'linho', 'Masculino', 'img/produtos/home/reto-em-linho-m.jpg'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Peaky Blinders', 'Peaky Blinders', 'Terno Peaky Blinders bebê', 'Masculino', 59.99, 'img/produtos/home/terno infantil - M.jpg');
+('Peaky Blinders', 'terno', 'peaky-blinders', 'Terno Peaky Blinders bebê', 'MarcaX', 59.99, 'algodao', 'Masculino', 'img/produtos/home/terno-infantil-m.jpg'),
 
-INSERT INTO produtos (nome_produto, slug, descricao, genero, preco, img)
-VALUES ('Vestido Listrado', 'Vestido Listrado', 'Vestido listrado com laço', 'Feminino', 59.99, 'img/produtos/home/Vestido listrado - F.jpg');
+('Vestido Listrado', 'vestido', 'vestido-listrado', 'Vestido listrado com laço', 'MarcaY', 59.99, 'algodao', 'Feminino', 'img/produtos/home/vestido-listrado-f.jpg');
 
 
-
+#SO RODAR SE RODAR O DE CIMA
 #categoria produto
 INSERT INTO categoria_produto (id_produto, id_categoria) 
 VALUES (1, 5);
@@ -160,7 +232,7 @@ INSERT INTO categoria_produto (id_produto, id_categoria)
 VALUES (7, 8);
 
 
-
+#SO RODA SE RODAR OS DOIS ANTERIORES
 #Mudando created_at
 UPDATE produtos SET created_at = NOW() WHERE created_at IS NULL;
 

@@ -1,0 +1,5 @@
+rodar projeto-> php artisan serve
+rodar projeto-> npm run dev
+
+
+cores-> php artisan db:seed

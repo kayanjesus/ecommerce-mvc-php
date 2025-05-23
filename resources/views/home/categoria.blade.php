@@ -91,12 +91,7 @@
 
     <main>
         <aside class="filtros">
-            <!-- @if($search)
-                <h2>Pesquisa: {{ $search }}</h2>
-                <h3>Filtros</h3>
-            @else
-                <h3>Filtros</h3>
-                @endif -->
+
             <h3>Filtros</h3>
             <button class="remover">Remover filtros</button>
 
@@ -163,7 +158,8 @@
             @foreach ($produtos as $produto)
                 <div class="produto">
                     <a href="{{ route('home.details', $produto->slug) }}">
-                        <img src="{{ asset($produto->img) }}" alt="" class="imagem-best-seller">
+                        <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                            alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
                     </a>
                     <h4>{{ $produto->nome_produto }}</h4>
                     <h4>{{ Str::limit($produto->descricao, 25) }}</h4>

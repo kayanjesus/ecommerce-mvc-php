@@ -24,23 +24,6 @@
                 <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
 
-            <!-- <section class="top-nav">
-                <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
-                <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-
-                <div class="carrinho-container">
-                    <a href="javascript:void(0);" id="btn-carrinho">
-                        <i class="fas fa-shopping-cart"></i> Carrinho
-                    </a>
-
-                    <div id="dropdown-carrinho" class="dropdown-carrinho">
-                        <p>Item 1 - R$50</p>
-                        <p>Item 2 - R$30</p>
-                        <p><strong>Total: R$80</strong></p>
-                    </div>
-                </div>
-            </section> -->
-
 
         </nav>
         <section class="search-bar">
@@ -98,31 +81,24 @@
                 <button class="carousel-button prev">&lt;</button>
                 <button class="carousel-button next">&gt;</button>
 
-                <!-- Container do carrossel -->
+                <!-- Container do imagens -->
                 <div class="carousel-container">
                     <div class="carousel-track">
-                        <!-- Imagens do produto (substitua pelas suas imagens) -->
-                        <div class="carousel-slide">
-                            <img src="{{ asset($produto->img) }}" alt="Vestido Infantil Horizonte - Foto 1"
-                                class="product-image">
+                        <!-- Imagem principal grande -->
+                        <div class="main-image">
+                            <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                                id="mainProductImage" />
                         </div>
-                        <!-- <div class="carousel-slide">
-                            <img src="../img/descricao/R2.jpg" alt="Vestido Infantil Horizonte - Foto 2"
-                                class="product-image">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="../img/descricao/R3.jpg" alt="Vestido Infantil Horizonte - Foto 3"
-                                class="product-image">
-                        </div> -->
-
                     </div>
 
-                    <!-- Miniaturas (opcional) -->
-                    <div class="carousel-thumbnails">
-                        <img src="../img/descricao/R1.jpg" alt="Miniatura 1" class="thumbnail active">
-                        <img src="../img/descricao/R2.jpg" alt="Miniatura 2" class="thumbnail">
-                        <img src="../img/descricao/R3.jpg" alt="Miniatura 3" class="thumbnail">
+                    <!-- Miniaturas (para navegação) -->
+                    <div class="thumbnail-container">
+                        @foreach ($produto->imagens as $imagem)
+                            <img src="{{ asset($imagem->caminho) }}" class="thumbnail {{ $loop->first ? 'active' : '' }}"
+                                onclick="changeMainImage(this)" />
+                        @endforeach
                     </div>
+
                 </div>
             </div>
 
@@ -174,19 +150,6 @@
                     </div>
                 </div>
 
-                <!-- <div class="action-container">
-                    <div class="quantity-container">
-                        <div class="quantity-box">
-                            <div class="quantity-label">Quantidade</div>
-                            <div class="quantity-controls">
-                                <div class="quantity-arrows">
-                                    <button class="qty-arrow-up">↑</button>
-                                    <button class="qty-arrow-down">↓</button>
-                                </div>
-                                <div class="quantity-number">1</div>
-                            </div>
-                        </div>
-                    </div> -->
 
                 <form action="{{ route('home.addcarrinho') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -207,7 +170,7 @@
                 </form>
             </div>
 
-            
+
             <div class="actions">
                 <form action="{{ route('home.addfavoritos') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -300,6 +263,19 @@
     <footer>
 
     </footer>
+
+    <script>
+        function changeMainImage(thumbnail) {
+            document.getElementById('mainProductImage').src = thumbnail.src;
+            // Remove a classe 'active' de todas as miniaturas
+            document.querySelectorAll('.thumbnail').forEach(img => {
+                img.classList.remove('active');
+            });
+            // Adiciona 'active' na miniatura clicada
+            thumbnail.classList.add('active');
+        }
+    </script>
+    
     <script src="{{ asset('js/descricao.js') }}"></script>
 
 </body>

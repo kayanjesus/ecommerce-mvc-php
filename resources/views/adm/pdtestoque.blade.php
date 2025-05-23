@@ -64,6 +64,7 @@
                 <table class="products-table">
                     <thead>
                         <tr>
+                            <th>Nome</th>
                             <th>Produto</th>
                             <th>Tipo do produto</th>
                             <th>Cor</th>
@@ -76,38 +77,70 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <div class="Produto"><img src="../img/produtos/circulo/circulo1.jpg"></div>
-                            </td>
-                            <td>Macacão</td>
-                            <td>azul rosa</td>
-                            <td>Klly</td>
-                            <td>4, 5, 8, 10, 12</td>
-                            <td>Feminino</td>
-                            <td>Verão</td>
-                            <td>99,99</td>
-                            <td>4 - 4 3 - 12 2 - 5 2 - 8 0 - 10 1</td>
-                            <button class="delete-product" title="Excluir produto">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="Produto"><img src="../img/produtos/circulo/circulo1.jpg"></div>
-                            </td>
-                            <td>Vestido</td>
-                            <td>azul</td>
-                            <td>Millon</td>
-                            <td>3, 6, 12, 14</td>
-                            <td>Feminino</td>
-                            <td>Verão</td>
-                            <td>39,99</td>
-                            <td>3 - 3 6 - 2 12 - 0 14 - 1</td>
-                            <button class="delete-btn" title="Excluir produto">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </tr>
+                        <!-- 1 -->
+                        @foreach ($produtos as $produto)
+                            <tr>
+                                <td>{{ $produto->nome_produto }}</td>
+
+                                <td>
+                                    <div class="Produto"> <img
+                                            src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                                            alt="{{ $produto->nome_produto }}" class="imagem-best-seller" /></div>
+                                </td>
+                                <td>{{ $produto->tipo }}</td>
+
+                                {{-- Cores --}}
+                                <td>
+                                    @foreach($produto->variacoes->unique('cor_id') as $variacao)
+                                        {{ $variacao->cor->nome }}@if(!$loop->last), @endif
+                                    @endforeach
+                                </td>
+
+                                <td>{{ $produto->marca }}</td>
+
+                                {{-- Tamanhos --}}
+                                <td>
+                                    @foreach($produto->variacoes->unique('tamanho_id') as $variacao)
+                                        {{ $variacao->tamanho->nome }}@if(!$loop->last), @endif
+                                    @endforeach
+                                </td>
+
+                                <td>{{ $produto->genero }}</td>
+
+                                <td>
+                                    @foreach($produto->categorias as $categoria)
+                                        @if($categoria->nome_categoria === 'Verão' || $categoria->nome_categoria === 'Inverno')
+                                            {{ $categoria->nome_categoria }}
+                                        @endif
+                                    @endforeach
+                                </td>
+
+                                <!-- <td>
+                                            @foreach($produto->categorias as $categoria)
+                                                {{ $categoria->nome_categoria }}@if(!$loop->last), @endif
+                                            @endforeach
+                                        </td>
+                                        <td>{{ $produto->categorias->first()->nome_categoria ?? 'Sem estação' }}</td> -->
+
+
+                                {{-- Preço do produto base --}}
+                                <td>R${{ number_format($produto->preco, 2, ',', '.') }}</td>
+
+                                {{-- Estoque por tamanho --}}
+                                <td>
+                                    @foreach($produto->variacoes as $variacao)
+                                        {{ $variacao->estoque }} - {{ $variacao->tamanho->nome }}@if(!$loop->last), @endif
+                                    @endforeach
+                                </td>
+
+                                <td>
+                                    <button class="delete-product" title="Excluir produto">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+
                     </tbody>
 
                 </table>

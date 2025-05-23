@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Cor extends Model
 {
     protected $table = 'cores';
-    protected $fillable = ['nome'];
+    protected $fillable = ['nome', 'codigo_hex'];
     public $timestamps = true;
 
     public function produtos()

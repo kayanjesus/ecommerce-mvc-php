@@ -59,11 +59,13 @@
         <table class="striped">
             <thead>
                 <tr>
-                    <th></th>
+                    <th></th> <!-- foto do produto -->
                     <th>Nome</th>
-                    <th>Preço</th>
+                    <th>cor</th>
+                    <th>tamanho</th>
                     <th>Quantidade</th>
-                    <th></th>
+                    <th>Preço</th>
+                    <th></th> <!-- botão apagar/editar-->
                 </tr>
             </thead>
 

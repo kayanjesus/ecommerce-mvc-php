@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Tamanho;
+use App\Models\Categoria;
+use App\Models\Cor;
+use App\Models\Produto;
 
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -47,13 +51,29 @@ class DashboardController extends Controller
 
     public function pdtestoque()
     {
-        return view('adm.pdtestoque');
+        // Listagem de produtos com variações, cor e tamanho
+        $produtos = Produto::with(['variacoes.cor', 'variacoes.tamanho', 'categorias'])->get();
+        return view('adm.pdtestoque', compact('produtos'));
     }
 
     public function cdtproduto()
     {
-        return view('adm.cdtproduto');
+        // Buscar tamanhos ordenados por nome
+        $tamanhos = Tamanho::orderBy('nome')->get();
+
+        // Pega todas categorias do banco (ou só as que quer)
+        $categorias = Categoria::all();
+
+        // Buscar cores ordenadas por nome
+        $cores = Cor::orderBy('nome')->get();
+
+        // Buscar todas as categorias para o menu
+        $categoriasMenu = Categoria::all();
+
+        // Retornar a view com os dados
+        return view('adm.cdtproduto', compact('tamanhos', 'cores', 'categoriasMenu', 'categorias'));
     }
+
 
     public function usercadastrado()
     {

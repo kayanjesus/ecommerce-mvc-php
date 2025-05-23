@@ -298,6 +298,48 @@ nav a i {
     border-color: #e63946;
 }
 
+
+/* Página de detalhes */
+.main-image img {
+    max-width: 500px;
+    height: auto;
+    border: 1px solid #ddd;
+}
+
+.thumbnail-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.thumbnail.active {
+    border-color: #ff6b6b;
+}
+
+/* Pré-visualização no cadastro */
+#imagePreview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 100px;
+    align-items: center;
+    justify-content: center;
+}
+
+#imagePreview img {
+    max-height: 80px;
+    border-radius: 4px;
+}
+/*fim*/
+
 .product-info {
     width: 60%;
 }

@@ -134,13 +134,13 @@
         <section class="products">
             <a href="{{ route('home.categoria', ['id_categoria' => 4, 'genero' => 'Masculino']) }}">
                 <div class="retangulão">
-                    <img src="img/produtos/retangulo/algo5img.jpg" alt="Conjunto Menino" class="product-image">
+                    <img src="img/produtos/retangulo/algo7img.jpg" alt="Conjunto Menino" class="product-image">
                 </div>
             </a>
 
             <a href="{{ route('home.categoria', ['id_categoria' => 4, 'genero' => 'Feminino']) }}">
                 <div class="retangulão">
-                    <img src="img/produtos/retangulo/algo6img.jpg" alt="Conjunto Menina" class="product-image">
+                    <img src="img/produtos/retangulo/algo8img.jpg" alt="Conjunto Menina" class="product-image">
                 </div>
             </a>
         </section>
@@ -172,7 +172,8 @@
                 @foreach ($produtos as $produto)
                     <div class="retangulo">
                         <a href="{{ route('home.details', $produto->slug) }}">
-                            <img src="{{ $produto->img }}" alt="" class="imagem-best-seller">
+                            <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                                alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
                         </a>
                         <span class="Descricao">{{ $produto->nome_produto }}</span>
                         <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
@@ -184,7 +185,7 @@
             </div>
         </section>
 
-        <!-- Inverno -->
+
         <section class="categorias">
             <h2 class="titulo-categorias">Novidades</h2>
             <div class="faixa"></div>
@@ -192,9 +193,11 @@
                 @foreach($novidades as $produto)
                     <div class="retangulo">
                         <a href="{{ route('home.details', $produto->slug) }}">
-                            <img src="{{ asset($produto->img) }}" alt="{{ $produto->nome }}" class="imagem-best-seller">
+                            <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                                alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
                         </a>
-                        <span class="Descricao">{{ $produto->nome }}</span>
+                        <span class="Descricao">{{ $produto->nome_produto }}</span>
+                        <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
                         <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
                         <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
                     </div>
@@ -215,7 +218,7 @@
                 <!-- Verão -->
                 <div class="season-retangulão">
                     <a href="{{ route('temporada', ['temporada' => 'verao']) }}">
-                        <img src="img/produtos/retangulo/algo5img.jpg" alt="Imagem Verão" class="season-image">
+                        <img src="img/produtos/retangulo/algo6img.jpg" alt="Imagem Verão" class="season-image">
                     </a>
                 </div>
             </div>

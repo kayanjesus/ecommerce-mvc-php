@@ -4,18 +4,19 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('tamanhos', function (Blueprint $table) {
-            $table->id('id_tamanho');
+            $table->id();
             $table->string('nome');
+            $table->enum('tipo', ['bebe', 'infantil', 'adulto']);
             $table->timestamps();
         });
+
     }
 
     /**
