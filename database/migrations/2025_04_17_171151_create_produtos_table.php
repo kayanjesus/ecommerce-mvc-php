@@ -4,11 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
+
     public function up(): void
     {
         // Tabela de Produtos
@@ -22,13 +22,10 @@ return new class extends Migration
             $table->decimal('preco', 10, 2);
             $table->string('tecido');
             $table->string('genero');
-
             $table->timestamps();
-
-            // $table->foreign('id_categoria')->references('id_categoria')->on('categorias')->onDelete('cascade');
         });
-    }
 
+    }
     /**
      * Reverse the migrations.
      */
