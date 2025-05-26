@@ -4,15 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProdutoImagem extends Model
+class Favorito extends Model
 {
-    protected $table = 'produto_imagens';
+    protected $fillable = ['user_id', 'produto_id'];
 
-    protected $fillable = [
-        'produto_id',
-        'caminho',
-        'principal'
-    ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function produto()
     {

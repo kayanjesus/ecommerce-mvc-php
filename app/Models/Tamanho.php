@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Tamanho extends Model
 {
     protected $table = 'tamanhos';
-    protected $primaryKey = 'id_tamanho';
+    protected $primaryKey = 'id'; // Isso já é o padrão, mas pode ser explícito
     protected $fillable = ['nome'];
     public $timestamps = true;
 

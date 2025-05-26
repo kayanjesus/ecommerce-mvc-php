@@ -57,12 +57,14 @@
                 <div class="product-main-info">
                     <div class="product-image-container">
                         <div class="image-preview" id="imagePreview">
-                            <i class="fas fa-camera"></i>
-                            <span>Clique para adicionar imagens</span>
+                            <div class="empty-preview" onclick="document.getElementById('productImages').click()">
+                                <i class="fas fa-camera"></i>
+                                <span>Clique para adicionar imagens</span>
+                            </div>
                         </div>
-                        <!-- Alteração principal: 'imagens[]' e 'multiple' -->
                         <input type="file" id="productImages" name="imagens[]" accept="image/*" multiple
                             style="display: none;" required />
+                        <input type="hidden" name="main_image" id="mainImageId" value="">
                         <button type="button" class="btn-image-upload"
                             onclick="document.getElementById('productImages').click()">
                             <i class="fas fa-upload"></i> Carregar Imagens (Múltiplas)
@@ -89,29 +91,7 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="tipo">Tipo Produto</label>
-                                <input type="text" name="tipo" id="tipo" placeholder="Ex: Camisa, Calça" required />
-                            </div>
-                            <div class="form-group">
-                                <label for="descricao">Descrição</label>
-                                <input type="text" name="descricao" id="descricao" placeholder="Ex: Estilo, Tamanho"
-                                    required />
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="cor">Cor</label>
-                                <select name="cores[]" id="cor" multiple required style="height: 100px;"
-                                    class="cores-select">
-                                    <option value="">Selecione uma cor</option>
-                                    @foreach ($cores as $cor)
-                                        <option value="{{ $cor->nome }}">{{ $cor->nome }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="categoria">Categorias</label>
+                                <label for="categoria">Tipo do Produto</label>
                                 <select name="categorias[]" class="form-control categorias-select" multiple required>
                                     @foreach ($categorias as $categoria)
                                         <option value="{{ $categoria->id_categoria }}">{{ $categoria->nome_categoria }}
@@ -119,6 +99,40 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label for="descricao">Descrição</label>
+                                <input type="text" name="descricao" id="descricao" placeholder="Ex: Estilo, Tamanho"
+                                    required />
+                            </div>
+                        </div>
+
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cor">Cor</label>
+                                <select name="cores[]" id="cor" multiple required class="cores-select">
+                                    @foreach ($cores as $cor)
+                                        <option value="{{ $cor->id }}" data-hex="{{ $cor->codigo_hex }}">
+                                            <span
+                                                style="background-color: {{ $cor->codigo_hex }}; display: inline-block; width: 15px; height: 15px;"></span>
+                                            {{ $cor->nome }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- ESTAÇÃO; CAMPO NA TABLE PRODUTO; ALTERAR-->
+                            <!-- SO VERÃO e INVERNO -->
+                            <div class="form-group">
+                                <label for="estacao">Estação</label>
+                                <select name="estacao" id="estacao" required>
+                                    <option value="" disabled selected>Selecione uma estação</option>
+                                    <option value="Verão">Verão</option>
+                                    <option value="Inverno">Inverno</option>
+                                </select>
+                            </div>
+                            <!--  -->
                         </div>
 
                         <div class="form-row">
@@ -136,14 +150,13 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="tamanho">Tamanho</label>
-                                <select name="tamanhos[]" id="tamanho" multiple required style="height: 100px;"
-                                    class="tamanhos-select">
-                                    <option value="">Selecione um tamanho</option>
+                                <select name="tamanhos[]" id="tamanho" multiple required class="tamanhos-select">
                                     @foreach ($tamanhos as $tamanho)
-                                        <option value="{{ $tamanho->nome }}">{{ $tamanho->nome }}</option>
+                                        <option value="{{ $tamanho->id }}">{{ $tamanho->nome }}</option>
                                     @endforeach
                                 </select>
                             </div>
+
                             <div class="form-group">
                                 <label for="estoque">Estoque</label>
                                 <input type="number" name="estoque" id="estoque" placeholder="Quantidade" required />
@@ -156,15 +169,12 @@
                                 <input type="text" name="tecido" id="tecido" placeholder="Ex: Algodão, Jeans"
                                     required />
                             </div>
+                            <!-- O MODELO É UM CODIGO DA ROUPA, ARRUMAR ISSO TAMBÉM -->
                             <div class="form-group">
-                                <label for="genero">Gênero</label>
-                                <select name="genero" id="genero" required>
-                                    <option value="" disabled selected>Selecione um gênero</option>
-                                    <option value="masculino">Masculino</option>
-                                    <option value="feminino">Feminino</option>
-                                    <option value="bebe">Bebê</option>
-                                </select>
+                                <label for="modelo">Modelo</label>
+                                <input type="text" name="modelo" id="modelo" required />
                             </div>
+                            <!--  -->
                         </div>
                         <div class="form-row">
                             <button type="submit" class="btn-submit">Cadastrar Produto</button>
@@ -174,31 +184,119 @@
         </div>
     </div>
 
+
+    <script>
+        $('.cores-select').select2({
+            templateResult: formatColor,
+            templateSelection: formatColor,
+            escapeMarkup: function (m) { return m; }
+        });
+
+        function formatColor(option) {
+            if (!option.id) return option.text;
+            var hex = $(option.element).data('hex');
+            return $('<span><span style="background-color:' + hex + '; width:15px; height:15px; display:inline-block; margin-right:5px;"></span> ' + option.text + '</span>');
+        }
+    </script>
+
     <script>
         const imagePreview = document.getElementById('imagePreview');
         const productImagesInput = document.getElementById('productImages');
-
-        imagePreview.addEventListener('click', () => productImagesInput.click());
+        let mainImageId = null;
 
         productImagesInput.addEventListener('change', function (e) {
-            imagePreview.innerHTML = '';
-
             if (this.files.length > 0) {
-                Array.from(this.files).forEach(file => {
+                // Remove o placeholder
+                const emptyPreview = imagePreview.querySelector('.empty-preview');
+                if (emptyPreview) {
+                    emptyPreview.remove();
+                }
+
+                // Cria container principal se não existir
+                if (!imagePreview.querySelector('.main-image-container')) {
+                    const mainContainer = document.createElement('div');
+                    mainContainer.className = 'main-image-container';
+                    imagePreview.appendChild(mainContainer);
+                }
+
+                // Cria container secundário se não existir
+                if (!imagePreview.querySelector('.secondary-images-container')) {
+                    const secondaryContainer = document.createElement('div');
+                    secondaryContainer.className = 'secondary-images-container';
+                    imagePreview.appendChild(secondaryContainer);
+                }
+
+                // Processa cada arquivo selecionado
+                Array.from(this.files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function (e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.maxWidth = '80px';
-                        img.style.margin = '5px';
-                        imagePreview.appendChild(img);
+                        // Se for a primeira imagem, define como principal
+                        if (index === 0) {
+                            const mainContainer = imagePreview.querySelector('.main-image-container');
+                            mainContainer.innerHTML = `
+                            <img src="${e.target.result}" id="mainProductImage" alt="Imagem principal" />
+                        `;
+                            mainImageId = `new-${index}`;
+                            document.getElementById('mainImageId').value = mainImageId;
+                        } else {
+                            // Adiciona às miniaturas secundárias
+                            const secondaryContainer = imagePreview.querySelector('.secondary-images-container');
+                            const previewItem = document.createElement('div');
+                            previewItem.className = 'image-preview-item';
+                            previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="Pré-visualização" />
+                            <div class="image-actions">
+                                <button type="button" onclick="setAsMain(this, 'new-${index}')" 
+                                    title="Marcar como principal">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                <button type="button" onclick="removeNewImage(this)" 
+                                    title="Remover imagem">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                            secondaryContainer.appendChild(previewItem);
+                        }
                     };
                     reader.readAsDataURL(file);
                 });
-            } else {
-                imagePreview.innerHTML = '<i class="fas fa-camera"></i><span>Clique para adicionar imagens</span>';
             }
         });
+
+        function setAsMain(button, imageId) {
+            const previewItem = button.closest('.image-preview-item');
+            const imgSrc = previewItem.querySelector('img').src;
+
+            // Atualiza a imagem principal
+            const mainContainer = imagePreview.querySelector('.main-image-container');
+            mainContainer.innerHTML = `<img src="${imgSrc}" id="mainProductImage" alt="Imagem principal" />`;
+
+            // Atualiza o ID da imagem principal
+            mainImageId = imageId;
+            document.getElementById('mainImageId').value = mainImageId;
+
+            // Remove a imagem da lista secundária
+            previewItem.remove();
+        }
+
+        function removeNewImage(button) {
+            const previewItem = button.closest('.image-preview-item');
+            previewItem.remove();
+
+            // Se não houver mais imagens, mostra o placeholder
+            const hasImages = imagePreview.querySelector('.main-image-container img') ||
+                imagePreview.querySelector('.image-preview-item');
+            if (!hasImages) {
+                imagePreview.innerHTML = `
+                <div class="empty-preview" onclick="document.getElementById('productImages').click()">
+                    <i class="fas fa-camera"></i>
+                    <span>Clique para adicionar imagens</span>
+                </div>
+            `;
+                document.getElementById('mainImageId').value = '';
+            }
+        }
     </script>
 
     <!-- JS jQuery e Select2 -->

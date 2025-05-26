@@ -11,6 +11,28 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+
+    protected function authenticated(Request $request, $user)
+    {
+        // Carrega o carrinho salvo no banco para a sessão atual
+        $carrinho = Carrinho::where('id_usuario', $user->id)->first();
+
+        if ($carrinho && $carrinho->conteudo) {
+            $itens = json_decode($carrinho->conteudo, true);
+
+            // Limpa o carrinho atual da sessão
+            \Cart::clear();
+
+            // Adiciona todos os itens salvos
+            foreach ($itens as $item) {
+                \Cart::add($item);
+            }
+
+            \Log::debug('Carrinho recuperado do banco para o usuário: ' . $user->id);
+        }
+
+        return redirect()->intended($this->redirectPath());
+    }
     /**
      * Display the login view.
      */
@@ -26,16 +48,16 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
-    
+
         $user = Auth::user();
-    
+
         if ($user->access_level === 'admin') {
             return redirect()->route('adm.dashboard');
         }
-    
+
         return redirect()->route('home.index');
     }
-    
+
 
     /**
      * Destroy an authenticated session.

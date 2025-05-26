@@ -1,6 +1,5 @@
 CREATE DATABASE ecommerce;
 USE ecommerce;
-
 #Verificar tabelas
 SHOW COLUMNS FROM produtos;
 SHOW COLUMNS FROM categoria_produto;
@@ -14,7 +13,11 @@ SELECT * FROM categoria_produto;
 SELECT * FROM estoque_detalhado;
 SELECT * FROM produto_variacoes;
 SELECT * FROM produto_imagens;
+SELECT * FROM favoritos;
+SELECT * FROM enderecos;
 
+
+SELECT * FROM carrinhos WHERE id_usuario = 2;
 
 #Testes grafico e nomear adm
 UPDATE users
@@ -57,34 +60,11 @@ INSERT INTO tamanhos (nome, tipo, created_at, updated_at) VALUES
 ('10', 'infantil', NOW(), NOW()),
 ('12', 'infantil', NOW(), NOW()),
 ('14', 'infantil', NOW(), NOW()),
-('16', 'infantil', NOW(), NOW()),
-
--- Adulto por letra
-('PP', 'adulto', NOW(), NOW()),
-('P', 'adulto', NOW(), NOW()),
-('M', 'adulto', NOW(), NOW()),
-('G', 'adulto', NOW(), NOW()),
-('GG', 'adulto', NOW(), NOW()),
-('XG', 'adulto', NOW(), NOW()),
-('XGG', 'adulto', NOW(), NOW()),
-
--- Adulto por número
-('34', 'adulto', NOW(), NOW()),
-('36', 'adulto', NOW(), NOW()),
-('38', 'adulto', NOW(), NOW()),
-('40', 'adulto', NOW(), NOW()),
-('42', 'adulto', NOW(), NOW()),
-('44', 'adulto', NOW(), NOW()),
-('46', 'adulto', NOW(), NOW()),
-('48', 'adulto', NOW(), NOW()),
-('50', 'adulto', NOW(), NOW()),
-('52', 'adulto', NOW(), NOW()),
-('54', 'adulto', NOW(), NOW()),
-('56', 'adulto', NOW(), NOW());
+('16', 'infantil', NOW(), NOW());
 
 
 
-#RODA esse comando no terminal-> cores-> php artisan db:seed
+
 #cores
 INSERT INTO cores (nome, created_at, updated_at) VALUES
 ('Preto', NOW(), NOW()),
@@ -131,16 +111,10 @@ VALUES ('Calças');
 INSERT INTO categorias (nome_categoria)
 VALUES ('Vestidos');
 
-INSERT INTO categorias (nome_categoria)
-VALUES ('Inverno');
-
-INSERT INTO categorias (nome_categoria)
-VALUES ('Verão');
-
 UPDATE categorias SET created_at = NOW() WHERE created_at IS NULL;
 
 
-#INSERIR PELO PROJETO
+
 #produtos
 INSERT INTO produtos (nome_produto, tipo, slug, descricao, marca, preco, tecido, genero, img) VALUES
 ('Borboleta Vermelho', 'blusa', 'borboleta-vermelho', 'Blusa vermelha feminina', 'MarcaX', 59.99, 'algodao', 'Feminino', 'img/produtos/home/borboleta-vermelho-f.webp'),
@@ -160,7 +134,7 @@ INSERT INTO produtos (nome_produto, tipo, slug, descricao, marca, preco, tecido,
 ('Vestido Listrado', 'vestido', 'vestido-listrado', 'Vestido listrado com laço', 'MarcaY', 59.99, 'algodao', 'Feminino', 'img/produtos/home/vestido-listrado-f.jpg');
 
 
-#SO RODAR SE RODAR O DE CIMA
+
 #categoria produto
 INSERT INTO categoria_produto (id_produto, id_categoria) 
 VALUES (1, 5);
@@ -232,7 +206,7 @@ INSERT INTO categoria_produto (id_produto, id_categoria)
 VALUES (7, 8);
 
 
-#SO RODA SE RODAR OS DOIS ANTERIORES
+
 #Mudando created_at
 UPDATE produtos SET created_at = NOW() WHERE created_at IS NULL;
 

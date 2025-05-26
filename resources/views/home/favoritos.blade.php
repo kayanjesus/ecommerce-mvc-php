@@ -9,118 +9,168 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <title>Favoritos</title>
+    <style>
+        .favoritos-container {
+            padding: 20px;
+        }
+
+        .product-image {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .total-card {
+            margin-top: 20px;
+        }
+
+        .buttons-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .empty-favorites {
+            text-align: center;
+            padding: 40px 0;
+        }
+    </style>
+    <title>Meus Favoritos</title>
 </head>
 
 <body>
-
-    @if ($mensagem = Session::get('sucesso'))
-
-
-        <div class="card green darken-1">
-            <div class="card-content white-text">
-                <span class="card-title">Parabens!</span>
-                <p>{{ $mensagem }}</p>
+    <div class="favoritos-container">
+        <!-- Mensagens de feedback -->
+        @if ($mensagem = Session::get('sucesso'))
+            <div class="card green darken-1">
+                <div class="card-content white-text">
+                    <span class="card-title">Sucesso!</span>
+                    <p>{{ $mensagem }}</p>
+                </div>
             </div>
-        </div>
-    @endif
+        @endif
 
-    @if ($mensagem = Session::get('aviso'))
-
-
-        <div class="card blue">
-            <div class="card-content white-text">
-                <span class="card-title">Tudo bem!</span>
-                <p>{{ $mensagem }}</p>
+        @if ($mensagem = Session::get('aviso'))
+            <div class="card blue">
+                <div class="card-content white-text">
+                    <span class="card-title">Informação</span>
+                    <p>{{ $mensagem }}</p>
+                </div>
             </div>
-        </div>
+        @endif
 
-    @endif
-
-
-
-    @if ($itens->count() == 0)
-
-        <div class="card orange">
-            <div class="card-content white-text">
-                <span class="card-title">Seu favoritos esta vazio!</span>
-                <p>Aproveite nossas promoções!</p>
+        @if ($mensagem = Session::get('erro'))
+            <div class="card red">
+                <div class="card-content white-text">
+                    <span class="card-title">Atenção</span>
+                    <p>{{ $mensagem }}</p>
+                </div>
             </div>
-        </div>
-        <div class="row container center">
+        @endif
 
-            <a href="{{ '/' }}" class="btn waves-effect waves-light blue">Continuar comprando<i
-                    class="material-icons right">arrow_back</i></a>
-        </div>
-
-    @else
-
-        <h5>Seu favoritos possui {{ $itens->count() }} produtos. </h5>
-        <table class="striped">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Nome</th>
-                    <th>Preço</th>
-                    <th>Quantidade</th>
-                    <th></th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach ($itens as $item)
-                    <tr>
-                        <td><img src="{{ $item->attributes->image }}" alt="" width="70" class="responsive-img circle"></td>
-                        <td>{{ $item->name }}</td>
-                        <td>R$ {{ number_format($item->price, 2, ',', '.') }}</td>
-
-                        {{-- BTN atualizar --}}
-                        <form action="{{ route('home.atualizafavoritos') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="id" value="{{ $item->id }}">
-                            <td><input style="width: 40px; font-weight:900;" min="1" class="white center" type="number"
-                                    name="quantity" value="{{ $item->quantity }}"></td>
-                            <td><button class="btn-floating waves-effect waves-light orange"><i
-                                        class="material-icons">refresh</i></button>
-                        </form>
-
-                        {{-- BTN remover --}}
-                        <form action="{{ route('home.removefavoritos') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="id" value="{{ $item->id }}">
-                            <button class="btn-floating waves-effect waves-light red"><i
-                                    class="material-icons">delete</i></button>
-                        </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <div class="card orange">
-            <div class="card-content white-text">
-                <span class="card-title">TOTAL R$ {{ number_format(\Cart::getTotal(), 2, ',', '.') }}</span>
-                <p>Pague em 6x sem juros!</p>
+        <!-- Conteúdo principal -->
+        @if ($itens->count() == 0)
+            <div class="empty-favorites">
+                <div class="card orange">
+                    <div class="card-content white-text">
+                        <span class="card-title">Seus favoritos estão vazios!</span>
+                        <p>Aproveite nossas promoções!</p>
+                    </div>
+                </div>
+                <div class="buttons-container">
+                    <a href="{{ '/' }}" class="btn waves-effect waves-light blue">
+                        <i class="material-icons left">arrow_back</i> Continuar comprando
+                    </a>
+                </div>
             </div>
-        </div>
+        @else
+            <h4 class="center-align">Meus Favoritos</h4>
+            <p class="center-align grey-text">Você tem {{ $itens->count() }} iten(s) favoritado(s)</p>
 
-        <div class="row container center">
+            <div class="responsive-table">
+                <table class="highlight">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Nome</th>
+                            <th>Preço</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
 
-            <a href="{{ '/' }}" class="btn waves-effect waves-light blue">Continuar comprando<i
-                    class="material-icons right">arrow_back</i></a>
+                    <tbody>
+                        @foreach ($itens as $item)
+                            <tr>
+                                <td>
+                                    <img src="{{ asset($item->attributes->image) }}" alt="{{ $item->name }}"
+                                        class="product-image">
+                                </td>
+                                <td>{{ $item->name }}</td>
+                                <td>R$ {{ number_format($item->price, 2, ',', '.') }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <form action="{{ route('home.removefavoritos') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $item->id }}">
+                                            <button type="submit" class="btn-floating waves-effect waves-light red tooltipped"
+                                                data-position="top" data-tooltip="Remover">
+                                                <i class="material-icons">delete</i>
+                                            </button>
+                                        </form>
+                                        <!-- <a href="{{ route('home.details', $item->id) }}"
+                                                    class="btn-floating waves-effect waves-light blue tooltipped" data-position="top"
+                                                    data-tooltip="Ver detalhes">
+                                                    <i class="material-icons">visibility</i>
+                                                </a> -->
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-            <a href="{{ route('home.limparfavoritos') }}" class="btn waves-effect waves-light blue">Limpar favoritos<i
-                    class="material-icons right">clear</i></a>
+            <div class="total-card card orange">
+                <div class="card-content white-text">
+                    <div class="row valign-wrapper">
+                        <div class="col s8">
+                            <span class="card-title">Total</span>
+                            <p>Pague em até 6x sem juros!</p>
+                        </div>
+                        <div class="col s4 right-align">
+                            <span class="card-title">R$ {{ number_format($total, 2, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <!-- <button class="btn waves-effect waves-light green">Finalizar pedido<i
-                    class="material-icons right">check</i></button> -->
-        </div>
-    @endif
+            <div class="buttons-container">
+                <a href="{{ '/' }}" class="btn waves-effect waves-light blue">
+                    <i class="material-icons left">arrow_back</i> Continuar comprando
+                </a>
 
+                <a href="{{ route('home.limparfavoritos') }}" class="btn waves-effect waves-light red">
+                    <i class="material-icons left">clear_all</i> Limpar favoritos
+                </a>
+            </div>
+        @endif
+    </div>
 
-
-
-
+    <script>
+        // Inicializa tooltips
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.tooltipped');
+            M.Tooltip.init(elems);
+        });
+    </script>
 </body>
 
 </html>

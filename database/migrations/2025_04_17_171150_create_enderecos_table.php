@@ -14,12 +14,13 @@ return new class extends Migration
         // Tabela de Endereços
         Schema::create('enderecos', function (Blueprint $table) {
             $table->id('id_endereco');
-            $table->string('logradouro');
-            $table->string('numero');
+            $table->string('cep');
+            $table->string('rua');
             $table->string('bairro');
+            $table->string('numero');   
             $table->string('cidade');
             $table->string('estado');
-            $table->string('cep');
+            $table->string('complemento')->nullable();
             $table->unsignedBigInteger('id_usuario');
             $table->timestamps();
 

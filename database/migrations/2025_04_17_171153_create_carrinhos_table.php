@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,6 +14,7 @@ return new class extends Migration
         Schema::create('carrinhos', function (Blueprint $table) {
             $table->id('id_carrinho');
             $table->unsignedBigInteger('id_usuario');
+            $table->json('conteudo')->nullable(); // Removido o after() pois não é necessário na criação
             $table->timestamps();
 
             $table->foreign('id_usuario')->references('id')->on('users')->onDelete('cascade');
@@ -26,6 +26,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Correto: remove a tabela inteira na reversão
         Schema::dropIfExists('carrinhos');
     }
 };

@@ -14,14 +14,14 @@ class Produto extends Model
 
     protected $fillable = [
         'nome_produto',
-        'tipo',
+        'tipo', // Agora para categorias
         'slug',
-        'descricao',
+        'variacao', // Antiga descrição
         'marca',
         'preco',
         'tecido',
-        'genero',
-        'img'
+        'estacao', // Novo campo
+        'modelo' // Antigo genero
     ];
 
     public $timestamps = true;

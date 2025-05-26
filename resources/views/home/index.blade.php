@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="{{asset('css/home.css')}}">
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -27,24 +27,6 @@
                 <a href="{{ route('home.favoritos') }}"><i class="fas fa-heart"></i> Favoritos</a>
                 <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
-
-            <!-- <section class="top-nav">
-                <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
-                <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-
-                <div class="carrinho-container">
-                    <a href="javascript:void(0);" id="btn-carrinho">
-                        <i class="fas fa-shopping-cart"></i> Carrinho
-                    </a>
-
-                    <div id="dropdown-carrinho" class="dropdown-carrinho">
-                        <p>Item 1 - R$50</p>
-                        <p>Item 2 - R$30</p>
-                        <p><strong>Total: R$80</strong></p>
-                    </div>
-                </div>
-            </section> -->
-
 
         </nav>
 
@@ -176,7 +158,7 @@
                                 alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
                         </a>
                         <span class="Descricao">{{ $produto->nome_produto }}</span>
-                        <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
+                        <span class="Descricao">{{ Str::limit($produto->variacao, 25) }}</span>
                         <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
                         <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
                     </div>
@@ -197,7 +179,7 @@
                                 alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
                         </a>
                         <span class="Descricao">{{ $produto->nome_produto }}</span>
-                        <span class="Descricao">{{ Str::limit($produto->descricao, 25) }}</span>
+                        <span class="Descricao">{{ Str::limit($produto->variacao, 25) }}</span>
                         <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
                         <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
                     </div>

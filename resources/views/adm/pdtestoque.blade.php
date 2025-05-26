@@ -65,90 +65,138 @@
                     <thead>
                         <tr>
                             <th>Nome</th>
-                            <th>Produto</th>
-                            <th>Tipo do produto</th>
+                            <th>Imagem</th>
+                            <th>Tipo</th>
                             <th>Cor</th>
                             <th>Marca</th>
                             <th>Tamanho</th>
-                            <th>Gênero</th>
+                            <th>Modelo</th>
                             <th>Estação</th>
                             <th>Valor</th>
                             <th>Estoque</th>
+                            <th>Ações</th> <!-- Nova coluna para os botões -->
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- 1 -->
                         @foreach ($produtos as $produto)
-                            <tr>
-                                <td>{{ $produto->nome_produto }}</td>
+                            <td>{{ $produto->nome_produto }}</td>
+                            <td>
+                                @if($produto->imagens->count() > 0)
+                                    @php
+                                        $mainImage = $produto->imagens->where('principal', true)->first() ?? $produto->imagens->first();
+                                    @endphp
+                                    <img src="{{ asset($mainImage->caminho) }}" alt="{{ $produto->nome_produto }}" width="60">
+                                @else
+                                    <i class="fas fa-camera" style="font-size: 20px;"></i>
+                                @endif
+                            </td>
+                            <td>{{ $produto->tipo }}</td>
+                            <td>
+                                @foreach($produto->variacoes->unique('cor_id') as $variacao)
+                                    <span
+                                        style="background-color: {{ $variacao->cor->codigo_hex }}; 
+                                                                                          display: inline-block; width: 15px; height: 15px;"></span>
+                                    {{ $variacao->cor->nome }}@if(!$loop->last), @endif
+                                @endforeach
+                            </td>
+                            <td>{{ $produto->marca }}</td>
+                            <td>
+                                @foreach($produto->variacoes->unique('tamanho_id') as $variacao)
+                                    {{ $variacao->tamanho->nome }}@if(!$loop->last), @endif
+                                @endforeach
+                            </td>
+                            <td>{{ $produto->modelo }}</td>
+                            <td>{{ $produto->estacao }}</td>
+                            <td>R${{ number_format($produto->preco, 2, ',', '.') }}</td>
+                            <td>
+                                @foreach($produto->variacoes as $variacao)
+                                    {{ $variacao->estoque }} ({{ $variacao->tamanho->nome }})@if(!$loop->last)<br>@endif
+                                @endforeach
+                            </td>
+                            <td>
+                                <!-- Botão Editar -->
+                                <a href="{{ route('produtos.edit', $produto->id_produto) }}" class="btn-edit"
+                                    title="Editar produto">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
 
-                                <td>
-                                    <div class="Produto"> <img
-                                            src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
-                                            alt="{{ $produto->nome_produto }}" class="imagem-best-seller" /></div>
-                                </td>
-                                <td>{{ $produto->tipo }}</td>
-
-                                {{-- Cores --}}
-                                <td>
-                                    @foreach($produto->variacoes->unique('cor_id') as $variacao)
-                                        {{ $variacao->cor->nome }}@if(!$loop->last), @endif
-                                    @endforeach
-                                </td>
-
-                                <td>{{ $produto->marca }}</td>
-
-                                {{-- Tamanhos --}}
-                                <td>
-                                    @foreach($produto->variacoes->unique('tamanho_id') as $variacao)
-                                        {{ $variacao->tamanho->nome }}@if(!$loop->last), @endif
-                                    @endforeach
-                                </td>
-
-                                <td>{{ $produto->genero }}</td>
-
-                                <td>
-                                    @foreach($produto->categorias as $categoria)
-                                        @if($categoria->nome_categoria === 'Verão' || $categoria->nome_categoria === 'Inverno')
-                                            {{ $categoria->nome_categoria }}
-                                        @endif
-                                    @endforeach
-                                </td>
-
-                                <!-- <td>
-                                            @foreach($produto->categorias as $categoria)
-                                                {{ $categoria->nome_categoria }}@if(!$loop->last), @endif
-                                            @endforeach
-                                        </td>
-                                        <td>{{ $produto->categorias->first()->nome_categoria ?? 'Sem estação' }}</td> -->
-
-
-                                {{-- Preço do produto base --}}
-                                <td>R${{ number_format($produto->preco, 2, ',', '.') }}</td>
-
-                                {{-- Estoque por tamanho --}}
-                                <td>
-                                    @foreach($produto->variacoes as $variacao)
-                                        {{ $variacao->estoque }} - {{ $variacao->tamanho->nome }}@if(!$loop->last), @endif
-                                    @endforeach
-                                </td>
-
-                                <td>
-                                    <button class="delete-product" title="Excluir produto">
+                                <!-- Botão Excluir -->
+                                <form action="{{ route('produtos.destroy', $produto->id_produto) }}" method="POST"
+                                    class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn-delete" title="Excluir produto"
+                                        onclick="showConfirmModal(this)">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
-                                </td>
+                                </form>
+                            </td>
                             </tr>
                         @endforeach
-
                     </tbody>
-
                 </table>
             </main>
     </div>
     </div>
 
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Exclusão</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este produto?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel">Cancelar</button>
+                <button class="btn-confirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+
+
     <script src="script.js"></script>
+
+    <script>
+        // Variável para armazenar o formulário que será submetido
+        let formToSubmit = null;
+
+        // Função para mostrar o modal
+        function showConfirmModal(button) {
+            const modal = document.getElementById('confirmModal');
+            formToSubmit = button.closest('form');
+            modal.style.display = 'flex';
+        }
+
+        // Fechar modal quando clicar no X
+        document.querySelector('.close-modal').addEventListener('click', function () {
+            document.getElementById('confirmModal').style.display = 'none';
+        });
+
+        // Fechar modal quando clicar no Cancelar
+        document.querySelector('.btn-cancel').addEventListener('click', function () {
+            document.getElementById('confirmModal').style.display = 'none';
+        });
+
+        // Confirmar exclusão
+        document.querySelector('.btn-confirm').addEventListener('click', function () {
+            if (formToSubmit) {
+                formToSubmit.submit();
+            }
+            document.getElementById('confirmModal').style.display = 'none';
+        });
+
+        // Fechar modal quando clicar fora dele
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 
 </html>

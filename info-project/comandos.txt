@@ -3,3 +3,6 @@ rodar projeto-> npm run dev
 
 
 cores-> php artisan db:seed
+composer require guzzlehttp/guzzle
+
+composer global require laravel/installer

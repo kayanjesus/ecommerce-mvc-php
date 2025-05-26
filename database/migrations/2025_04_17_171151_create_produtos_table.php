@@ -15,13 +15,14 @@ return new class extends Migration {
         Schema::create('produtos', function (Blueprint $table) {
             $table->id('id_produto');
             $table->string('nome_produto');
-            $table->string('tipo');
+            $table->string('tipo'); // Agora será usado para categorias
             $table->string('slug')->unique();
-            $table->text('descricao')->nullable();
+            $table->text('variacao')->nullable(); // Antiga 'descricao'
             $table->string('marca');
             $table->decimal('preco', 10, 2);
             $table->string('tecido');
-            $table->string('genero');
+            $table->enum('estacao', ['Verão', 'Inverno']); // Novo campo
+            $table->string('modelo'); // Antigo 'genero'
             $table->timestamps();
         });
 

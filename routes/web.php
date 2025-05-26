@@ -9,6 +9,7 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\CarrinhoController;
 use App\Http\Controllers\FavoritosController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PagamentoController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -48,25 +49,32 @@ Route::get('/temporada/{temporada}', [SiteController::class, 'temporada'])->name
 
 
 // Carrinho
-Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])
-    ->name('home.carrinho')
-    ->middleware('auth');
-// Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])->name('home.carrinho');
-Route::post('/carrinho', [CarrinhoController::class, 'adicionaCarrinho'])->name('home.addcarrinho');
-Route::post('/remover', [CarrinhoController::class, 'removeCarrinho'])->name('home.removecarrinho');
-Route::post('/atualizar', [CarrinhoController::class, 'atualizaCarrinho'])->name('home.atualizacarrinho');
-Route::get('/limpar', [CarrinhoController::class, 'limparCarrinho'])->name('home.limparcarrinho');
+
+Route::middleware(['web'])->group(function () {
+    Route::post('/adicionar-carrinho', [CarrinhoController::class, 'adicionaCarrinho'])->name('home.addcarrinho');
+    Route::get('/carrinho', [CarrinhoController::class, 'carrinhoLista'])
+        ->name('home.carrinho')
+        ->middleware('auth');
+    Route::post('/remover', [CarrinhoController::class, 'removeCarrinho'])->name('home.removecarrinho');
+    Route::post('/atualizar', [CarrinhoController::class, 'atualizaCarrinho'])->name('home.atualizacarrinho');
+    Route::get('/limpar', [CarrinhoController::class, 'limparCarrinho'])->name('home.limparcarrinho');
+
+});
 
 // Favoritos
-Route::get('/favoritos/lista', [FavoritosController::class, 'favoritosLista'])
-    ->name('home.favoritos')
-    ->middleware('auth');
+Route::prefix('favoritos')->group(function () {
+    Route::get('/', [FavoritosController::class, 'favoritosLista'])
+        ->name('home.favoritos');
 
-Route::post('/add/favoritos', [FavoritosController::class, 'adicionaFavoritos'])->name('home.addfavoritos');
-Route::post('/favoritos/remover', [FavoritosController::class, 'removeFavoritos'])->name('home.removefavoritos');
-Route::post('/favoritos/atualizar', [FavoritosController::class, 'atualizaFavoritos'])->name('home.atualizafavoritos');
-Route::get('/favoritos/limpar', [FavoritosController::class, 'limparFavoritos'])->name('home.limparfavoritos');
+    Route::post('/adicionar', [FavoritosController::class, 'adicionaFavoritos'])
+        ->name('home.addfavoritos');
 
+    Route::post('/remover', [FavoritosController::class, 'removeFavoritos'])
+        ->name('home.removefavoritos');
+
+    Route::get('/limpar', [FavoritosController::class, 'limparFavoritos'])
+        ->name('home.limparfavoritos');
+});
 
 // login/cadastro
 Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
@@ -103,10 +111,36 @@ Route::middleware('auth')->group(function () {
 // Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');
 
 
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('adm.dashboard');
-Route::get('/pedidos', [DashboardController::class, 'pedidos'])->name('adm.pedidos');
-Route::get('/pdtestoque', [DashboardController::class, 'pdtestoque'])->name('adm.pdtestoque');
-Route::get('/cdtproduto', [DashboardController::class, 'cdtproduto'])->name('adm.cdtproduto');
-Route::get('/usercadastrado', [DashboardController::class, 'usercadastrado'])->name('adm.usercadastrado');
-Route::get('/vendas', [DashboardController::class, 'vendas'])->name('adm.vendas');
+// Rotas para produtos
+Route::resource('produtos', ProdutoController::class)->except(['show']);
+Route::prefix('adm')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('adm.dashboard');
+    Route::get('/pedidos', [DashboardController::class, 'pedidos'])->name('adm.pedidos');
+    Route::get('/pdtestoque', [DashboardController::class, 'pdtestoque'])->name('adm.pdtestoque');
+    Route::get('/cdtproduto', [DashboardController::class, 'cdtproduto'])->name('adm.cdtproduto');
+    Route::get('/usercadastrado', [DashboardController::class, 'usercadastrado'])->name('adm.usercadastrado');
+    Route::get('/vendas', [DashboardController::class, 'vendas'])->name('adm.vendas');
+    Route::get('/produtos/{id}/edit', [ProdutoController::class, 'edit'])->name('adm.edit');
+    Route::put('/produtos/{id}', [ProdutoController::class, 'update'])->name('adm.update');
+});
+
+// Pagamento
+Route::prefix('pagamento')->middleware('auth')->group(function () {
+    Route::get('/cep', [PagamentoController::class, 'cep'])->name('pagamento.cep');
+    Route::post('/buscar-cep', [PagamentoController::class, 'buscarCep'])->name('pagamento.buscar-cep');
+    Route::post('/salvar-endereco', [PagamentoController::class, 'salvarEndereco'])->name('pagamento.salvar-endereco');
+    Route::get('/revisao', [PagamentoController::class, 'revisao'])->name('pagamento.revisao');
+    Route::get('/buscar-cep', [PagamentoController::class, 'buscarCep'])
+        ->name('pagamento.buscar-cep');
+    Route::get('/revisao', [PagamentoController::class, 'revisao'])
+        ->name('pagamento.revisao');
+    Route::post('/finalizar', [PagamentoController::class, 'finalizar'])
+        ->name('pagamento.finalizar');
+    Route::get('/sucesso', [PagamentoController::class, 'sucesso'])
+        ->name('pagamento.sucesso');
+
+    Route::get('/erro', [PagamentoController::class, 'erro'])
+        ->name('pagamento.erro');
+});
+
 require __DIR__ . '/auth.php';
