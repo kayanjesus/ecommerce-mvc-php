@@ -1,0 +1,85 @@
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f8f8f8;
+            color: #333;
+        }
+
+        header {
+            background: #fff;
+            padding: 10px 20px;
+            border-bottom: 3px solid #a52a2a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 40px;
+        }
+
+        .step {
+            position: relative;
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .step.active {
+            font-weight: bold;
+            color: #a52a2a;
+        }
+
+        .step.active::before {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            background: #a52a2a;
+            border-radius: 50%;
+            margin: 0 auto 5px auto;
+        }
+
+        .revisao-container {
+            background: #fff;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        .secao {
+            margin-bottom: 25px;
+        }
+
+        .secao h3 {
+            color: #a52a2a;
+            margin-bottom: 10px;
+        }
+
+        .total {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .btn-confirmar {
+            background: #a52a2a;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-confirmar:hover {
+            background: #8b1f1f;
+        }

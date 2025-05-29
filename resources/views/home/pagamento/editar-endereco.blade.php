@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrega - Cantinho da Isa</title>
+    <title>Editar Endereço - Cantinho da Isa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/pagamento.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -24,7 +22,7 @@
     <!-- Progresso -->
     <div class="etapas">
         <div class="etapa etapa-ativa"></div>
-        <div class="etapa"></div>
+        <div class="etapa {{ session()->has('forma_pagamento') ? 'etapa-ativa' : '' }}"></div>
         <div class="etapa"></div>
     </div>
 
@@ -35,12 +33,6 @@
 
     <!-- Conteúdo Principal -->
     <div class="container py-4">
-        @if(session('erro'))
-            <div class="alert alert-danger">
-                {{ session('erro') }}
-            </div>
-        @endif
-
         <div class="row">
             <!-- Resumo do Pedido -->
             <div class="col-lg-6 mb-4">
@@ -59,15 +51,6 @@
                                 @endif
                                 Quantidade: {{ $item->quantity }}
                             </p>
-                                <td>
-                                    <form action="{{ route('home.removecarrinho') }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $item->id }}">
-                                        <button type="submit" class="btn-floating waves-effect waves-light red">
-                                            <i class="material-icons">delete</i>
-                                        </button>
-                                    </form>
-                                </td>
                             <p class="mb-0">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
                         </div>
                     </div>
@@ -77,18 +60,18 @@
                 </div>
             </div>
 
-            <!-- Formulário de Entrega -->
+            <!-- Formulário de Edição -->
             <div class="col-lg-6">
                 <div class="form-container">
-                    <h5 class="form-title"><i class="fas fa-truck me-2"></i>Informações de Entrega</h5>
+                    <h5 class="form-title"><i class="fas fa-edit me-2"></i>Editar Endereço</h5>
                     
-                    <form action="{{ route('pagamento.salvar-endereco') }}" method="POST">
+                    <form action="{{ route('pagamento.atualizar-endereco') }}" method="POST">
                         @csrf
 
                         <div class="form-group">
                             <label for="cep">CEP</label>
                             <input type="text" class="form-control" name="cep" id="cep" placeholder="00000-000" 
-                                   value="{{ old('cep') }}" required>
+                                   value="{{ $endereco['cep'] }}" required>
                             <small class="text-muted">Digite seu CEP para autopreencher</small>
                             <div class="alert-cep invalid-feedback"></div>
                         </div>
@@ -96,19 +79,19 @@
                         <div class="form-group">
                             <label for="rua">Rua</label>
                             <input type="text" class="form-control" name="rua" id="rua" 
-                                   value="{{ old('rua') }}" required>
+                                   value="{{ $endereco['rua'] }}" required>
                         </div>
 
                         <div class="row">
                             <div class="col-md-8 form-group">
                                 <label for="bairro">Bairro</label>
                                 <input type="text" class="form-control" name="bairro" id="bairro" 
-                                       value="{{ old('bairro') }}" required>
+                                       value="{{ $endereco['bairro'] }}" required>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="numero">Número</label>
                                 <input type="text" class="form-control" name="numero" id="numero" 
-                                       value="{{ old('numero') }}" required>
+                                       value="{{ $endereco['numero'] }}" required>
                             </div>
                         </div>
 
@@ -116,24 +99,30 @@
                             <div class="col-md-8 form-group">
                                 <label for="cidade">Cidade</label>
                                 <input type="text" class="form-control" name="cidade" id="cidade" 
-                                       value="{{ old('cidade') }}" required>
+                                       value="{{ $endereco['cidade'] }}" required>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="estado">Estado</label>
                                 <input type="text" class="form-control" name="estado" id="estado" 
-                                       value="{{ old('estado') }}" required>
+                                       value="{{ $endereco['estado'] }}" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="complemento">Complemento (Opcional)</label>
                             <input type="text" class="form-control" name="complemento" id="complemento"
-                                   value="{{ old('complemento') }}">
+                                   value="{{ $endereco['complemento'] ?? '' }}">
                         </div>
 
-                        <button type="submit" class="btn btn-primary mt-3">
-                            Continuar <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Salvar Alterações
+                            </button>
+                            <a href="{{ session()->has('forma_pagamento') ? route('pagamento.revisao') : route('pagamento.forma-pagamento') }}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -143,6 +132,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Mesmo script de busca de CEP da página anterior -->
     <script>
     $(document).ready(function() {
         // Formatação automática do CEP

@@ -54,7 +54,7 @@
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="login-link">
-                            Faça seu login ou cadastre-se
+                            Entre ou cadastre-se
                         </a>
                     @endauth
                 </div>

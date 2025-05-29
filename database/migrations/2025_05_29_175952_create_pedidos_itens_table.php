@@ -10,19 +10,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Tabela de Pagamentos
-        Schema::create('pagamentos', function (Blueprint $table) {
-            $table->id('id_pagamento');
+        Schema::create('pedido_itens', function (Blueprint $table) {
+            $table->id('id_item');
             $table->unsignedBigInteger('id_pedido');
-            $table->enum('metodo_pagamento', ['cartao', 'boleto', 'pix']);
-            $table->decimal('valor_pago', 10, 2);
-            $table->timestamp('data_pagamento');
-            $table->enum('status', ['pendente', 'pago', 'cancelado'])->default('pendente');
+            $table->unsignedBigInteger('id_produto');
+            $table->integer('quantidade');
+            $table->decimal('preco_unitario', 10, 2);
+            $table->string('cor')->nullable();
+            $table->string('tamanho')->nullable();
             $table->timestamps();
 
             $table->foreign('id_pedido')->references('id_pedido')->on('pedidos')->onDelete('cascade');
+            $table->foreign('id_produto')->references('id_produto')->on('produtos')->onDelete('cascade');
         });
-
     }
 
     /**
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('pagamentos');
+        Schema::dropIfExists('pedidos_itens');
     }
 };

@@ -124,23 +124,18 @@ Route::prefix('adm')->group(function () {
     Route::put('/produtos/{id}', [ProdutoController::class, 'update'])->name('adm.update');
 });
 
-// Pagamento
+//  pagamento
 Route::prefix('pagamento')->middleware('auth')->group(function () {
     Route::get('/cep', [PagamentoController::class, 'cep'])->name('pagamento.cep');
-    Route::post('/buscar-cep', [PagamentoController::class, 'buscarCep'])->name('pagamento.buscar-cep');
+    Route::get('/buscar-cep', [PagamentoController::class, 'buscarCep'])->name('pagamento.buscar-cep');
     Route::post('/salvar-endereco', [PagamentoController::class, 'salvarEndereco'])->name('pagamento.salvar-endereco');
+    Route::get('/forma-pagamento', [PagamentoController::class, 'formaPagamento'])->name('pagamento.forma-pagamento');
+    Route::post('/salvar-forma-pagamento', [PagamentoController::class, 'salvarFormaPagamento'])->name('pagamento.salvar-forma-pagamento');
     Route::get('/revisao', [PagamentoController::class, 'revisao'])->name('pagamento.revisao');
-    Route::get('/buscar-cep', [PagamentoController::class, 'buscarCep'])
-        ->name('pagamento.buscar-cep');
-    Route::get('/revisao', [PagamentoController::class, 'revisao'])
-        ->name('pagamento.revisao');
-    Route::post('/finalizar', [PagamentoController::class, 'finalizar'])
-        ->name('pagamento.finalizar');
-    Route::get('/sucesso', [PagamentoController::class, 'sucesso'])
-        ->name('pagamento.sucesso');
-
-    Route::get('/erro', [PagamentoController::class, 'erro'])
-        ->name('pagamento.erro');
+    Route::get('/editar-endereco', [PagamentoController::class, 'editarEndereco'])->name('pagamento.editar-endereco');
+    Route::post('/atualizar-endereco', [PagamentoController::class, 'atualizarEndereco'])->name('pagamento.atualizar-endereco');
+    Route::post('/finalizar', [PagamentoController::class, 'finalizar'])->name('pagamento.finalizar'); // Esta é a rota que estava faltando
+    Route::get('/erro', [PagamentoController::class, 'erro'])->name('pagamento.erro');
 });
 
 require __DIR__ . '/auth.php';
