@@ -39,16 +39,38 @@
             <div class="col-lg-6 mb-4">
                 <div class="produto-container">
                     @foreach($itens as $item)
+                        @php
+                            $cartItem = \Cart::get($item->id);
+                            if (!$cartItem)
+                                continue;
+
+                            $cor = isset($item->attributes['cor_id'])
+                                ? App\Models\Cor::find($item->attributes['cor_id'])
+                                : null;
+
+                            $tamanho = isset($item->attributes['tamanho_id'])
+                                ? App\Models\Tamanho::find($item->attributes['tamanho_id'])
+                                : null;
+                        @endphp
+
                         <div class="d-flex mb-3">
-                            <img src="{{ $item->attributes->image }}" class="produto-img me-3" alt="{{ $item->name }}">
+                            @if($item->attributes->image)
+                                <img src="{{ asset($item->attributes->image) }}" class="produto-img me-3"
+                                    alt="{{ $item->name }}" loading="lazy">
+                            @else
+                                <div class="produto-img me-3 d-flex align-items-center justify-content-center bg-light">
+                                    <i class="fas fa-camera text-muted"></i>
+                                </div>
+                            @endif
+
                             <div class="produto-info">
                                 <p class="mb-1">
                                     <strong>{{ $item->name }}</strong><br>
-                                    @if($item->attributes->cor)
-                                        Cor: {{ $item->attributes->cor }}<br>
+                                    @if($cor)
+                                        Cor: {{ $cor->nome }}<br>
                                     @endif
-                                    @if($item->attributes->tamanho)
-                                        Tamanho: {{ $item->attributes->tamanho }}<br>
+                                    @if($tamanho)
+                                        Tamanho: {{ $tamanho->nome }}<br>
                                     @endif
                                     Quantidade: {{ $item->quantity }}
                                 </p>

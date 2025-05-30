@@ -20,6 +20,41 @@
             width: 50px;
             text-align: center;
         }
+
+        .checkout-form {
+            display: none;
+        }
+
+        .selectable-row:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .selected-row {
+            background-color: #e3f2fd;
+        }
+
+        /* Adicione ao seu arquivo CSS */
+        #select-all {
+            margin-right: 5px;
+        }
+
+        [type="checkbox"]:indeterminate+span:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 10px;
+            height: 2px;
+            background-color: #26a69a;
+            transform: translate(3px, -50%);
+        }
+
+        .select-all-label {
+            font-weight: normal;
+            color: #666;
+            font-size: 0.9rem;
+        }
     </style>
     <title>Carrinho</title>
 </head>
@@ -69,9 +104,20 @@
         <div class="container">
             <h5>Seu carrinho possui {{ $itens->count() }} produtos</h5>
 
+            <form id="checkout-form" class="checkout-form" action="{{ route('pagamento.cep') }}" method="GET">
+                <input type="hidden" name="tipo_checkout" id="tipo-checkout" value="selecionados">
+                <input type="hidden" name="selected_items" id="selected-items">
+            </form>
+
             <table class="striped">
                 <thead>
                     <tr>
+                        <th>
+                            <label>
+                                <input type="checkbox" id="select-all" class="filled-in" />
+                                <span>Todos</span>
+                            </label>
+                        </th>
                         <th>Produto</th>
                         <th>Nome</th>
                         <th>Cor</th>
@@ -83,7 +129,13 @@
                 </thead>
                 <tbody>
                     @foreach ($itens as $item)
-                            <tr>
+                            <tr class="selectable-row" data-id="{{ $item->id }}">
+                                <td>
+                                    <label>
+                                        <input type="checkbox" class="filled-in item-checkbox" data-id="{{ $item->id }}" />
+                                        <span></span>
+                                    </label>
+                                </td>
                                 <td>
                                     @php
                                         $produto = App\Models\Produto::find(explode('-', $item->id)[0]);
@@ -145,7 +197,7 @@
 
             <div class="card orange">
                 <div class="card-content white-text">
-                    <span class="card-title">TOTAL: R$ {{ number_format(\Cart::getTotal(), 2, ',', '.') }}</span>
+                    <span class="card-title">TOTAL SELECIONADO: <span id="total-selecionado">R$ 0,00</span></span>
                     <p>Pague em até 6x sem juros!</p>
                 </div>
             </div>
@@ -162,15 +214,12 @@
                     </a>
                 </div>
 
-
                 <div class="col s12 m4">
-                    <a href="{{ route('pagamento.cep') }}" class="btn waves-effect waves-light green">Finalizar pedido<i
-                            class="material-icons right">check</i>
-                    </a>
+                    <button id="finalizar-selecionados" class="btn waves-effect waves-light green">
+                        Finalizar selecionados <i class="material-icons right">check</i>
+                    </button>
                 </div>
-
             </div>
-        </div>
         </div>
     @endif
 
@@ -183,9 +232,158 @@
                 });
             });
 
+
+            const selectAllCheckbox = document.getElementById('select-all');
+
+            selectAllCheckbox.addEventListener('change', function () {
+                const isChecked = this.checked;
+
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    // Dispara o evento change manualmente para atualizar a UI
+                    const event = new Event('change');
+                    checkbox.dispatchEvent(event);
+                });
+            });
+
+            // Atualiza o "Selecionar todos" quando itens individuais são alterados
+            function updateSelectAllCheckbox() {
+                const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+                const someChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = someChecked && !allChecked;
+            }
+
+            // Modifique a função updateSelection para chamar updateSelectAllCheckbox
+            function updateSelection() {
+                const selectedIds = [];
+                let total = 0;
+
+                checkboxes.forEach(checkbox => {
+                    const itemId = checkbox.dataset.id;
+                    const row = checkbox.closest('tr');
+
+                    if (checkbox.checked) {
+                        selectedIds.push(itemId);
+                        row.classList.add('selected-row');
+
+                        // Calcula subtotal
+                        const item = cartItems[itemId];
+                        total += item.price * item.quantity;
+                    } else {
+                        row.classList.remove('selected-row');
+                    }
+                });
+
+                // Atualiza UI
+                totalSelecionado.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+                finalizarBtn.disabled = selectedIds.length === 0;
+                selectedItemsInput.value = JSON.stringify(selectedIds);
+
+                // Atualiza o checkbox "Selecionar todos"
+                updateSelectAllCheckbox();
+            }
+
+
             // Inicializa componentes do Materialize
             M.AutoInit();
+
+            // Seleção de itens
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            const finalizarBtn = document.getElementById('finalizar-selecionados');
+            const totalSelecionado = document.getElementById('total-selecionado');
+            const selectedItemsInput = document.getElementById('selected-items');
+            const rows = document.querySelectorAll('.selectable-row');
+            const checkoutForm = document.getElementById('checkout-form');
+
+            // Dados do carrinho para cálculo
+            const cartItems = @json($itens->mapWithKeys(function ($item) {
+                return [$item->id => $item];
+            }));
+
+            // Atualiza seleção e total
+            function updateSelection() {
+                const selectedIds = [];
+                let total = 0;
+
+                checkboxes.forEach(checkbox => {
+                    const itemId = checkbox.dataset.id;
+                    const row = checkbox.closest('tr');
+
+                    if (checkbox.checked) {
+                        selectedIds.push(itemId);
+                        row.classList.add('selected-row');
+
+                        // Calcula subtotal
+                        const item = cartItems[itemId];
+                        total += item.price * item.quantity;
+                    } else {
+                        row.classList.remove('selected-row');
+                    }
+                });
+
+                // Atualiza UI
+                totalSelecionado.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+                finalizarBtn.disabled = selectedIds.length === 0;
+                selectedItemsInput.value = JSON.stringify(selectedIds);
+            }
+
+            // Event listeners
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelection);
+            });
+
+            // Clica na linha para selecionar
+            rows.forEach(row => {
+                row.addEventListener('click', (e) => {
+                    // Não dispara se clicou em um link ou botão
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' ||
+                        e.target.tagName === 'INPUT' || e.target.closest('a') ||
+                        e.target.closest('button') || e.target.closest('input')) {
+                        return;
+                    }
+
+                    const checkbox = row.querySelector('.item-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            });
+
+            // Finalizar pedido com itens selecionados
+            // Finalizar pedido com itens selecionados
+            finalizarBtn.addEventListener('click', () => {
+                const selectedItems = JSON.parse(selectedItemsInput.value);
+
+                if (selectedItems.length === 0) {
+                    M.toast({ html: 'Selecione pelo menos um item para finalizar', classes: 'red' });
+                    return;
+                }
+
+                // Verifica se os itens selecionados ainda estão no carrinho
+                const validItems = selectedItems.filter(itemId => {
+                    return cartItems.hasOwnProperty(itemId);
+                });
+
+                if (validItems.length === 0) {
+                    M.toast({ html: 'Os itens selecionados não estão mais disponíveis', classes: 'red' });
+                    return;
+                }
+
+                // Atualiza a lista com apenas os itens válidos
+                selectedItemsInput.value = JSON.stringify(validItems);
+
+                // Define o tipo de checkout como 'selecionados'
+                document.getElementById('tipo-checkout').value = 'selecionados';
+
+                // Submete o formulário
+                checkoutForm.submit();
+            });
+
+            // Inicializa a seleção
+            updateSelection();
         });
+
     </script>
 </body>
 

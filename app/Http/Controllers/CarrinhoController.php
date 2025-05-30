@@ -9,6 +9,7 @@ use App\Models\Produto; // Adicione esta linha
 use App\Models\Carrinho; // Se você ainda não tiver
 use Illuminate\Support\Facades\Auth; // Para usar o Auth
 use Darryldecode\Cart\Facades\CartFacade as Cart;
+use Illuminate\Support\Facades\Storage;
 
 class CarrinhoController extends Controller
 {
@@ -144,10 +145,14 @@ class CarrinhoController extends Controller
         try {
             $cartContent = \Cart::getContent()->toArray();
 
-            Carrinho::updateOrCreate(
-                ['id_usuario' => $userId],
-                ['conteudo' => json_encode($cartContent)]
-            );
+            if (empty($cartContent)) {
+                Carrinho::where('id_usuario', $userId)->delete();
+            } else {
+                Carrinho::updateOrCreate(
+                    ['id_usuario' => $userId],
+                    ['conteudo' => json_encode($cartContent)]
+                );
+            }
 
             \Log::debug('Carrinho salvo no banco para o usuário: ' . $userId);
 

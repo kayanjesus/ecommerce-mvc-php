@@ -10,6 +10,8 @@ use App\Http\Controllers\CarrinhoController;
 use App\Http\Controllers\FavoritosController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\NotificacaoController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,16 +37,28 @@ Route::get('/', [SiteController::class, 'index'])->name('home.index');
 Route::get('/produtos-home', [ProdutoController::class, 'index'])->name('produtos.home');
 Route::resource('produtos', ProdutoController::class);
 
-Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('adm.pdtestoque');
-Route::post('/produtos/store', [ProdutoController::class, 'store'])->name('produtos.store');
-
-
 Route::get('/produto/{slug}', [SiteController::class, 'details'])->name('home.details');
-
 
 
 Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->name('home.categoria');
 Route::get('/temporada/{temporada}', [SiteController::class, 'temporada'])->name('temporada');
+
+
+// Rotas de administração de pedidos
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/pedidos', [PedidoController::class, 'index'])->name('adm.pedidos');
+    Route::patch('/pedidos/{id}/status', [PedidoController::class, 'alterarStatus'])->name('adm.pedidos.alterar-status');
+    Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('adm.pedidos.detalhes');
+    // Notificações
+    Route::get('/notificacoes', [NotificacaoController::class, 'index'])->name('adm.notificacoes');
+    Route::post('/notificacoes/marcar-lida', [NotificacaoController::class, 'marcarComoLida'])->name('adm.notificacoes.marcar-lida');
+    Route::post('/notificacoes/marcar-todas-lidas', [NotificacaoController::class, 'marcarTodasComoLidas'])->name('adm.notificacoes.marcar-todas-lidas');
+    Route::get('/metricas', [NotificacaoController::class, 'metricas'])->name('adm.metricas');
+});
+
+// CRUD ADM
+Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('adm.pdtestoque');
+Route::post('/produtos/store', [ProdutoController::class, 'store'])->name('produtos.store');
 
 
 

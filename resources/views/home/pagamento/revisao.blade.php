@@ -38,27 +38,79 @@
             <!-- Resumo do Pedido -->
             <div class="col-lg-6 mb-4">
                 <div class="produto-container">
+                    <h5 class="mb-3"><i class="fas fa-shopping-bag me-2"></i>Seu Pedido</h5>
+
                     @foreach($itens as $item)
-                    
-                        <div class="d-flex mb-3">
-                            <img src="{{ $item->attributes->image }}" class="produto-img me-3" alt="{{ $item->name }}">
-                            <div class="produto-info">
-                                <p class="mb-1">
-                                    <strong>{{ $item->name }}</strong><br>
-                                    @if($item->attributes->cor)
-                                        Cor: {{ $item->attributes->cor }}<br>
+                        @php
+                            // Verifica se o item está no carrinho (para evitar erros)
+                            $cartItem = \Cart::get($item->id);
+                            if (!$cartItem) {
+                                continue; // Pula itens que não estão mais no carrinho
+                            }
+
+                            $cor = isset($item->attributes['cor_id'])
+                                ? App\Models\Cor::find($item->attributes['cor_id'])
+                                : null;
+
+                            $tamanho = isset($item->attributes['tamanho_id'])
+                                ? App\Models\Tamanho::find($item->attributes['tamanho_id'])
+                                : null;
+
+                            $subtotal = $item->price * $item->quantity;
+                        @endphp
+
+                        <div class="produto-item p-3 mb-3 rounded">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex">
+                                    @if($item->attributes->image)
+                                        <img src="{{ asset($item->attributes->image) }}" class="produto-img me-3"
+                                            alt="{{ $item->name }}" loading="lazy">
+                                    @else
+                                        <div class="produto-img me-3 d-flex align-items-center justify-content-center bg-light">
+                                            <i class="fas fa-camera text-muted"></i>
+                                        </div>
                                     @endif
-                                    @if($item->attributes->tamanho)
-                                        Tamanho: {{ $item->attributes->tamanho }}<br>
-                                    @endif
-                                    Quantidade: {{ $item->quantity }}
-                                </p>
-                                <p class="mb-0">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
+
+                                    <div class="produto-info">
+                                        <h6 class="mb-1 fw-bold">{{ $item->name }}</h6>
+
+                                        <div class="d-flex align-items-center mb-1">
+                                            Cor:<span class="color-preview me-2"
+                                                style="background-color: {{ $cor->codigo_hex ?? '#ccc' }}"></span>
+                                            <span>{{ $cor->nome ?? 'Cor não especificada' }}</span>
+                                        </div>
+
+                                        <div class="mb-1">
+                                            <span class="text-muted">Tamanho:</span>
+                                            <span>{{ $tamanho->nome ?? 'Tamanho não especificado' }}</span>
+                                        </div>
+
+                                        <div>
+                                            <span class="text-muted">Quantidade:</span>
+                                            <span>{{ $item->quantity }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3 text-nowrap">
+                                            <div class="fw-bold">R$ {{ number_format($item->price, 2, ',', '.') }}</div>
+
+                                        </div>
+                                        <button class="btn btn-remover" data-id="{{ $item->id }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
 
-                    <div class="total">Total: R$ {{ number_format($total, 2, ',', '.') }}</div>
+                    <div class="total mt-4 p-3 bg-light rounded d-flex justify-content-between align-items-center">
+                        <strong>Total do Pedido</strong>
+                        <strong class="fs-5">R$ {{ number_format($total, 2, ',', '.') }}</strong>
+                    </div>
                 </div>
             </div>
 
@@ -123,9 +175,79 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.getElementById('formFinalizar').addEventListener('submit', function () {
-            document.getElementById('btnConfirmar').disabled = true;
-            document.getElementById('spinner').classList.remove('d-none');
+        document.getElementById('formFinalizar').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btnConfirmar');
+            const spinner = document.getElementById('spinner');
+
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            // Envia o formulário via AJAX
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    metodo_pagamento: '{{ session("forma_pagamento") }}'
+                })
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    if (data && data.error) {
+                        alert(data.error);
+                        btn.disabled = false;
+                        spinner.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocorreu um erro ao processar seu pedido.');
+                    btn.disabled = false;
+                    spinner.classList.add('d-none');
+                });
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('.btn-remover').click(function (e) {
+                e.preventDefault();
+                const itemId = $(this).data('id');
+                const itemElement = $(this).closest('.produto-item');
+
+                // Confirmação antes de remover
+                if (confirm('Deseja realmente remover este item do carrinho?')) {
+                    // Adicione aqui a chamada AJAX para remover o item
+                    $.ajax({
+                        url: '/carrinho/remover/' + itemId,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            itemElement.fadeOut(300, function () {
+                                $(this).remove();
+                                // Atualizar o total aqui se necessário
+                            });
+                        },
+                        error: function (xhr) {
+                            alert('Ocorreu um erro ao remover o item.');
+                        }
+                    });
+                }
+            });
         });
     </script>
 </body>

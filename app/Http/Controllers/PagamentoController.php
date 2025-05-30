@@ -8,23 +8,56 @@ use Illuminate\Http\Request;
 use App\Models\Endereco;
 use App\Models\Pedido;
 use App\Models\PedidoItem;
+use App\Models\Tamanho;
+use App\Models\Cor;
 use App\Models\Pagamento;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Darryldecode\Cart\Facades\CartFacade as Cart;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 
 class PagamentoController extends Controller
 {
     public function cep(Request $request)
     {
-        if (session()->has('endereco_entrega')) {
-            return redirect()->route('pagamento.revisao');
+        $tipoCheckout = $request->input('tipo_checkout', 'todos');
+
+        if ($tipoCheckout === 'selecionados') {
+            // Valida os itens selecionados
+            $selectedItems = json_decode($request->input('selected_items', '[]'), true);
+
+            if (empty($selectedItems)) {
+                return redirect()->back()->with('erro', 'Selecione pelo menos um item para finalizar o pedido');
+            }
+
+            $itens = collect(\Cart::getContent())->filter(function ($item) use ($selectedItems) {
+                return in_array($item->id, $selectedItems);
+            });
+
+            session([
+                'checkout_type' => 'selecionados',
+                'selected_items' => $selectedItems,
+                'itens_checkout' => $itens
+            ]);
+        } else {
+            // Fluxo normal (todos os itens)
+            $itens = \Cart::getContent();
+            session([
+                'checkout_type' => 'todos',
+                'itens_checkout' => $itens
+            ]);
         }
 
-        $itens = Cart::getContent();
-        $total = Cart::getTotal();
+        if ($itens->isEmpty()) {
+            return redirect()->back()->with('erro', 'Seu carrinho está vazio');
+        }
+
+        $total = $itens->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
 
         return view('home.pagamento.cep', compact('itens', 'total'));
     }
@@ -147,9 +180,16 @@ class PagamentoController extends Controller
             return redirect()->route('pagamento.cep');
         }
 
+        // Usa os itens da sessão de checkout
+        if (!session()->has('itens_checkout')) {
+            return redirect()->route('pagamento.cep')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
+        }
+
         $endereco = session('endereco_entrega');
-        $itens = Cart::getContent();
-        $total = Cart::getTotal();
+        $itens = session('itens_checkout');
+        $total = $itens->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
 
         return view('home.pagamento.editar-endereco', compact('endereco', 'itens', 'total'));
     }
@@ -188,6 +228,10 @@ class PagamentoController extends Controller
         if (session()->has('forma_pagamento')) {
             return redirect()->route('pagamento.revisao');
         } else {
+            // Garante que os itens da sessão de checkout ainda existam
+            if (!session()->has('itens_checkout')) {
+                return redirect()->route('pagamento.cep')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
+            }
             return redirect()->route('pagamento.forma-pagamento');
         }
     }
@@ -199,8 +243,15 @@ class PagamentoController extends Controller
             return redirect()->route('pagamento.cep')->with('erro', 'Por favor, informe o endereço de entrega');
         }
 
-        $itens = Cart::getContent();
-        $total = Cart::getTotal();
+        // Usa os itens da sessão de checkout
+        if (!session()->has('itens_checkout')) {
+            return redirect()->route('pagamento.cep')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
+        }
+
+        $itens = session('itens_checkout');
+        $total = $itens->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
 
         return view('home.pagamento.formapagamento', compact('itens', 'total'));
     }
@@ -219,6 +270,16 @@ class PagamentoController extends Controller
 
     public function revisao()
     {
+        // Sempre usa os itens da sessão de checkout
+        if (!session()->has('itens_checkout')) {
+            return redirect()->route('home.carrinho')->with('erro', 'Seu carrinho está vazio');
+        }
+
+        $itens = session('itens_checkout');
+        $total = $itens->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
         if (!session()->has('endereco_entrega')) {
             return redirect()->route('pagamento.cep')->with('erro', 'Por favor, informe o endereço de entrega');
         }
@@ -227,70 +288,85 @@ class PagamentoController extends Controller
             return redirect()->route('pagamento.forma-pagamento')->with('erro', 'Por favor, selecione a forma de pagamento');
         }
 
-        
-        $itens = Cart::getContent();
-        $total = Cart::getTotal();
         $endereco = session('endereco_entrega');
         $formaPagamento = session('forma_pagamento');
 
         return view('home.pagamento.revisao', compact('itens', 'total', 'endereco', 'formaPagamento'));
     }
 
+
     public function finalizar(Request $request)
     {
-        // dd('Finalizar foi chamado');
-
-        $request->validate([
-            'metodo_pagamento' => 'required|in:pix,cartao,boleto'
-        ]);
-
-        // Verifica se há itens no carrinho
-        if (Cart::isEmpty()) {
-            return redirect()->back()->with('erro', 'Seu carrinho está vazio');
+        if (!session()->has('itens_checkout')) {
+            return redirect()->route('home.carrinho')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
         }
 
-        // Cria o pedido
-        $pedido = Pedido::create([
-            'id_usuario' => Auth::id(),
-            'total' => Cart::getTotal(),
-            'status' => 'pendente'
-        ]);
+        $itens = session('itens_checkout');
+        $checkoutType = session('checkout_type', 'todos');
+        $total = $itens->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
 
-        // Adiciona itens ao pedido
-        foreach (Cart::getContent() as $item) {
-            PedidoItem::create([
-                'id_pedido' => $pedido->id_pedido,
-                'id_produto' => $item->id,
-                'quantidade' => $item->quantity,
-                'preco_unitario' => $item->price,
-                'cor' => $item->attributes->cor ?? null,
-                'tamanho' => $item->attributes->tamanho ?? null
+        DB::beginTransaction();
+        try {
+            // Cria o pedido
+            $pedido = Pedido::create([
+                'id_usuario' => Auth::id(),
+                'total' => $total,
+                'status' => 'pendente',
+                'endereco_entrega' => json_encode(session('endereco_entrega'))
             ]);
-        }
 
-        // Cria o pagamento
-        $pagamento = Pagamento::create([
-            'id_pedido' => $pedido->id_pedido,
-            'metodo_pagamento' => $request->metodo_pagamento,
-            'valor_pago' => Cart::getTotal(),
-            'data_pagamento' => now(),
-            'status' => 'pendente'
-        ]);
+            // Adiciona itens ao pedido
+            foreach ($itens as $item) {
+                PedidoItem::create([
+                    'id_pedido' => $pedido->id_pedido,
+                    'id_produto' => explode('-', $item->id)[0],
+                    'quantidade' => $item->quantity,
+                    'preco_unitario' => $item->price,
+                    'cor' => isset($item->attributes['cor_id']) ? Cor::find($item->attributes['cor_id'])->nome : null,
+                    'tamanho' => isset($item->attributes['tamanho_id']) ? Tamanho::find($item->attributes['tamanho_id'])->nome : null
+                ]);
+            }
 
-        // Limpa o carrinho
-        Cart::clear();
-
-        // Salva dados na sessão para a página de sucesso
-        session([
-            'ultimo_pedido' => [
+            // Cria o pagamento
+            $pagamento = Pagamento::create([
                 'id_pedido' => $pedido->id_pedido,
-                'total' => $pedido->total,
-                'metodo_pagamento' => $request->metodo_pagamento,
-                'data' => now()->format('d/m/Y H:i')
-            ]
-        ]);
+                'metodo_pagamento' => session('forma_pagamento'),
+                'valor_pago' => $total,
+                'data_pagamento' => now(),
+                'status' => 'pendente'
+            ]);
 
-        return redirect()->route('pagamento.sucesso');
+            // Remove itens do carrinho conforme o tipo de checkout
+            if ($checkoutType === 'selecionados') {
+                $selectedItems = session('selected_items', []);
+                foreach ($selectedItems as $itemId) {
+                    if (\Cart::get($itemId)) { // Verifica se o item ainda existe no carrinho
+                        \Cart::remove($itemId);
+                    }
+                }
+            } else {
+                \Cart::clear();
+            }
+
+            // Atualiza o carrinho no banco se o usuário estiver logado
+            if (Auth::check()) {
+                $this->salvarCarrinhoNoBanco(Auth::id());
+            }
+
+            // Limpa a sessão
+            session()->forget(['itens_checkout', 'checkout_type', 'selected_items']);
+
+            DB::commit();
+
+            return redirect()->route('pagamento.sucesso');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao finalizar pedido: ' . $e->getMessage());
+            return redirect()->route('pagamento.erro')->with('erro', 'Ocorreu um erro ao processar seu pedido. Por favor, tente novamente.');
+        }
     }
 
 

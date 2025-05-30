@@ -43,11 +43,20 @@
 
         <div class="row">
             <!-- Resumo do Pedido -->
+             <!-- Resumo do Pedido -->
             <div class="col-lg-6 mb-4">
                 <div class="produto-container">
                     @foreach($itens as $item)
                     <div class="d-flex mb-3">
-                        <img src="{{ $item->attributes->image }}" class="produto-img me-3" alt="{{ $item->name }}">
+                         @if($item->attributes->image)
+                                        <img src="{{ asset($item->attributes->image) }}" class="produto-img me-3"
+                                            alt="{{ $item->name }}" loading="lazy">
+                                    @else
+                                        <div class="produto-img me-3 d-flex align-items-center justify-content-center bg-light">
+                                            <i class="fas fa-camera text-muted"></i>
+                                        </div>
+                                    @endif
+
                         <div class="produto-info">
                             <p class="mb-1">
                                 <strong>{{ $item->name }}</strong><br>
@@ -59,17 +68,11 @@
                                 @endif
                                 Quantidade: {{ $item->quantity }}
                             </p>
-                                <td>
-                                    <form action="{{ route('home.removecarrinho') }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $item->id }}">
-                                        <button type="submit" class="btn-floating waves-effect waves-light red">
-                                            <i class="material-icons">delete</i>
-                                        </button>
-                                    </form>
-                                </td>
                             <p class="mb-0">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
                         </div>
+                        <button class="btn btn-remover" data-id="{{ $item->id }}">
+                                          <i class="fas fa-trash-alt"></i>
+                                      </button>
                     </div>
                     @endforeach
                     

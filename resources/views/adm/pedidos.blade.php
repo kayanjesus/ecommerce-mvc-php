@@ -57,62 +57,92 @@
         </aside>
         <main class="conteudo">
             <section class="admin-section">
+                @foreach($pedidos as $pedido)
+                    <div class="sales-record">
+                        <p class="data-pedido">
+                            <strong>Data:</strong> {{ $pedido->created_at->format('d/m/Y') }}
+                            <span class="hora-pedido">Horário: {{ $pedido->created_at->format('H:i') }}</span>
+                        </p>
 
-                <!-- Pedido 1 -->
-                <div class="sales-record">
-                    <p class="data-pedido"><strong>Data:</strong> 00/00/0000</p>
+                        <div class="user-sale">
+                            <p>
+                                <strong>{{ $pedido->usuario->name }}</strong>
+                                <span
+                                    class="badge bg-{{ $pedido->status == 'pago' ? 'success' : ($pedido->status == 'cancelado' ? 'danger' : 'warning') }}">
+                                    {{ ucfirst($pedido->status) }}
+                                </span>
+                            </p>
 
-                    <div class="user-sale">
-                        <p><strong>Nome do usuário</strong> <span class="hora-pedido">Horário 00:00</span></p>
-                        <ul>
-                            <li>Produto 1</li>
-                        </ul>
-                        <p class="total-pedido"><strong>Total:</strong> R$ 00,00</p>
+                            <ul>
+                                @foreach($pedido->itens as $item)
+                                    <li>
+                                        {{ $item->produto->nome_produto }} -
+                                        {{ $item->quantidade }} x R$ {{ number_format($item->preco_unitario, 2, ',', '.') }}
+                                        @if($item->cor)
+                                            (Cor: {{ $item->cor }})
+                                        @endif
+                                        @if($item->tamanho)
+                                            (Tamanho: {{ $item->tamanho }})
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="total-pedido mb-0"><strong>Total:</strong> R$
+                                    {{ number_format($pedido->total, 2, ',', '.') }}</p>
+
+                                <div class="btn-group">
+                                    @if($pedido->status == 'pendente')
+                                        <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="pago">
+                                            <button type="submit" class="btn btn-sm btn-success">Marcar como Pago</button>
+                                        </form>
+                                        <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
+                                            method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="cancelado">
+                                            <button type="submit" class="btn btn-sm btn-danger">Cancelar</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Endereço de entrega -->
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#endereco{{ $pedido->id_pedido }}">
+                                    Ver endereço de entrega
+                                </button>
+                                <div class="collapse mt-2" id="endereco{{ $pedido->id_pedido }}">
+                                    <div class="card card-body">
+                                        @php
+                                            $endereco = json_decode($pedido->endereco_entrega, true);
+                                        @endphp
+                                        <p class="mb-1"><strong>Endereço:</strong> {{ $endereco['rua'] }},
+                                            {{ $endereco['numero'] }}</p>
+                                        @if(!empty($endereco['complemento']))
+                                            <p class="mb-1"><strong>Complemento:</strong> {{ $endereco['complemento'] }}</p>
+                                        @endif
+                                        <p class="mb-1"><strong>Bairro:</strong> {{ $endereco['bairro'] }}</p>
+                                        <p class="mb-1"><strong>Cidade/UF:</strong>
+                                            {{ $endereco['cidade'] }}/{{ $endereco['estado'] }}</p>
+                                        <p class="mb-0"><strong>CEP:</strong> {{ $endereco['cep'] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                @endforeach
 
-                    <div class="user-sale">
-                        <p><strong>Nome do usuário</strong> <span class="hora-pedido">Horário 00:00</span></p>
-                        <ul>
-                            <li>Produto 1</li>
-                        </ul>
-                        <p class="total-pedido"><strong>Total:</strong> R$ 00,00</p>
-                    </div>
+                <!-- Paginação -->
+                <div class="mt-4">
+                    {{ $pedidos->links() }}
                 </div>
-
-                <!-- Pedido 2 -->
-                <div class="sales-record">
-                    <p class="data-pedido"><strong>Data:</strong> 00/00/0000</p>
-
-                    <div class="user-sale">
-                        <p><strong>Nome do usuário</strong> <span class="hora-pedido">Horário 00:00</span></p>
-                        <ul>
-                            <li>Produto 1</li>
-                        </ul>
-                        <p class="total-pedido"><strong>Total:</strong> R$ 00,00</p>
-                    </div>
-                </div>
-
-                <!-- Pedido 3 -->
-                <div class="sales-record">
-                    <p class="data-pedido"><strong>Data:</strong> 00/00/0000</p>
-
-                    <div class="user-sale">
-                        <p><strong>Nome do usuário</strong> <span class="hora-pedido">Horário 00:00</span></p>
-                        <ul>
-                            <li>Produto 1</li>
-                        </ul>
-                        <p class="total-pedido"><strong>Total:</strong> R$ 00,00</p>
-                    </div>
-
-                    <div class="user-sale">
-                        <p><strong>Nome do usuário</strong> <span class="hora-pedido">Horário 00:00</span></p>
-                        <ul>
-                            <li>Produto 1</li>
-                        </ul>
-                        <p class="total-pedido"><strong>Total:</strong> R$ 00,00</p>
-                    </div>
-                </div>
-
             </section>
         </main>
 
