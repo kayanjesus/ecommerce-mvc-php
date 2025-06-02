@@ -14,9 +14,9 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('cpf')->nullable(); // Removi o unique daqui, porque vamos usar cpf_hash para isso
-            $table->string('cpf_hash')->nullable(); // Adicionado para garantir unicidade do CPF via hash        
-            $table->string('data_nasc')->nullable();
+            $table->text('cpf')->nullable(); // TEXT para criptografia
+            $table->string('cpf_hash', 64)->nullable();
+            $table->date('data_nasc')->nullable(); // DATE para data de nascimento
             $table->string('password');
             $table->string('access_level')->default('user');
             $table->timestamp('email_verified_at')->nullable();

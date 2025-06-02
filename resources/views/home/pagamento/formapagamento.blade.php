@@ -40,23 +40,30 @@
                 <div class="produto-container">
                     @foreach($itens as $item)
                         @php
-                            $cartItem = \Cart::get($item->id);
+                            // Acesse consistentemente como array OU objeto
+                            $cartItem = \Cart::get($item['id']); // Acesso como array
+
                             if (!$cartItem)
                                 continue;
 
-                            $cor = isset($item->attributes['cor_id'])
-                                ? App\Models\Cor::find($item->attributes['cor_id'])
+                            // Acesse attributes como array
+                            $cor = isset($item['attributes']['cor_id'])
+                                ? App\Models\Cor::find($item['attributes']['cor_id'])
                                 : null;
 
-                            $tamanho = isset($item->attributes['tamanho_id'])
-                                ? App\Models\Tamanho::find($item->attributes['tamanho_id'])
+                            $tamanho = isset($item['attributes']['tamanho_id'])
+                                ? App\Models\Tamanho::find($item['attributes']['tamanho_id'])
                                 : null;
+
+                            // Converta para objeto apenas se necessário
+                            $itemObj = (object) $item;
+                            $attributesObj = isset($item['attributes']) ? (object) $item['attributes'] : (object) [];
                         @endphp
 
                         <div class="d-flex mb-3">
-                            @if($item->attributes->image)
-                                <img src="{{ asset($item->attributes->image) }}" class="produto-img me-3"
-                                    alt="{{ $item->name }}" loading="lazy">
+                            @if(isset($attributesObj->image))
+                                <img src="{{ asset($attributesObj->image) }}" class="produto-img me-3"
+                                    alt="{{ $itemObj->name }}" loading="lazy">
                             @else
                                 <div class="produto-img me-3 d-flex align-items-center justify-content-center bg-light">
                                     <i class="fas fa-camera text-muted"></i>
@@ -65,16 +72,16 @@
 
                             <div class="produto-info">
                                 <p class="mb-1">
-                                    <strong>{{ $item->name }}</strong><br>
+                                    <strong>{{ $itemObj->name }}</strong><br>
                                     @if($cor)
                                         Cor: {{ $cor->nome }}<br>
                                     @endif
                                     @if($tamanho)
                                         Tamanho: {{ $tamanho->nome }}<br>
                                     @endif
-                                    Quantidade: {{ $item->quantity }}
+                                    Quantidade: {{ $item['quantity'] }}<br>
+                                    Preço: R$ {{ number_format($item['price'], 2, ',', '.') }}
                                 </p>
-                                <p class="mb-0">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -114,7 +121,7 @@
                                             value="cartao">
                                         <div>
                                             <strong>Cartão de Crédito</strong>
-                                            <small class="d-block text-muted">Parcele em até 12x</small>
+                                            <small class="d-block text-muted">Parcele em até 6x</small>
                                         </div>
                                         <div class="ms-auto">
                                             <i class="fab fa-cc-visa fa-lg text-primary"></i>

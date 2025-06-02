@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id('id_item');
             $table->unsignedBigInteger('id_pedido');
             $table->unsignedBigInteger('id_produto');
+            $table->string('variacao')->nullable();
             $table->integer('quantidade');
             $table->decimal('preco_unitario', 10, 2);
             $table->string('cor')->nullable();

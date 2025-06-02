@@ -21,10 +21,29 @@ class Handler extends ExceptionHandler
     /**
      * Register the exception handling callbacks for the application.
      */
-    public function register(): void
+    public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->reportable(function (\Exception $e) {
+            if (app()->environment('production')) {
+                // Integração com serviço de monitoramento
+                \Log::channel('slack')->error('Erro no checkout', [
+                    'message' => $e->getMessage(),
+                    'user' => Auth::id() ?? 'guest',
+                    'url' => request()->fullUrl()
+                ]);
+            }
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'error' => $exception->getMessage(),
+                'trace' => config('app.debug') ? $exception->getTrace() : null
+            ], 500);
+        }
+
+        return parent::render($request, $exception);
     }
 }

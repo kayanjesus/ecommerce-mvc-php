@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,9 +14,12 @@ return new class extends Migration
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id('id_pedido');
             $table->unsignedBigInteger('id_usuario');
+            $table->timestamp('data_pedido')->useCurrent();
             $table->decimal('total', 10, 2);
-            $table->enum('status', ['pendente', 'pago', 'cancelado']);
+            $table->enum('status', ['pendente', 'pago', 'cancelado', 'processando', 'enviado', 'entregue']);
             $table->unsignedBigInteger('id_cupom')->nullable();
+            $table->json('endereco_entrega'); // Adicionado campo para armazenar o endereço completo
+            $table->text('observacoes')->nullable();
             $table->timestamps();
 
             $table->foreign('id_usuario')->references('id')->on('users')->onDelete('cascade');

@@ -1,45 +1,54 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Notifications\NovoPedidoNotification;
-
+use App\Models\Pedido;
 class NotificacaoController extends Controller
 {
     public function index()
     {
-        $notificacoes = Auth::user()->notifications()->latest()->take(20)->get();
-        return view('admin.partials.notificacoes', compact('notificacoes'))->render();
+        $pedidos = Pedido::with(['usuario', 'itens.produto', 'pagamento'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('admin.pedidos', compact('pedidos'));
     }
 
-    public function marcarComoLida(Request $request)
+    public function alterarStatus(Request $request, $id)
     {
-        $notificacao = Auth::user()->notifications()->findOrFail($request->id);
-        $notificacao->markAsRead();
-        return response()->json(['success' => true]);
-    }
-
-    public function marcarTodasComoLidas()
-    {
-        Auth::user()->unreadNotifications->markAsRead();
-        return response()->json(['success' => true]);
-    }
-
-    public function metricas()
-    {
-        // Exemplo - ajuste conforme sua lógica de negócios
-        $vendasHoje = Pedido::whereDate('created_at', today())->count();
-        $valorRecebido = Pedido::whereDate('created_at', today())->sum('total');
-        $avaliacoes = Avaliacao::whereDate('created_at', today())->count();
-
-        return response()->json([
-            'vendasHoje' => $vendasHoje,
-            'valorRecebido' => $valorRecebido,
-            'avaliacoes' => $avaliacoes
+        $request->validate([
+            'status' => 'required|in:pago,cancelado'
         ]);
+
+        $pedido = Pedido::findOrFail($id);
+        $pedido->update(['status' => $request->status]);
+
+        // Atualiza também o status do pagamento
+        if ($pedido->pagamento) {
+            $pedido->pagamento->update([
+                'status' => $request->status,
+                'data_pagamento' => $request->status == 'pago' ? now() : null
+            ]);
+        }
+
+        return back()->with('sucesso', 'Status do pedido atualizado com sucesso!');
+    }
+
+    public function show($id)
+    {
+        $pedido = Pedido::with(['usuario', 'itens.produto', 'pagamento'])
+            ->findOrFail($id);
+
+        return view('admin.pedido-detalhes', compact('pedido'));
+    }
+
+
+    public function marcarComoLida($notificacao)
+    {
+        $notificacao = auth()->user()->notifications()->findOrFail($notificacao);
+        $notificacao->markAsRead();
+
+        return response()->json(['success' => true]);
     }
 }

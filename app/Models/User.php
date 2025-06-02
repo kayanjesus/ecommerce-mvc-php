@@ -6,11 +6,27 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Crypt;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    public function setCpfAttribute($value)
+    {
+        $this->attributes['cpf'] = Crypt::encryptString($value);
+    }
+
+    public function getCpfAttribute($value)
+    {
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            return $value;
+        }
+    }
+
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 
+        'name',
         'email',
         'cpf',
         'cpf_hash',
@@ -37,6 +53,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+
+
     /**
      * The attributes that should be cast.
      *
@@ -45,5 +63,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        // 'name' => 'encrypted',
+        // 'email' => 'encrypted',
+        // 'cpf' => 'encrypted',
+        // 'data_nasc' => 'encrypted',
     ];
 }

@@ -8,6 +8,23 @@
     <link rel="stylesheet" href="{{ asset('css/adm/sistema.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        /* Estilo para notificações não lidas */
+        .list-group-item.bg-light {
+            border-left: 4px solid #0d6efd;
+        }
+
+        /* Espaçamento dos botões */
+        .btn-notificacao-lida {
+            margin-left: 10px;
+        }
+
+        /* Efeito hover nas notificações */
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 
 <body>
@@ -55,137 +72,115 @@
             <div class="dashboard-metrics">
                 <div class="metric">
                     <p>Vendas hoje</p>
-                    <strong id="vendas-hoje">{{ $vendasHoje }}</strong>
+                    <strong id="vendas-hoje">{{ $vendasHoje ?? 0 }}</strong>
                 </div>
                 <div class="metric">
                     <p>Valor recebido</p>
-                    <strong id="valor-recebido">R$ {{ number_format($valorRecebido, 2, ',', '.') }}</strong>
+                    <strong id="valor-recebido">R$ {{ number_format($valorRecebido ?? 0, 2, ',', '.') }}</strong>
                 </div>
                 <div class="metric">
                     <p>Avaliações</p>
-                    <strong id="avaliacoes">{{ $avaliacoes }}</strong>
+                    <strong id="avaliacoes">{{ $avaliacoes ?? 0 }}</strong>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Notificações</h3>
-                <button id="marcar-todas-lidas" class="btn btn-sm btn-outline-secondary">
-                    Marcar todas como lidas
-                </button>
-            </div>
-
-            <div class="notificacoes" id="notificacoes-container">
-                @foreach($notificacoes as $notificacao)
-                    <div class="notificacao {{ $notificacao->read_at ? 'lida' : 'nao-lida' }}"
-                        data-id="{{ $notificacao->id }}">
-                        <div class="notificacao-conteudo">
-                            <p class="notificacao-texto">{{ $notificacao->data['message'] }}</p>
-                            <small class="notificacao-tempo">{{ $notificacao->created_at->diffForHumans() }}</small>
-                        </div>
-                        @if(!$notificacao->read_at)
-                            <button class="btn-notificacao-lida" data-id="{{ $notificacao->id }}">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        @endif
+            <!-- Substitua esta seção pelo novo código de notificações -->
+            @if($notificacoes->count() > 0)
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bell me-2"></i> Notificações Recentes</h5>
                     </div>
-                @endforeach
-
-                @if($notificacoes->isEmpty())
-                    <div class="sem-notificacoes">
-                        <i class="fas fa-bell-slash"></i>
-                        <p>Nenhuma notificação no momento</p>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            @foreach($notificacoes as $notificacao)
+                                <li class="list-group-item {{ $notificacao->read_at ? '' : 'bg-light' }}"
+                                    data-id="{{ $notificacao->id }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="mb-1">{{ $notificacao->data['message'] }}</p>
+                                            <small class="text-muted">
+                                                {{ $notificacao->created_at->diffForHumans() }}
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <a href="{{ $notificacao->data['link'] }}"
+                                                class="btn btn-sm btn-outline-primary me-2">
+                                                Ver Pedido
+                                            </a>
+                                            @if(!$notificacao->read_at)
+                                                <button class="btn btn-sm btn-outline-success btn-notificacao-lida"
+                                                    data-id="{{ $notificacao->id }}">
+                                                    <i class="fas fa-check"></i> Marcar como lida
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
-                @endif
-            </div>
+                </div>
+            @else
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h5>Nenhuma notificação no momento</h5>
+                    </div>
+                </div>
+            @endif
         </main>
     </div>
 
     <!-- Adicione esses scripts no final do body -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+
     <script>
-        // Configuração do Pusher para notificações em tempo real
-        const pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
-            cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
-            encrypted: true
-        });
+        document.querySelectorAll('.btn-notificacao-lida').forEach(button => {
+            button.addEventListener('click', function () {
+                const notificacaoId = this.getAttribute('data-id');
 
-        // Canal privado para o usuário admin
-        const channel = pusher.subscribe('private-notifications.{{ auth()->id() }}');
-
-        // Ouvir evento de nova notificação
-        channel.bind('nova-notificacao', function (data) {
-            atualizarNotificacoes();
-            atualizarMetricas();
-            playNotificationSound();
-            showDesktopNotification(data.message);
-        });
-
-        // Função para atualizar a lista de notificações via AJAX
-        function atualizarNotificacoes() {
-            $.get('{{ route("adm.notificacoes") }}', function (data) {
-                $('#notificacoes-container').html(data);
+                fetch(`/notificacoes/${notificacaoId}/marcar-lida`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const item = this.closest('.list-group-item');
+                            item.classList.remove('bg-light');
+                            this.remove();
+                        }
+                    });
             });
-        }
+        });
+    </script>
 
-        // Função para atualizar as métricas do dashboard
+
+
+    <script>
         function atualizarMetricas() {
             $.get('{{ route("adm.metricas") }}', function (data) {
                 $('#vendas-hoje').text(data.vendasHoje);
-                $('#valor-recebido').text('R$ ' + data.valorRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
+                $('#valor-recebido').text('R$ ' + data.valorRecebido.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2
+                }));
                 $('#avaliacoes').text(data.avaliacoes);
             });
         }
 
-        // Função para reproduzir som de notificação
-        function playNotificationSound() {
-            const audio = new Audio('{{ asset("sounds/notification.mp3") }}');
-            audio.play().catch(e => console.log("Não foi possível reproduzir som: ", e));
-        }
-
-        // Função para mostrar notificação no desktop
-        function showDesktopNotification(message) {
-            if (!("Notification" in window)) return;
-
-            if (Notification.permission === "granted") {
-                new Notification("Novo Pedido - Cantinho da Isa", { body: message });
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        new Notification("Novo Pedido - Cantinho da Isa", { body: message });
-                    }
-                });
-            }
-        }
-
-        // Marcar notificação como lida
-        $(document).on('click', '.btn-notificacao-lida', function () {
-            const notificacaoId = $(this).data('id');
-            $.post('{{ route("adm.notificacoes.marcar-lida") }}', {
-                id: notificacaoId,
-                _token: '{{ csrf_token() }}'
-            }, function () {
-                atualizarNotificacoes();
-            });
-        });
-
-        // Marcar todas como lidas
-        $('#marcar-todas-lidas').click(function () {
-            $.post('{{ route("adm.notificacoes.marcar-todas-lidas") }}', {
-                _token: '{{ csrf_token() }}'
-            }, function () {
-                atualizarNotificacoes();
-            });
-        });
-
-        // Solicitar permissão para notificações quando a página carregar
+        // Chamar quando a página carregar
         $(document).ready(function () {
-            if (!("Notification" in window)) return;
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
-        });
-    </script>
-</body>
+            atualizarMetricas();
 
-</html>
+            // Atualizar a cada 30 segundos
+            setInterval(atualizarMetricas, 30000);
+        });
+    </>
+
+</body >
+
+</html >

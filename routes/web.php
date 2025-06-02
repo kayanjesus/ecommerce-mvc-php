@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\NotificacaoController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -44,17 +45,7 @@ Route::get('/categoria/{id_categoria}', [SiteController::class, 'categoria'])->n
 Route::get('/temporada/{temporada}', [SiteController::class, 'temporada'])->name('temporada');
 
 
-// Rotas de administração de pedidos
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/pedidos', [PedidoController::class, 'index'])->name('adm.pedidos');
-    Route::patch('/pedidos/{id}/status', [PedidoController::class, 'alterarStatus'])->name('adm.pedidos.alterar-status');
-    Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('adm.pedidos.detalhes');
-    // Notificações
-    Route::get('/notificacoes', [NotificacaoController::class, 'index'])->name('adm.notificacoes');
-    Route::post('/notificacoes/marcar-lida', [NotificacaoController::class, 'marcarComoLida'])->name('adm.notificacoes.marcar-lida');
-    Route::post('/notificacoes/marcar-todas-lidas', [NotificacaoController::class, 'marcarTodasComoLidas'])->name('adm.notificacoes.marcar-todas-lidas');
-    Route::get('/metricas', [NotificacaoController::class, 'metricas'])->name('adm.metricas');
-});
+
 
 // CRUD ADM
 Route::get('/produtos/create', [ProdutoController::class, 'create'])->name('adm.pdtestoque');
@@ -138,8 +129,8 @@ Route::prefix('adm')->group(function () {
     Route::put('/produtos/{id}', [ProdutoController::class, 'update'])->name('adm.update');
 });
 
-//  pagamento
-Route::prefix('pagamento')->middleware('auth')->group(function () {
+// Rotas de pagamento (acessíveis a usuários comuns)
+Route::prefix('pagamento')->middleware(['auth', 'checkout.session'])->group(function () {
     Route::get('/cep', [PagamentoController::class, 'cep'])->name('pagamento.cep');
     Route::get('/buscar-cep', [PagamentoController::class, 'buscarCep'])->name('pagamento.buscar-cep');
     Route::post('/salvar-endereco', [PagamentoController::class, 'salvarEndereco'])->name('pagamento.salvar-endereco');
@@ -148,8 +139,35 @@ Route::prefix('pagamento')->middleware('auth')->group(function () {
     Route::get('/revisao', [PagamentoController::class, 'revisao'])->name('pagamento.revisao');
     Route::get('/editar-endereco', [PagamentoController::class, 'editarEndereco'])->name('pagamento.editar-endereco');
     Route::post('/atualizar-endereco', [PagamentoController::class, 'atualizarEndereco'])->name('pagamento.atualizar-endereco');
-    Route::post('/finalizar', [PagamentoController::class, 'finalizar'])->name('pagamento.finalizar'); // Esta é a rota que estava faltando
+
+    Route::post('/finalizar', [PagamentoController::class, 'finalizar'])
+        ->name('pagamento.finalizar');
+
+    Route::get('/sucesso', [PagamentoController::class, 'sucesso'])
+        ->name('pagamento.sucesso')
+        ->middleware('auth'); // Remova o checkout.session aqui
+
+    Route::post('/pagamento/confirmar-ficticio', [PagamentoController::class, 'confirmarPagamentoFicticio'])
+        ->name('pagamento.confirmar-ficticio')
+        ->middleware('auth');
+
     Route::get('/erro', [PagamentoController::class, 'erro'])->name('pagamento.erro');
+});
+
+
+// Rotas de administração de pedidos
+Route::prefix('adm')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/pedidos', [PedidoController::class, 'index'])->name('adm.pedidos');
+    Route::patch('/pedidos/{id}/status', [PedidoController::class, 'alterarStatus'])->name('adm.pedidos.alterar-status');
+    Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('adm.pedidos.detalhes');
+    // Notificações
+    Route::get('/notificacoes', [NotificacaoController::class, 'index'])->name('adm.notificacoes');
+    Route::post('/notificacoes/marcar-lida', [NotificacaoController::class, 'marcarComoLida'])->name('adm.notificacoes.marcar-lida');
+    Route::post('/notificacoes/marcar-todas-lidas', [NotificacaoController::class, 'marcarTodasComoLidas'])->name('adm.notificacoes.marcar-todas-lidas');
+    Route::get('/metricas', [NotificacaoController::class, 'metricas'])->name('adm.metricas');
+    Route::post('/notificacoes/{notificacao}/marcar-lida', [NotificacaoController::class, 'marcarComoLida'])
+        ->name('notificacoes.marcar-lida')
+        ->middleware('auth');
 });
 
 require __DIR__ . '/auth.php';

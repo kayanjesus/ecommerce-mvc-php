@@ -5,6 +5,8 @@ use App\Models\Tamanho;
 use App\Models\Categoria;
 use App\Models\Cor;
 use App\Models\Produto;
+use App\Models\Pedido;
+
 
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -15,7 +17,6 @@ class DashboardController extends Controller
     {
         $vendasHoje = Pedido::whereDate('created_at', today())->count();
         $valorRecebido = Pedido::whereDate('created_at', today())->sum('total');
-        $avaliacoes = Avaliacao::whereDate('created_at', today())->count();
         $notificacoes = auth()->user()->unreadNotifications()->latest()->take(10)->get();
 
         return view('admin.sistema', compact('vendasHoje', 'valorRecebido', 'avaliacoes', 'notificacoes'));
@@ -23,7 +24,22 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        return view('adm.dashboard');
+        // Obter métricas
+        $vendasHoje = Pedido::whereDate('created_at', today())->count();
+        $valorRecebido = Pedido::whereDate('created_at', today())->sum('total');
+        $avaliacoes = 0; // Adicione sua lógica para avaliações se necessário
+        $notificacoes = auth()->user()->unreadNotifications()->latest()->take(10)->get();
+
+        // Obter categorias para o menu (se necessário)
+        $categoriasMenu = Categoria::all();
+
+        return view('adm.dashboard', compact(
+            'vendasHoje',
+            'valorRecebido',
+            'avaliacoes',
+            'notificacoes',
+            'categoriasMenu'
+        ));
     }
 
     public function pedidos()

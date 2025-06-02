@@ -38,5 +38,18 @@ class AppServiceProvider extends ServiceProvider
             $categoriasMenu = Categoria::all();
             view()->share('categoriasMenu', $categoriasMenu);
         }
+
+        // Garante que a sessão persista para rotas de checkout
+        $this->app->bind('checkout.session', function () {
+            $session = app('session');
+
+            // Rotas que devem manter a sessão
+            if (request()->is('pagamento/*')) {
+                $session->setName('checkout_session');
+                $session->start();
+            }
+
+            return $session;
+        });
     }
 }
