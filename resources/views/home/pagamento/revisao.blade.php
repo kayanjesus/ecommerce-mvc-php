@@ -252,12 +252,9 @@
                     <!-- Botão de Confirmação -->
                     <form id="formFinalizar">
                         @csrf
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-
                         @if($formaPagamento == 'cartao')
                             <input type="hidden" name="parcelas" id="inputParcelas" value="1">
                         @endif
-
                         <button type="button" id="btnConfirmar" class="btn btn-primary w-100 py-2">
                             <i class="fas fa-check-circle me-2"></i>Confirmar Pedido
                             <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
@@ -270,111 +267,6 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        document.getElementById('btnConfirmar').addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const btn = this;
-            const spinner = document.getElementById('spinner');
-
-            // Mostrar loading
-            btn.disabled = true;
-            spinner.classList.remove('d-none');
-
-            fetch('{{ route("pagamento.finalizar") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    parcelas: document.getElementById('inputParcelas')?.value || 1
-                })
-            })
-                .then(response => {
-                    // Verificar se a resposta é JSON
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        return response.text().then(text => {
-                            throw new Error('Resposta do servidor inválida');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect;
-                    } else {
-                        alert(data.message || 'Erro ao processar pedido');
-                        if (data.message.includes('endereço')) {
-                            window.location.href = '{{ route("pagamento.cep") }}';
-                        } else {
-                            window.location.href = '{{ route("pagamento.erro") }}';
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao processar pedido. Por favor, tente novamente.');
-                    window.location.href = '{{ route("pagamento.erro") }}';
-                })
-                .finally(() => {
-                    btn.disabled = false;
-                    spinner.classList.add('d-none');
-                });
-        });
-    </script>
-
-
-
-
-
-    <script>
-        document.getElementById('formFinalizar').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const form = this;
-            const btn = document.getElementById('btnConfirmar');
-            const spinner = document.getElementById('spinner');
-
-            btn.disabled = true;
-            spinner.classList.remove('d-none');
-
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: new FormData(form)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Erro ao processar pedido');
-                }
-
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                alert(error.message);
-                // Você pode adicionar mais tratamento de erro aqui
-            } finally {
-                btn.disabled = false;
-                spinner.classList.add('d-none');
-            }
-        });
-    </script>
-
-
-
 
     <script>
         $(document).ready(function () {
@@ -399,7 +291,7 @@
                         success: function () {
                             itemElement.fadeOut(300, function () {
                                 $(this).remove();
-                                location.reload(); // Recarrega para atualizar totais
+                                location.reload();
                             });
                         },
                         error: function () {
@@ -409,42 +301,55 @@
                 }
             });
 
-            // Envio do formulário
-            $('#formFinalizar').submit(function (e) {
+            // Envio do formulário - versão simplificada e robusta
+            $('#btnConfirmar').click(function (e) {
                 e.preventDefault();
-                const btn = $('#btnConfirmar');
+                const btn = $(this);
                 const spinner = $('#spinner');
-
-                console.log("Enviando formulário..."); // Debug
 
                 btn.prop('disabled', true);
                 spinner.removeClass('d-none');
 
+                // Coletar dados do formulário
+                const formData = {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    parcelas: $('#inputParcelas').val() || 1
+                };
+
                 $.ajax({
-                    url: $(this).attr('action'),
+                    url: '{{ route("pagamento.finalizar") }}',
                     method: 'POST',
-                    data: $(this).serialize(),
+                    dataType: 'json',
+                    data: formData,
                     success: function (response) {
-                        console.log("Resposta recebida:", response); // Debug
                         if (response.redirect) {
                             window.location.href = response.redirect;
-                        } else {
-                            console.warn("Nenhum redirecionamento recebido");
+                        } else if (response.error) {
+                            alert(response.message || 'Erro ao processar pedido');
+                            if (response.message && response.message.includes('endereço')) {
+                                window.location.href = '{{ route("pagamento.cep") }}';
+                            } else {
+                                window.location.href = '{{ route("pagamento.erro") }}';
+                            }
                         }
                     },
                     error: function (xhr) {
-                        console.error("Erro na requisição:", xhr); // Debug
-                        alert('Ocorreu um erro: ' + (xhr.responseJSON?.message || xhr.statusText));
-                        btn.prop('disabled', false);
-                        spinner.addClass('d-none');
+                        let errorMsg = 'Erro ao processar pedido.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert(errorMsg);
+                        window.location.href = '{{ route("pagamento.erro") }}';
                     },
                     complete: function () {
-                        console.log("Requisição completa"); // Debug
+                        btn.prop('disabled', false);
+                        spinner.addClass('d-none');
                     }
                 });
             });
         });
     </script>
+
 </body>
 
 </html>

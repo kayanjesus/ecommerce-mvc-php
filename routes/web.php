@@ -140,16 +140,20 @@ Route::prefix('pagamento')->middleware(['auth', 'checkout.session'])->group(func
     Route::get('/editar-endereco', [PagamentoController::class, 'editarEndereco'])->name('pagamento.editar-endereco');
     Route::post('/atualizar-endereco', [PagamentoController::class, 'atualizarEndereco'])->name('pagamento.atualizar-endereco');
 
-    Route::post('/finalizar', [PagamentoController::class, 'finalizar'])
+    // ESTA É A LINHA QUE VOCÊ VAI ALTERAR:
+    Route::post('/finalizar', [PagamentoController::class, 'processarPagamento'])
         ->name('pagamento.finalizar');
 
     Route::get('/sucesso', [PagamentoController::class, 'sucesso'])
         ->name('pagamento.sucesso')
-        ->middleware('auth'); // Remova o checkout.session aqui
+        ->middleware('auth'); // Remova o checkout.session aqui (já está feito, bom!)
 
-    Route::post('/pagamento/confirmar-ficticio', [PagamentoController::class, 'confirmarPagamentoFicticio'])
-        ->name('pagamento.confirmar-ficticio')
-        ->middleware('auth');
+    Route::get('/pagar/{pedidoId}', [PagamentoController::class, 'pagar'])
+        ->name('pagamento.pagar');
+
+    // Atualize a rota de confirmação fictícia
+    Route::post('/pagar/{pedidoId}/confirmar', [PagamentoController::class, 'confirmarPagamento'])
+        ->name('pagamento.confirmar');
 
     Route::get('/erro', [PagamentoController::class, 'erro'])->name('pagamento.erro');
 });
