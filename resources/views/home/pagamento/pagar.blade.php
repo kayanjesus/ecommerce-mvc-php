@@ -135,12 +135,12 @@
             <div class="qr-code-wrapper">
                 <h5 class="mb-3">Escaneie o QR Code</h5>
                 @if($qrCodeData)
-                <img src="{{ $qrCodeData }}" alt="QR Code PIX" class="img-fluid qr-code-img">
-                <p class="text-muted">Abra o app do seu banco e escaneie o código acima</p>
+                    <img src="{{ $qrCodeData }}" alt="QR Code PIX" class="img-fluid qr-code-img">
+                    <p class="text-muted">Abra o app do seu banco e escaneie o código acima</p>
                 @else
-                <div class="alert alert-danger">
-                    Não foi possível gerar o QR Code. Por favor, tente novamente.
-                </div>
+                    <div class="alert alert-danger">
+                        Não foi possível gerar o QR Code. Por favor, tente novamente.
+                    </div>
                 @endif
             </div>
 
@@ -158,15 +158,14 @@
 
             <div class="timer text-center mb-4">
                 <i class="fas fa-clock me-2"></i>
-                <span id="countdown">30:00</span>
+                <span id="countdown">Carregando tempo...</span>
             </div>
 
             <div class="d-grid gap-2">
                 <button class="btn btn-success" onclick="confirmPayment()">
                     <i class="fas fa-check-circle me-2"></i> Já efetuei o pagamento
                 </button>
-                <a href="{{ route('pagamento.sucesso', ['pedido' => $pedido->id_pedido]) }}"
-                    class="btn btn-outline-secondary">
+                <a href="{{ route('home.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i> Voltar
                 </a>
             </div>
@@ -175,6 +174,9 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        const expirationDateTimeString = "{{ $expirationDate ?? '' }}"; // Use '?? '' para evitar erro se não existir
+
+
         function copyPixKey() {
             const pixKey = document.getElementById('pixKey');
             pixKey.select();
@@ -191,53 +193,57 @@
 
         // Contador regressivo de 30 minutos
         function startCountdown() {
-            let minutes = 30;
-            let seconds = 0;
+            if (!expirationDateTimeString) {
+                document.getElementById('countdown').textContent = "Tempo indisponível.";
+                console.error("Data de expiração do PIX não fornecida.");
+                return;
+            }
 
-            const countdown = setInterval(() => {
+            // Parse a data de expiração para um objeto Date
+            const expirationTime = new Date(expirationDateTimeString);
+
+            const countdownInterval = setInterval(() => {
+                const now = new Date();
+                const timeLeft = expirationTime.getTime() - now.getTime(); // Tempo restante em milissegundos
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown').textContent = "Tempo esgotado!";
+                    alert('Tempo esgotado! Por favor, inicie um novo pedido para gerar um novo PIX.');
+                    window.location.href = '/carrinho'; // Redirecionar para o carrinho ou outra página
+                    return;
+                }
+
+                const totalSeconds = Math.floor(timeLeft / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+
                 document.getElementById('countdown').textContent =
                     `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                if (seconds === 0) {
-                    if (minutes === 0) {
-                        clearInterval(countdown);
-                        alert('Tempo esgotado! Por favor, inicie um novo pedido.');
-                        // Opcional: Redirecionar o usuário ou desabilitar o botão de pagamento
-                        window.location.href = '/carrinho'; // Exemplo: redirecionar para o carrinho
-                        return;
-                    }
-                    minutes--;
-                    seconds = 59;
-                } else {
-                    seconds--;
-                }
-            }, 1000);
+            }, 1000); // Atualiza a cada segundo
         }
 
         function confirmPayment() {
             if (confirm('Você já efetuou o pagamento deste pedido via PIX?')) {
-                // Acessa o ID do pedido que já está disponível via Blade
-                const pedidoId = {{ $pedido-> id_pedido
-            }
-        };
+                const pedidoId = {{ $pedido->id_pedido }}; // Correção da sintaxe, se estiver dentro do Blade
 
-        $.ajax({
-            url: '{{ route("pagamento.confirmar", ["pedidoId" => ":pedidoId"]) }}'.replace(':pedidoId', pedidoId),
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                if (response.success) {
-                    window.location.href = '{{ route("pagamento.sucesso", ["pedido" => ":pedidoId"]) }}'.replace(':pedidoId', pedidoId);
-                } else {
-                    alert(response.message || 'Erro ao confirmar pagamento');
-                }
-            },
-            error: function (xhr) {
-                alert('Erro ao comunicar com o servidor: ' + xhr.statusText);
-            }
-        });
+                $.ajax({
+                    url: '{{ route("pagamento.confirmar", ["pedidoId" => ":pedidoId"]) }}'.replace(':pedidoId', pedidoId),
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '{{ route("pagamento.sucesso", ["pedido" => ":pedidoId"]) }}'.replace(':pedidoId', pedidoId);
+                        } else {
+                            alert(response.message || 'Erro ao confirmar pagamento');
+                        }
+                    },
+                    error: function (xhr) {
+                        alert('Erro ao comunicar com o servidor: ' + xhr.statusText);
+                    }
+                });
             }
         }
 

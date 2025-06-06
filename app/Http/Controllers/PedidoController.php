@@ -9,7 +9,7 @@ class PedidoController extends Controller
 {
     public function index()
     {
-        $pedidos = Pedido::with(['usuario', 'itens.produto', 'pagamento'])
+        $pedidos = Pedido::with(['usuario', 'itens.produto', 'pagamentoCheckout'])
             ->latest()
             ->paginate(10);
 

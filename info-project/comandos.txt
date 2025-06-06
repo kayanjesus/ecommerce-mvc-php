@@ -1,8 +1,18 @@
-rodar projeto-> php artisan serve
-rodar projeto-> npm run dev
-
-
-cores-> php artisan db:seed
-composer require guzzlehttp/guzzle
-
+Instalação:
 composer global require laravel/installer
+composer update
+npm install
+
+--------------------------------------------------------------
+
+Rodar para o projeto funcionar:
+rodar projeto -> php artisan serve
+rodar projeto -> npm run dev
+Criar banco   -> php artisan migrate
+notificações  -> php artisan queue:work
+
+--------------------------------------------------------------
+
+Rodar dps que criar o banco:
+Cores banco   -> php artisan db:seed
+

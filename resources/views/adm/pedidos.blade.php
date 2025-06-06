@@ -52,8 +52,18 @@
             </form>
         </aside>
 
+        {{-- resources/views/admin/pedidos.blade.php --}}
+
         <main class="conteudo">
             <section class="admin-section">
+                <h3 class="mb-4">Pedidos Pagos e em Andamento</h3>
+                @if(session('sucesso'))
+                    <div class="alert alert-success">{{ session('sucesso') }}</div>
+                @endif
+                @if(session('erro'))
+                    <div class="alert alert-danger">{{ session('erro') }}</div>
+                @endif
+
                 @if($pedidos->count() > 0)
                     @foreach($pedidos as $pedido)
                         <div class="pedido-card">
@@ -65,6 +75,11 @@
                                 <span class="badge status-{{ $pedido->status }}">
                                     {{ ucfirst($pedido->status) }}
                                 </span>
+                                @if($pedido->pagamento)
+                                    <span class="badge bg-info ms-2">
+                                        Pagamento: {{ ucfirst($pedido->pagamento->status) }}
+                                    </span>
+                                @endif
                             </div>
 
                             <div class="pedido-info">
@@ -96,27 +111,46 @@
                                     </div>
 
                                     <div class="pedido-actions">
-                                        @if($pedido->status == 'pendente')
-                                            <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="pago">
-                                                <button type="submit" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-check"></i> Marcar como Pago
-                                                </button>
-                                            </form>
-                                            <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="cancelado">
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    <i class="fas fa-times"></i> Cancelar
-                                                </button>
-                                            </form>
+                                        {{-- Apenas mostrar opções de envio se o pagamento estiver 'pago' --}}
+                                        @if($pedido->pagamento && $pedido->pagamento->status === 'pago')
+                                            @if($pedido->status === 'pago' || $pedido->status === 'processando')
+                                                <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
+                                                    method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="processando">
+                                                    <button type="submit" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-spinner"></i> Processando Envio
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @if($pedido->status === 'processando' || $pedido->status === 'pago')
+                                                <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
+                                                    method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="enviado">
+                                                    <button type="submit" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-truck"></i> Marcar como Enviado
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @if($pedido->status === 'enviado')
+                                                <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
+                                                    method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="entregue">
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        <i class="fas fa-box"></i> Marcar como Entregue
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @else
+                                            <span class="text-danger small">Aguardando Confirmação de Pagamento</span>
                                         @endif
 
+                                        {{-- Botão de endereço sempre visível --}}
                                         <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#endereco{{ $pedido->id_pedido }}">
                                             <i class="fas fa-map-marker-alt"></i> Endereço
@@ -132,7 +166,8 @@
                                                 : json_decode($pedido->endereco_entrega, true);
                                         @endphp
                                         <p><i class="fas fa-road"></i> <strong>Endereço:</strong> {{ $endereco['rua'] }},
-                                            {{ $endereco['numero'] }}</p>
+                                            {{ $endereco['numero'] }}
+                                        </p>
                                         @if(!empty($endereco['complemento']))
                                             <p><i class="fas fa-home"></i> <strong>Complemento:</strong>
                                                 {{ $endereco['complemento'] }}</p>
@@ -153,7 +188,7 @@
                 @else
                     <div class="sem-pedidos">
                         <i class="fas fa-box-open"></i>
-                        <p>Nenhum pedido encontrado</p>
+                        <p>Nenhum pedido pago ou em andamento encontrado</p>
                     </div>
                 @endif
             </section>
@@ -163,6 +198,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/adm/pedidos.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 
 </html>

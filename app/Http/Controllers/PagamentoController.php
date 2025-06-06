@@ -8,6 +8,7 @@ use App\Models\PagamentoCheckout;
 use App\Notifications\NovoPedidoNotification;
 use Illuminate\Support\Facades\{Auth, Http, Log, DB};
 use Darryldecode\Cart\Facades\CartFacade as Cart;
+use Illuminate\Support\Facades\Session;
 
 
 
@@ -532,6 +533,13 @@ class PagamentoController extends Controller
                 $endpoint = 'https://sandbox.api.pagseguro.com/orders';
                 $token = env('PAGSEGURO_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE');
 
+                $cpfCnpj = $usuario->cpf_ou_cnpj;
+
+                $cleanedCpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
+
+                Log::info('CPF enviado para PagSeguro:', ['cpf' => $cleanedCpfCnpj]);
+
+
                 $body = [
                     "reference_id" => "pedido-" . $pedido->id_pedido,
                     "customer" => [
@@ -589,10 +597,13 @@ class PagamentoController extends Controller
 
                 if ($response->successful()) {
                     $pagSeguroResponse = $response->json();
+
+                    // dd($pagSeguroResponse);
+
                     if (isset($pagSeguroResponse['qr_codes'][0]['links'][0]['href'])) {
                         $qrCodeData = $pagSeguroResponse['qr_codes'][0]['links'][0]['href'];
-                        // AQUI ESTÁ A MUDANÇA: 'text' em vez de 'text_code'
                         $pixKey = $pagSeguroResponse['qr_codes'][0]['text'];
+                        $expirationDate = $pagSeguroResponse['qr_codes'][0]['expiration_date'];
                     } else {
                         throw new \Exception('QR Code URL não encontrado na resposta do PagSeguro.');
                     }
@@ -604,6 +615,7 @@ class PagamentoController extends Controller
                 session([
                     'qrCodeData' => $qrCodeData,
                     'pixKey' => $pixKey,
+                    'expirationDate' => $expirationDate,
                     'last_pedido_id' => $pedido->id_pedido,
                 ]);
 
@@ -662,20 +674,50 @@ class PagamentoController extends Controller
 
     public function confirmarPagamento(Request $request, Pedido $pedido)
     {
-        // Lógica para verificar se o pagamento foi realmente feito (idealmente via webhook/API do PagSeguro)
-        // Por enquanto, podemos apenas simular a confirmação
+        // Esta é a confirmação manual, que deve ser usada como fallback ou para testes.
+        // A confirmação primária deve ser via webhook do PagSeguro.
         try {
-            $pedido->status = 'pago'; // Ou 'aguardando_confirmacao', 'pago' etc.
-            $pedido->save();
+            // Garante que o pedido existe e pertence ao usuário (ou é admin)
+            if (Auth::id() !== $pedido->id_usuario && (!Auth::user() || !Auth::user()->is_admin)) {
+                return response()->json(['success' => false, 'message' => 'Permissão negada ou pedido não encontrado.'], 403);
+            }
 
-            // Opcional: Limpar dados do Pix da sessão
-            Session::forget(['qrCodeData', 'pixKey', 'last_pedido_id']);
+            // Encontra o registro de pagamento associado
+            $pagamento = Pagamento::where('id_pedido', $pedido->id_pedido)->first();
+
+            if (!$pagamento) {
+                return response()->json(['success' => false, 'message' => 'Registro de pagamento não encontrado para este pedido.'], 404);
+            }
+
+            // Apenas altera para 'pago' se o status atual não for 'pago' (evita notificações duplicadas)
+            if ($pagamento->status !== 'pago') {
+                $pagamento->status = 'pago';
+                $pagamento->data_pagamento = now();
+                $pagamento->save();
+
+                $pedido->status = 'pago'; // Atualiza o status do pedido também
+                $pedido->save();
+
+                // Envia uma nova notificação ao administrador sobre o pagamento confirmado
+                $adminUser = User::where('is_admin', true)->first();
+                if ($adminUser) {
+                    Notification::send($adminUser, new NovoPedidoNotification($pedido));
+                    // Você pode criar uma notificação específica para 'Pagamento Confirmado' se quiser
+                    // Ex: new PagamentoConfirmadoNotification($pedido)
+                }
+            }
+
+            // Limpa dados do Pix da sessão
+            Session::forget(['qrCodeData', 'pixKey', 'expirationDate', 'last_pedido_id']);
 
             return response()->json(['success' => true, 'message' => 'Pagamento confirmado com sucesso!']);
 
         } catch (\Exception $e) {
-            Log::error("Erro ao confirmar pagamento manual: " . $e->getMessage(), ['pedido_id' => $pedido->id_pedido]);
-            return response()->json(['error' => true, 'message' => 'Erro ao confirmar pagamento.']);
+            Log::error("Erro ao confirmar pagamento manual: " . $e->getMessage(), [
+                'pedido_id' => $pedido->id_pedido,
+                'exception' => $e->getTraceAsString()
+            ]);
+            return response()->json(['success' => false, 'message' => 'Erro ao confirmar pagamento.']);
         }
     }
 
@@ -688,34 +730,39 @@ class PagamentoController extends Controller
             // mas como $pedidoId é um escalar, o findOrFail é necessário aqui.
             $pedido = Pedido::findOrFail($pedidoId);
 
+            // dd(Session::all());
+
             // Permissão: Garanta que o usuário logado é o dono do pedido ou é um admin
-            if (Auth::id() !== $pedido->id_usuario && !Auth::user()->isAdmin()) { // Supondo um método isAdmin() no seu User model
+            if (Auth::id() !== $pedido->id_usuario && (!Auth::user() || !Auth::user()->isAdmin())) {
+                // Adicione uma verificação para Auth::user() para evitar erro se o usuário não estiver logado
                 return redirect()->route('home')->with('erro', 'Você não tem permissão para acessar este pagamento.');
             }
 
             $qrCodeData = session('qrCodeData');
             $pixKey = session('pixKey');
+            $expirationDate = session('expirationDate');
 
             // Se a sessão expirou ou foi limpa, e você precisa regenerar, aqui seria o lugar
-            // if (!$qrCodeData || !$pixKey) {
-            //     // Chame uma função que gera o QR Code e a chave PIX novamente
-            //     // Ex: $pagamentoResponse = $this->gerarNovoPixParaPedido($pedido, $pedido->total);
-            //     // $qrCodeData = $pagamentoResponse['qrCodeData'];
-            //     // $pixKey = $pagamentoResponse['pixKey'];
-            // }
+            if (!$qrCodeData || !$pixKey || !$expirationDate) {
+                // Se a sessão expirou ou foi limpa, e os dados do Pix não estão lá,
+                // considere regenerar o PIX ou redirecionar.
+                // Por simplicidade, vamos redirecionar por enquanto.
+                return redirect()->route('pagamento.erro')->with('erro', 'Dados do PIX não encontrados. Por favor, tente novamente ou gere um novo pagamento.');
+            }
 
 
             return view('home.pagamento.pagar', [
                 'pedido' => $pedido,
                 'qrCodeData' => $qrCodeData,
                 'pixKey' => $pixKey,
+                'expirationDate' => $expirationDate,
                 'total' => $pedido->total // Ou $pedido->total_com_desconto_e_frete se você já tem isso salvo no modelo
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('pagamento.erro')->with('erro', 'Pedido não encontrado.');
         } catch (\Exception $e) {
-            Log::error("Erro ao acessar página de pagamento: " . $e->getMessage(), ['exception' => $e->getTraceAsString()]);
+            \Log::error("Erro ao acessar página de pagamento: " . $e->getMessage(), ['exception' => $e->getTraceAsString()]);
             return redirect()->route('pagamento.erro')->with('erro', 'Ocorreu um erro ao carregar a página de pagamento.');
         }
     }

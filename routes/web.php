@@ -12,6 +12,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\NotificacaoController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,12 +111,12 @@ Route::middleware('auth')->group(function () {
     Route::get('cadastro', [PagesController::class, 'cadastro'])
         ->name('cadastro')
         ->middleware('can:access');
+    Route::get('/checkout', [CheckoutController::class, 'showSummary'])->name('checkout.summary');
+    Route::post('/checkout/processar', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
 });
 
-// Admin
-// Em routes/web.php
-// Route::view('/adm.sistema', 'adm.sistema')->middleware('auth');
 
+Route::post('/webhooks/pagseguro', [WebhookController::class, 'handle'])->name('webhooks.pagseguro')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Rotas para produtos
 Route::resource('produtos', ProdutoController::class)->except(['show']);

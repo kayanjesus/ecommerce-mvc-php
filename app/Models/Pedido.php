@@ -15,6 +15,7 @@ class Pedido extends Model
         'total',
         'status',
         'endereco_entrega',
+        'observacoes',
         'data_pedido'
     ];
 
@@ -55,6 +56,11 @@ class Pedido extends Model
     public function itens()
     {
         return $this->hasMany(PedidoItem::class, 'id_pedido');
+    }
+
+    public function historicoStatus()
+    {
+        return $this->hasMany(PedidoStatus::class, 'id_pedido', 'id_pedido');
     }
 
     public function pagamentoCheckout()

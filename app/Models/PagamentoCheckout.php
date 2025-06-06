@@ -29,7 +29,7 @@ class PagamentoCheckout extends Model
         'valor_original' => 'decimal:2',
         'desconto' => 'decimal:2',
         'valor_frete' => 'decimal:2',
-        'detalhes' => 'array'
+        'detalhes' => 'array' // Para armazenar JSON
     ];
 
     public function pedido()
