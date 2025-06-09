@@ -71,20 +71,49 @@ class SiteController extends Controller
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
 
-        $categoria = Categoria::with('produtos')->findOrFail($id_categoria);
-        $produtos = $categoria->produtos;
+        // Recupera a categoria principal que foi clicada (ex: Categoria 'Conjunto' com id_categoria = 4)
+        $categoriaSelecionada = Categoria::findOrFail($id_categoria);
 
-        if ($request->has('genero')) {
-            $produtos = $produtos->where('genero', $request->genero);
+        // Inicializa a query para os produtos da categoria selecionada
+        $produtosQuery = $categoriaSelecionada->produtos();
+
+        // Verifica se há um filtro de "gênero" (Menino/Menina) na URL
+        // No seu caso, 'genero' virá como 'Masculino' ou 'Feminino' via URL.
+        // Precisamos mapear isso para os IDs das categorias.
+        $generoParam = $request->query('genero'); // Use query() para parâmetros de URL
+
+        if ($generoParam) {
+            $categoriaGeneroId = null;
+            if ($generoParam === 'Masculino') {
+                // ID da categoria 'Menino'
+                $categoriaGeneroId = Categoria::where('nome_categoria', 'Menino')->value('id_categoria');
+            } elseif ($generoParam === 'Feminino') {
+                // ID da categoria 'Menina'
+                $categoriaGeneroId = Categoria::where('nome_categoria', 'Menina')->value('id_categoria');
+            }
+
+            // Se um ID de categoria de gênero foi encontrado, adicione o filtro
+            if ($categoriaGeneroId) {
+                $produtosQuery->whereHas('categorias', function ($q) use ($categoriaGeneroId) {
+                    $q->where('categorias.id_categoria', $categoriaGeneroId);
+                });
+            }
         }
 
-        $produtos = Categoria::find($id_categoria)->produtos()
-            ->when(request('modelo'), function ($query, $modelo) {
-                return $query->where('modelo', $modelo);
-            })
-            ->get();
+        // Aplica o filtro de 'modelo' se presente
+        $produtosQuery->when(request('modelo'), function ($query, $modelo) {
+            return $query->where('modelo', $modelo);
+        });
 
-        return view('home.categoria', compact('categoria', 'produtos', 'categoriasTopo', 'categoriasMenu'));
+        // Obtém os produtos finalizando a query
+        $produtos = $produtosQuery->get();
+
+        // A variável $search não está sendo definida aqui, você pode removê-la do compact
+        // ou adicionar uma lógica para ela se for usada em outro lugar para a busca geral.
+        // Por enquanto, vou considerar que $search é para a busca geral e não para categorias específicas.
+        $search = null; // Defina como null ou remova se não for usado
+
+        return view('home.categoria', compact('categoriaSelecionada', 'produtos', 'categoriasTopo', 'categoriasMenu', 'search'));
     }
 
 

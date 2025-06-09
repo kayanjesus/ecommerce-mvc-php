@@ -1,0 +1,74 @@
+/* public/css/adm/detalhe_pedido.css */
+
+/* Estilos específicos para a tela de detalhes do pedido */
+.detalhe-pedido-section {
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+}
+
+.item-card {
+    background-color: #f8f9fa;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.item-image {
+    width: 80px; /* Tamanho fixo para a imagem do item */
+    height: 80px;
+    object-fit: cover; /* Garante que a imagem preencha o espaço sem distorção */
+    border-radius: 8px;
+}
+
+.item-details h6 {
+    color: #9b2a2a;
+    font-weight: 600;
+}
+
+.item-details p {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* Ajustes para o layout de cards na tela de detalhes */
+.detalhe-pedido-section .card-header {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Opcional: Ajuste para o espaçamento dos botões de ação se necessário */
+.detalhe-pedido-section .pedido-actions .btn {
+    min-width: 150px; /* Garante que os botões tenham uma largura mínima */
+}
+
+/* Media Queries para responsividade */
+@media (max-width: 768px) {
+    .detalhe-pedido-section {
+        padding: 20px;
+    }
+    .item-image {
+        width: 60px;
+        height: 60px;
+    }
+    .item-card {
+        flex-direction: column; /* Empilha a imagem e os detalhes em telas menores */
+        align-items: flex-start !important;
+    }
+    .item-image {
+        margin-bottom: 10px;
+        margin-right: 0 !important;
+    }
+    .detalhe-pedido-section .pedido-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .detalhe-pedido-section .pedido-actions .btn {
+        min-width: unset;
+        width: 100%;
+    }
+}

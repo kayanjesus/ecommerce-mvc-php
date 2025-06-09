@@ -60,7 +60,6 @@
 </head>
 
 <body>
-    <!-- Mensagens de status -->
     @if ($mensagem = Session::get('sucesso'))
         <div class="card green darken-1">
             <div class="card-content white-text">
@@ -137,15 +136,9 @@
                                     </label>
                                 </td>
                                 <td>
-                                    @php
-                                        $produto = App\Models\Produto::find(explode('-', $item->id)[0]);
-                                        $mainImage = $produto && $produto->imagens->isNotEmpty()
-                                            ? ($produto->imagens->where('principal', true)->first() ?? $produto->imagens->first())
-                                            : null;
-                                    @endphp
-
-                                    @if($mainImage)
-                                        <img src="{{ asset($mainImage->caminho) }}" width="70" class="responsive-img circle">
+                                    {{-- AQUI ESTÁ A MUDANÇA: Use diretamente o atributo 'image' do item do carrinho --}}
+                                    @if(isset($item->attributes['image']))
+                                        <img src="{{ asset($item->attributes['image']) }}" width="70" class="responsive-img circle">
                                     @else
                                         <i class="material-icons">image</i>
                                     @endif
@@ -234,6 +227,17 @@
 
 
             const selectAllCheckbox = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.item-checkbox'); // Declare checkboxes aqui
+            const finalizarBtn = document.getElementById('finalizar-selecionados'); // Declare finalizarBtn aqui
+            const totalSelecionado = document.getElementById('total-selecionado'); // Declare totalSelecionado aqui
+            const selectedItemsInput = document.getElementById('selected-items'); // Declare selectedItemsInput aqui
+            const rows = document.querySelectorAll('.selectable-row'); // Declare rows aqui
+            const checkoutForm = document.getElementById('checkout-form'); // Declare checkoutForm aqui
+
+            // Dados do carrinho para cálculo
+            const cartItems = @json($itens->mapWithKeys(function ($item) {
+                return [$item->id => $item];
+            }));
 
             selectAllCheckbox.addEventListener('change', function () {
                 const isChecked = this.checked;
@@ -289,46 +293,6 @@
             // Inicializa componentes do Materialize
             M.AutoInit();
 
-            // Seleção de itens
-            const checkboxes = document.querySelectorAll('.item-checkbox');
-            const finalizarBtn = document.getElementById('finalizar-selecionados');
-            const totalSelecionado = document.getElementById('total-selecionado');
-            const selectedItemsInput = document.getElementById('selected-items');
-            const rows = document.querySelectorAll('.selectable-row');
-            const checkoutForm = document.getElementById('checkout-form');
-
-            // Dados do carrinho para cálculo
-            const cartItems = @json($itens->mapWithKeys(function ($item) {
-                return [$item->id => $item];
-            }));
-
-            // Atualiza seleção e total
-            function updateSelection() {
-                const selectedIds = [];
-                let total = 0;
-
-                checkboxes.forEach(checkbox => {
-                    const itemId = checkbox.dataset.id;
-                    const row = checkbox.closest('tr');
-
-                    if (checkbox.checked) {
-                        selectedIds.push(itemId);
-                        row.classList.add('selected-row');
-
-                        // Calcula subtotal
-                        const item = cartItems[itemId];
-                        total += item.price * item.quantity;
-                    } else {
-                        row.classList.remove('selected-row');
-                    }
-                });
-
-                // Atualiza UI
-                totalSelecionado.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
-                finalizarBtn.disabled = selectedIds.length === 0;
-                selectedItemsInput.value = JSON.stringify(selectedIds);
-            }
-
             // Event listeners
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateSelection);
@@ -350,7 +314,6 @@
                 });
             });
 
-            // Finalizar pedido com itens selecionados
             // Finalizar pedido com itens selecionados
             finalizarBtn.addEventListener('click', () => {
                 const selectedItems = JSON.parse(selectedItemsInput.value);

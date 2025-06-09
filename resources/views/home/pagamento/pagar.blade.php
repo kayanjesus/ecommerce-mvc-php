@@ -173,9 +173,9 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const expirationDateTimeString = "{{ $expirationDate ?? '' }}"; // Use '?? '' para evitar erro se não existir
-
 
         function copyPixKey() {
             const pixKey = document.getElementById('pixKey');
@@ -225,25 +225,12 @@
 
         function confirmPayment() {
             if (confirm('Você já efetuou o pagamento deste pedido via PIX?')) {
-                const pedidoId = {{ $pedido->id_pedido }}; // Correção da sintaxe, se estiver dentro do Blade
+                // Não precisamos fazer uma requisição AJAX para o backend aqui,
+                // pois o webhook já lida com a atualização do status.
+                // Apenas informamos ao usuário e redirecionamos.
 
-                $.ajax({
-                    url: '{{ route("pagamento.confirmar", ["pedidoId" => ":pedidoId"]) }}'.replace(':pedidoId', pedidoId),
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            window.location.href = '{{ route("pagamento.sucesso", ["pedido" => ":pedidoId"]) }}'.replace(':pedidoId', pedidoId);
-                        } else {
-                            alert(response.message || 'Erro ao confirmar pagamento');
-                        }
-                    },
-                    error: function (xhr) {
-                        alert('Erro ao comunicar com o servidor: ' + xhr.statusText);
-                    }
-                });
+                alert('Obrigado! Assim que confirmarmos o pagamento via PIX, seu pedido será processado.');
+                window.location.href = '{{ route("home.index") }}'; // Redireciona para a home
             }
         }
 

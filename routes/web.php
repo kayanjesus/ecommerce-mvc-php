@@ -30,7 +30,7 @@ use App\Http\Controllers\CheckoutController;
 //     return view('home.index');
 // });
 
-// Route::get('/', function () {
+// Route::get('/', function () {F
 //     return view('welcome');
 // });
 
@@ -68,10 +68,28 @@ Route::middleware(['web'])->group(function () {
 
 });
 
-// Favoritos
+// login/cadastro
+Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
+    // Admin
+    Route::get('/admin/dashboard', function () {
+        return view('adm.dashboard');
+    })->name('adm.dashboard');
+
+    // Usuário
+    // ALTERADO: Aponta para o método userDashboard do ProfileController
+    // Adicionado parâmetro opcional 'show' para alternar entre pedidos e favoritos
+    Route::get('/user/dashboard', [ProfileController::class, 'userDashboard'])->name('home.dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Favoritos (Estas rotas permanecem as mesmas para adicionar/remover/limpar)
 Route::prefix('favoritos')->group(function () {
     Route::get('/', [FavoritosController::class, 'favoritosLista'])
-        ->name('home.favoritos');
+        ->name('home.favoritos'); // Esta rota ainda pode ser usada se você quiser uma página de favoritos standalone
+    // Mas o dashboard agora também pode mostrá-los.
 
     Route::post('/adicionar', [FavoritosController::class, 'adicionaFavoritos'])
         ->name('home.addfavoritos');
@@ -81,28 +99,6 @@ Route::prefix('favoritos')->group(function () {
 
     Route::get('/limpar', [FavoritosController::class, 'limparFavoritos'])
         ->name('home.limparfavoritos');
-});
-
-// login/cadastro
-Route::prefix('dashboard')->middleware(['auth', 'verified'])->group(function () {
-    // Admin
-    Route::get('/admin/dashboard', function () {
-        return view('adm.dashboard');
-    })->name('adm.dashboard');
-
-    // Usuário
-    Route::get('/user/dashboard', function () {
-        return view('home.dashboard');
-    })->name('home.dashboard');
-
-
-    // Route::get('/users', function () {
-    //     return view('users');
-    // })->name('dashboard.users');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 });
 
@@ -123,6 +119,8 @@ Route::resource('produtos', ProdutoController::class)->except(['show']);
 Route::prefix('adm')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('adm.dashboard');
     Route::get('/pedidos', [DashboardController::class, 'pedidos'])->name('adm.pedidos');
+    // NOVA ROTA AQUI
+    Route::get('/pedidos/{id_pedido}', [DashboardController::class, 'detalhePedido'])->name('adm.detalhe_pedido');
     Route::get('/pdtestoque', [DashboardController::class, 'pdtestoque'])->name('adm.pdtestoque');
     Route::get('/cdtproduto', [DashboardController::class, 'cdtproduto'])->name('adm.cdtproduto');
     Route::get('/usercadastrado', [DashboardController::class, 'usercadastrado'])->name('adm.usercadastrado');

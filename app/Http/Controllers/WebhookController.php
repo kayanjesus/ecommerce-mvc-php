@@ -5,139 +5,168 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\Pedido;
-use App\Models\Pagamento; // Seu modelo Pagamento
+use App\Models\PagamentoCheckout;
 use App\Models\User;
-use App\Notifications\NovoPedidoNotification; // Reutiliza para notificar admin
+use App\Notifications\NovoPedidoNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Http;
 
 class WebhookController extends Controller
 {
     public function handle(Request $request)
     {
-        Log::info('Webhook PagSeguro recebido:', $request->all());
+        $payload = $request->all();
+        Log::info('Webhook PagSeguro recebido (payload original):', $payload);
 
-        // O PagSeguro envia um 'id' na notificação que é o ID da transação no PagSeguro
-        // e 'reference_id' que é o seu ID de referência.
-        $notificationData = $request->json()->all();
+        // --- Lógica para lidar com notificações baseadas em 'notificationCode' ---
+        if (isset($payload['notificationCode']) && isset($payload['notificationType']) && $payload['notificationType'] === 'transaction') {
+            $notificationCode = $payload['notificationCode'];
+            Log::info("Webhook PagSeguro: Recebido notificationCode: {$notificationCode}. Buscando detalhes completos da transação.");
 
-        $pagSeguroOrderId = $notificationData['id'] ?? null; // ID do pedido PagSeguro
-        $referenceId = $notificationData['reference_id'] ?? null; // Sua referência (ex: "pedido-123")
-        $charges = $notificationData['charges'] ?? [];
+            try {
+                Log::debug('Configuração PagSeguro:', [
+                    'token' => config('pagseguro.token'),
+                    'environment' => config('pagseguro.environment')
+                ]);
+
+
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('pagseguro.token'),
+                    'Content-Type' => 'application/json',
+                    'x-api-version' => '4',
+                ])->get("https://" . (config('pagseguro.environment') === 'sandbox' ? 'sandbox.' : '') . "api.pagseguro.com/notifications/{$notificationCode}");
+
+                if ($response->successful()) {
+                    $notificationData = $response->json();
+                    Log::info('Detalhes da notificação PagSeguro obtidos via API:', $notificationData);
+
+                    // Reatribui $payload para a lógica de processamento genérica
+                    $payload = $notificationData;
+
+                } else {
+                    Log::error('Erro ao buscar detalhes da notificação do PagSeguro (STATUS NON-SUCCESSFUL):', [
+                        'status' => $response->status(),
+                        'response' => $response->body()
+                    ]);
+                    // **MUDANÇA AQUI:** Retorna um status de erro para o PagSeguro reenviar
+                    return response()->json(['message' => 'Falha ao buscar detalhes da notificação.'], 500);
+                }
+            } catch (\Exception $e) {
+                Log::error('Exceção ao se comunicar com a API do PagSeguro para buscar notificação:', [
+                    'notificationCode' => $notificationCode,
+                    'exception' => $e->getMessage()
+                ]);
+                // **MUDANÇA AQUI:** Retorna um status de erro para o PagSeguro reenviar
+                return response()->json(['message' => 'Erro interno na comunicação com PagSeguro.'], 500);
+            }
+        }
+        // --- Fim da lógica para 'notificationCode' ---
+
+        // A partir daqui, $payload DEVE conter o formato completo da ordem
+        $pagSeguroOrderId = $payload['id'] ?? null;
+        $referenceId = $payload['reference_id'] ?? null;
+        $charges = $payload['charges'] ?? [];
 
         if (!$pagSeguroOrderId || !$referenceId || empty($charges)) {
-            Log::warning('Webhook PagSeguro: Dados de notificação incompletos.', $notificationData);
-            return response()->json(['message' => 'Dados de notificação incompletos'], 400);
+            Log::warning('Webhook PagSeguro: Payload da ordem incompleto ou inesperado (após tentativa de buscar por código).', $payload);
+            return response()->json(['message' => 'Dados de ordem incompletos ou inesperados'], 400);
         }
 
-        // Extrair o id_pedido da sua reference_id
         $parts = explode('-', $referenceId);
         $localPedidoId = end($parts);
 
-        // Busca o Pedido no seu banco
         $pedido = Pedido::find($localPedidoId);
 
         if (!$pedido) {
-            Log::warning("Webhook PagSeguro: Pedido com reference_id '{$referenceId}' não encontrado em seu sistema.");
+            Log::warning("Webhook PagSeguro: Pedido com reference_id '{$referenceId}' (ID local: {$localPedidoId}) não encontrado em seu sistema.");
             return response()->json(['message' => 'Pedido não encontrado'], 404);
         }
 
-        // Itera sobre as cobranças (charges) para encontrar o status do Pix
         foreach ($charges as $charge) {
-            if ($charge['payment_method']['type'] === 'PIX') {
+            if (isset($charge['payment_method']['type']) && $charge['payment_method']['type'] === 'PIX') {
                 $pagseguroStatus = $charge['status'];
-                $chargeId = $charge['id'] ?? null; // ID da cobrança (charge_id) no PagSeguro
+                $chargeId = $charge['id'] ?? null;
 
-                // Mapeia o status do PagSeguro para o status do seu sistema
                 $newPedidoStatus = $this->mapPagSeguroPedidoStatus($pagseguroStatus);
                 $newPagamentoStatus = $this->mapPagSeguroPagamentoStatus($pagseguroStatus);
 
-                // Encontra o registro de pagamento associado a este pedido e charge_id
-                $pagamento = Pagamento::where('id_pedido', $pedido->id_pedido)
-                    ->where('codigo_transacao', $chargeId) // Garante que é o pagamento correto
+                $pagamento = PagamentoCheckout::where('id_pedido', $pedido->id_pedido)
+                    ->where('codigo_transacao', $chargeId)
                     ->first();
 
-                // Se o pagamento não foi encontrado pelo chargeId, tenta pelo id_pedido e metodo
                 if (!$pagamento) {
-                    $pagamento = Pagamento::where('id_pedido', $pedido->id_pedido)
+                    $pagamento = PagamentoCheckout::where('id_pedido', $pedido->id_pedido)
                         ->where('metodo_pagamento', 'pix')
                         ->first();
                 }
 
                 if ($pagamento) {
-                    // Se o status mudou para 'pago' e antes não era 'pago'
                     if ($newPagamentoStatus === 'pago' && $pagamento->status !== 'pago') {
                         $pagamento->status = $newPagamentoStatus;
                         $pagamento->data_pagamento = now();
                         $pagamento->save();
 
-                        // Atualiza o status do pedido para 'pago'
                         $pedido->status = $newPedidoStatus;
                         $pedido->save();
 
-                        // Notifica o administrador que o pagamento foi confirmado
-                        $adminUser = User::where('is_admin', true)->first();
+                        $adminUser = User::where('access_level', 'admin')->first();
                         if ($adminUser) {
-                            Notification::send($adminUser, new NovoPedidoNotification($pedido)); // Reutiliza a notificação
+                            Notification::send($adminUser, new NovoPedidoNotification($pedido));
                             Log::info("Notificação de pagamento {$pedido->id_pedido} enviada ao admin.");
                         }
 
                         Log::info("Pedido {$pedido->id_pedido} e Pagamento atualizados para status: {$newPagamentoStatus} (via webhook PagSeguro).");
-                        return response()->json(['message' => 'Notificação de pagamento processada com sucesso'], 200);
-
                     } elseif ($newPagamentoStatus !== $pagamento->status) {
-                        // Atualiza outros status (cancelado, expirado, etc.)
                         $pagamento->status = $newPagamentoStatus;
-                        if ($newPagamentoStatus === 'pago') { // Só define data_pagamento se for pago
+                        if ($newPagamentoStatus === 'pago') {
                             $pagamento->data_pagamento = now();
                         } else {
                             $pagamento->data_pagamento = null;
                         }
                         $pagamento->save();
 
-                        // Atualiza o status do pedido se for diferente
                         if ($newPedidoStatus !== $pedido->status) {
                             $pedido->status = $newPedidoStatus;
                             $pedido->save();
                             Log::info("Pedido {$pedido->id_pedido} atualizado para status: {$newPedidoStatus} (via webhook PagSeguro - não pago).");
                         }
                     } else {
-                        Log::info("Webhook PagSeguro: Status para pedido {$pedido->id_pedido} já está {$pagamento->status}. Nenhuma alteração necessária.");
+                        Log::info("Webhook PagSeguro: Status para pedido {$pedido->id_pedido} e pagamento já está {$pagamento->status}. Nenhuma alteração necessária.");
                     }
                 } else {
-                    Log::warning("Webhook PagSeguro: Registro de pagamento Pix para pedido {$pedido->id_pedido} não encontrado ou charge_id não corresponde.");
+                    Log::warning("Webhook PagSeguro: Registro de pagamento Pix para pedido {$pedido->id_pedido} não encontrado ou charge_id não corresponde. (Charge ID: {$chargeId})");
                 }
             }
         }
 
-        return response()->json(['message' => 'Notificação processada (sem alteração de status se já estiver atualizado)'], 200);
+        // Resposta de sucesso para o PagSeguro
+        return response()->json(['message' => 'Notificação processada com sucesso'], 200);
     }
 
     protected function mapPagSeguroPedidoStatus($pagseguroStatus)
     {
-        // Mapeamento para o status da tabela 'pedidos'
         switch ($pagseguroStatus) {
             case 'PAID':
                 return 'pago';
             case 'DECLINED':
             case 'CANCELED':
             case 'EXPIRED':
-                return 'cancelado'; // Ou 'expirado', 'cancelado' dependendo da sua granularidade
+                return 'cancelado';
             case 'PENDING':
-            case 'APPROVED': // PIX foi gerado, aguardando pagamento
+            case 'APPROVED':
                 return 'pendente';
             default:
-                return 'pendente'; // Manter como pendente se status desconhecido
+                return 'pendente';
         }
     }
 
     protected function mapPagSeguroPagamentoStatus($pagseguroStatus)
     {
-        // Mapeamento para o status da tabela 'pagamentos'
         switch ($pagseguroStatus) {
             case 'PAID':
                 return 'pago';
             case 'DECLINED':
-                return 'cancelado'; // Ou 'recusado'
+                return 'recusado';
             case 'CANCELED':
                 return 'cancelado';
             case 'EXPIRED':

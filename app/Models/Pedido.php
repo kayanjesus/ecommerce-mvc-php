@@ -63,10 +63,13 @@ class Pedido extends Model
         return $this->hasMany(PedidoStatus::class, 'id_pedido', 'id_pedido');
     }
 
-    public function pagamentoCheckout()
+
+    public function pagamentoCheckout() // <-- A relação está definida como 'pagamentoCheckout'
     {
         return $this->hasOne(PagamentoCheckout::class, 'id_pedido');
     }
+    // ...
+
     public function cupom()
     {
         return $this->belongsTo(Cupom::class, 'id_cupom');

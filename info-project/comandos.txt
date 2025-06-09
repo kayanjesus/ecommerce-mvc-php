@@ -9,6 +9,8 @@ Rodar para o projeto funcionar:
 rodar projeto -> php artisan serve
 rodar projeto -> npm run dev
 Criar banco   -> php artisan migrate
+Img aparecer  -> php artisan storage:link
+Tunel pagbank -> ngrok http 8000
 notificações  -> php artisan queue:work
 
 --------------------------------------------------------------

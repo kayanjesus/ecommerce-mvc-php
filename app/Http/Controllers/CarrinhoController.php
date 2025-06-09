@@ -15,7 +15,12 @@ class CarrinhoController extends Controller
 {
     public function carrinhoLista()
     {
-        $itens = \Cart::getContent();
+        // Certifique-se de que estamos usando a sessão do usuário logado consistentemente
+        $itensCarrinho = \Cart::session(Auth::id())->getContent();
+        $totalCarrinho = \Cart::session(Auth::id())->getTotal();
+
+        // Use $itensCarrinho que já pegou da sessão correta
+        $itens = $itensCarrinho; // <<< CORREÇÃO AQUI!
 
         foreach ($itens as $item) {
             if (isset($item->attributes['cor_id'])) {
@@ -24,10 +29,17 @@ class CarrinhoController extends Controller
             if (isset($item->attributes['tamanho_id'])) {
                 $item->tamanho = Tamanho::find($item->attributes['tamanho_id']);
             }
+            // Não se esqueça de adicionar a lógica para a imagem aqui também,
+            // caso ela não esteja sendo resolvida corretamente na view, embora
+            // o log já mostre que ela está no atributo.
+            // Ex: $item->image = $item->attributes->image;
         }
 
-        return view('home.carrinho', compact('itens'));
+        // Passamos 'itens' para a view, que agora contém os itens da sessão correta
+        return view('home.carrinho', compact('itens', 'totalCarrinho')); // Opcional: passe totalCarrinho também
     }
+
+    // ... (restante do seu controlador sem alterações nesta parte)
 
     public function adicionaCarrinho(Request $request)
     {
@@ -39,36 +51,35 @@ class CarrinhoController extends Controller
                 'name' => 'required',
                 'price' => 'required|numeric|min:0',
                 'quantity' => 'required|integer|min:1',
-                'cor_id' => 'required|exists:cores,id',
-                'tamanho_id' => 'required|exists:tamanhos,id',
+                // 'cor_id' e 'tamanho_id' podem ser opcionais se nem todo produto tiver
+                'cor_id' => 'sometimes|exists:cores,id', // Use 'sometimes'
+                'tamanho_id' => 'sometimes|exists:tamanhos,id', // Use 'sometimes'
                 'img' => 'required'
             ]);
 
             \Log::debug('Dados validados:', $validated);
 
-            // Busca o produto com as imagens relacionadas
             $produto = Produto::with('imagens')->findOrFail($validated['id']);
-
-            // Obtém a imagem principal ou a primeira imagem disponível
             $mainImage = $produto->imagens->where('principal', true)->first() ?? $produto->imagens->first();
 
-            // Adiciona o item ao carrinho
-            \Cart::add([
-                'id' => $validated['id'] . '-' . $validated['cor_id'] . '-' . $validated['tamanho_id'],
+            // Adiciona o item ao carrinho na sessão do usuário logado
+            \Cart::session(Auth::id())->add([ // <<< Garanta que esta linha está assim
+                // O ID do item no carrinho deve ser único para a combinação produto+cor+tamanho
+                // Isso evita que, ao adicionar o mesmo produto com cor/tamanho diferente, ele apenas atualize a quantidade
+                'id' => $validated['id'] . (isset($validated['cor_id']) ? '-' . $validated['cor_id'] : '') . (isset($validated['tamanho_id']) ? '-' . $validated['tamanho_id'] : ''),
                 'name' => $validated['name'],
                 'price' => $validated['price'],
                 'quantity' => $validated['quantity'],
                 'attributes' => [
                     'image' => $mainImage ? $mainImage->caminho : $validated['img'],
-                    'cor_id' => $validated['cor_id'],
-                    'tamanho_id' => $validated['tamanho_id'],
+                    'cor_id' => $validated['cor_id'] ?? null, // Use null se não existir
+                    'tamanho_id' => $validated['tamanho_id'] ?? null, // Use null se não existir
                     'product_id' => $validated['id']
                 ]
             ]);
 
-            \Log::debug('Conteúdo atual do carrinho:', \Cart::getContent()->toArray());
+            \Log::debug('Conteúdo atual do carrinho (após adição):', \Cart::session(Auth::id())->getContent()->toArray()); // <<< Verifique a sessão aqui também
 
-            // Se o usuário está logado, salva o carrinho no banco de dados
             if (Auth::check()) {
                 $this->salvarCarrinhoNoBanco(Auth::id());
             }
@@ -76,8 +87,34 @@ class CarrinhoController extends Controller
             return redirect()->route('home.carrinho')->with('sucesso', 'Produto adicionado ao carrinho!');
 
         } catch (\Exception $e) {
-            \Log::error('Erro ao adicionar ao carrinho:', ['error' => $e->getMessage()]);
+            \Log::error('Erro ao adicionar ao carrinho:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return back()->with('erro', 'Erro ao adicionar produto ao carrinho: ' . $e->getMessage());
+        }
+    }
+
+
+    // ... (removeCarrinho, atualizaCarrinho, limparCarrinho, salvarCarrinhoNoBanco - verificar essas funções também)
+
+    // Revise também seu método salvarCarrinhoNoBanco para garantir que ele salve o conteúdo da sessão Auth::id()
+    protected function salvarCarrinhoNoBanco($userId)
+    {
+        try {
+            $cartContent = \Cart::session($userId)->getContent()->toArray(); // <<< Correção: use a sessão do usuário
+
+            if (empty($cartContent)) {
+                Carrinho::where('id_usuario', $userId)->delete();
+            } else {
+                Carrinho::updateOrCreate(
+                    ['id_usuario' => $userId],
+                    ['conteudo' => json_encode($cartContent)]
+                );
+            }
+
+            \Log::debug('Carrinho salvo no banco para o usuário: ' . $userId);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao salvar carrinho no banco:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            throw $e;
         }
     }
 
@@ -140,25 +177,5 @@ class CarrinhoController extends Controller
         }
     }
 
-    protected function salvarCarrinhoNoBanco($userId)
-    {
-        try {
-            $cartContent = \Cart::getContent()->toArray();
 
-            if (empty($cartContent)) {
-                Carrinho::where('id_usuario', $userId)->delete();
-            } else {
-                Carrinho::updateOrCreate(
-                    ['id_usuario' => $userId],
-                    ['conteudo' => json_encode($cartContent)]
-                );
-            }
-
-            \Log::debug('Carrinho salvo no banco para o usuário: ' . $userId);
-
-        } catch (\Exception $e) {
-            \Log::error('Erro ao salvar carrinho no banco:', ['error' => $e->getMessage()]);
-            throw $e;
-        }
-    }
 }

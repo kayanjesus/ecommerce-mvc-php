@@ -1,5 +1,4 @@
-/* style.css */
-
+/* Base Styles (Consider moving these to a global 'app.css' or 'admin.css' if they apply site-wide) */
 * {
   margin: 0;
   padding: 0;
@@ -9,40 +8,45 @@
 
 body {
   background-color: #f9f9f9;
+  color: #333;
 }
 
-header {
+/* Header */
+.main-header {
   background-color: #9b2a2a;
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.header-brand {
   color: white;
-  padding: 10px 20px;
-  font-size: 20px;
+  font-size: 1.8rem;
   font-weight: bold;
-}
-
-.botao-link {
-  background-color: #9b2a2a;
-  color: white;
-  padding: 10px 20px;
   text-decoration: none;
-  border-radius: 5px;
-  display: inline-block;
-  font-weight: bold;
-  font-size: 23px;
+  transition: color 0.3s ease;
 }
 
+.header-brand:hover {
+  color: #e0e0e0;
+}
 
-.container {
+/* Admin Wrapper - Main Layout */
+.admin-wrapper {
   display: flex;
-  min-height: 100vh;
+  min-height: calc(100vh - 70px);
 }
 
+/* Sidebar */
 .sidebar {
   background-color: #d9d9d9;
-  padding: 20px;
-  width: 250px;
+  padding: 25px;
+  width: 280px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 
 .user-info {
@@ -50,200 +54,386 @@ header {
   flex-direction: column;
   align-items: center;
   margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.user-info i {
-  font-size: 30px;
+.user-info .profile-icon {
+  font-size: 5rem;
   color: #9b2a2a;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .user-info input[type="text"] {
   border: none;
-  pointer-events: none;
-  text-align: center;
   background-color: transparent;
   font-weight: bold;
   color: #333;
+  font-size: 1.1rem;
+  text-align: center;
+  width: 100%;
+  padding: 5px 0;
+  cursor: default;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .menu-btn {
   background-color: white;
   border: none;
-  margin-bottom: 10px;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-  font-weight: 500;
-  width: 100%;
-  text-align: left;
-}
-
-.menu-btn:hover,
-.menu-btn.active {
-  background-color: #9b2a2a;
-  color: white;
-}
-
-.logout {
-  background-color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.logout:hover {
-  background-color: #9b2a2a;
-  color: white;
-}
-/*aki*/
-
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f5f5f5;
-}
-
-header {
-  background-color: #9b2a2a;
-  color: white;
+  margin-bottom: 12px;
   padding: 15px 20px;
-  font-size: 50%;
-}
-
-.container {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar {
-  background-color: #d9d9d9;
-  padding: 20px;
-  width: 250px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.user-info i {
-  font-size: 30px;
-  color: #9b2a2a;
-  margin-bottom: 10px;
-}
-
-.user-info input[type="text"] {
-  border: none;
-  text-align: center;
-  background-color: transparent;
-  font-weight: bold;
-  color: #333;
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-btn {
-  background-color: white;
-  border: none;
-  margin-bottom: 10px;
-  padding: 12px;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
-  font-weight: 500;
+  transition: all 0.3s ease;
+  font-weight: 600;
   width: 100%;
   text-align: left;
+  color: #555;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.menu-btn:hover,
+.menu-btn:hover {
+  background-color: #f0f0f0;
+  color: #9b2a2a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .menu-btn.active {
   background-color: #9b2a2a;
   color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.logout {
-  background-color: white;
-  padding: 10px;
+.logout-form {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 12px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: 0.3s;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  font-size: 1.1rem;
 }
 
-.logout:hover {
-  background-color: #9b2a2a;
-  color: white;
+.logout-btn:hover {
+  background-color: #c82333;
 }
 
-.conteudo {
+/* Main Content Area */
+.content-area {
   flex: 1;
-  padding: 40px;
+  padding: 30px;
+  background-color: #f9f9f9;
 }
 
-.content {
-  flex: 1;
-  padding: 1rem;
+.pedidos-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
 }
 
-.admin-section {
-  padding: 20px;
+.section-title {
+  color: #9b2a2a;
+  margin-bottom: 25px;
+  font-weight: 700;
+  font-size: 1.8rem;
+  text-align: center;
 }
 
-.sales-record {
-  margin-top: 20px;
+/* Alerts */
+.alert {
+  margin-bottom: 20px;
+  border-radius: 8px;
 }
 
-.user-sale:hover {
-  background-color: #ffffff;
-  transform: translateY(-2px);
+/* Pedido Cards Layout */
+.pedidos-grid {
+  display: block;
+  /* Garante que os cards fiquem um embaixo do outro */
 }
 
+/* Estilo para o link que envolve o card */
+.pedido-card-link {
+  display: block;
+  /* Faz o link se comportar como um bloco */
+  text-decoration: none;
+  /* Remove sublinhado */
+  color: inherit;
+  /* Herda a cor do texto padrão */
+  margin-bottom: 25px;
+  /* Espaçamento entre os cards */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  /* Transição para hover */
+}
 
-.data-pedido {
-  background-color: #9b2a2a;
-  color: white;
-  padding: 8px;
-  border-radius: 5px;
+/* Remove a margem inferior do último link para evitar espaço extra */
+.pedidos-grid .pedido-card-link:last-child {
+  margin-bottom: 0;
+}
+
+/* Pedido Cards - Estilo do card em si (sem a margem inferior) */
+.pedido-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #fff;
+  /* transition e margin-bottom removidas daqui, movidas para .pedido-card-link */
+}
+
+/* O hover deve ser aplicado ao link */
+.pedido-card-link:hover .pedido-card {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.pedido-card .card-header {
+  background-color: #f8f9fa;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.pedido-card h5 {
+  color: #9b2a2a;
+  font-weight: 700;
+}
+
+.pedido-card small {
+  color: #6c757d;
+}
+
+/* Status Badges */
+.status-badges .badge {
+  padding: 0.6em 0.8em;
+  font-size: 0.85em;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  vertical-align: middle;
+}
+
+/* Item List */
+.items-list ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 15px;
+}
+
+.items-list li {
+  padding: 5px 0;
+  border-bottom: 1px dashed #eee;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.items-list li:last-child {
+  border-bottom: none;
+}
+
+.items-list small {
+  font-size: 0.85em;
+}
+
+/* Total Price */
+.total-pedido strong {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.total-pedido span.fs-5 {
   font-weight: bold;
+  color: #28a745;
 }
 
-
-.user-sale {
-  background-color: #e6e6e6;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
+/* Order Actions (REMOVIDAS DESTA TELA) */
+/* .order-actions .btn {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.9rem;
 }
 
-.user-sale ul {
-  margin-left: 20px;
+.order-actions .btn i {
+    margin-right: 5px;
+} */
+
+/* Address Details (REMOVIDAS DESTA TELA) */
+/* .address-details {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 0.9rem;
+    color: #495057;
 }
 
-.hora-pedido {
-  float: right;
+.address-details i {
+    color: #6c757d;
+    width: 20px;
+    text-align: center;
 }
 
-.total-pedido {
-  text-align: right;
-  margin-top: 10px;
+.address-details p {
+    margin-bottom: 8px;
+}
+
+.address-details p:last-child {
+    margin-bottom: 0;
+} */
+
+/* Empty State */
+.empty-state {
+  color: #6c757d;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 50px 20px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state i {
+  color: #9b2a2a;
+}
+
+/* Pagination */
+.pagination {
+  margin-top: 30px;
+}
+
+.page-item .page-link {
+  color: #9b2a2a;
+  border-color: #9b2a2a;
+}
+
+.page-item.active .page-link {
+  background-color: #9b2a2a;
+  border-color: #9b2a2a;
+  color: white;
+}
+
+.page-item.disabled .page-link {
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 220px;
+    padding: 15px;
+  }
+
+  .menu-btn {
+    padding: 12px 15px;
+  }
+
+  .content-area {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 15px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .menu-btn {
+    width: auto;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    padding: 10px 15px;
+  }
+
+  .logout-form {
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .logout-btn {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+
+  .content-area {
+    padding: 15px;
+  }
+
+  .pedidos-section {
+    padding: 20px;
+  }
+
+  /* .order-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .order-actions .btn {
+        width: 100%;
+    } */
+}
+
+@media (max-width: 576px) {
+  .main-header {
+    padding: 10px 15px;
+  }
+
+  .header-brand {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
+
+  .pedido-card .card-header h5 {
+    font-size: 1.1rem;
+  }
+
+  .pedido-card .status-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+  }
 }

@@ -269,6 +269,58 @@ class PagamentoController extends Controller
     }
 
 
+    /**
+     * Define as constantes para as regiões do Brasil.
+     */
+    const REGIAO_SUL = ['PR', 'SC', 'RS'];
+    const REGIAO_SUDESTE = ['MG', 'SP', 'RJ', 'ES'];
+    const VALOR_FRETE_PADRAO = 25.00; // Valor padrão do frete se não for grátis
+
+    /**
+     * Determina a região a partir de um estado (UF).
+     * @param string $uf
+     * @return string|null
+     */
+
+
+    protected function getRegiaoPorUf(string $uf): ?string
+    {
+        $uf = strtoupper($uf);
+        if (in_array($uf, self::REGIAO_SUL)) {
+            return 'sul';
+        }
+        if (in_array($uf, self::REGIAO_SUDESTE)) {
+            return 'sudeste';
+        }
+        // Inclui demais regiões (Norte, Nordeste, Centro-Oeste)
+        return 'outras';
+    }
+
+    /**
+     * Calcula o valor do frete baseado na região e no subtotal.
+     * @param float $subtotal
+     * @param string $uf
+     * @return float
+     */
+    protected function calcularValorFrete(float $subtotal, string $uf): float
+    {
+        $regiao = $this->getRegiaoPorUf($uf);
+
+        // Regra de frete grátis para Sul e Sudeste
+        if (in_array($regiao, ['sul', 'sudeste']) && $subtotal >= 250.00) {
+            return 0.00; // Frete grátis
+        }
+
+        // Regra de frete grátis para demais regiões
+        if ($regiao === 'outras' && $subtotal >= 399.00) {
+            return 0.00; // Frete grátis
+        }
+
+        // Se não for frete grátis, aplica o valor padrão
+        return self::VALOR_FRETE_PADRAO;
+    }
+
+
     public function revisao()
     {
         $itens = session('itens_checkout', \Cart::getContent()->toArray());
@@ -278,7 +330,7 @@ class PagamentoController extends Controller
             return (object) $item;
         });
 
-        $total = $itens->sum(function ($item) {
+        $subtotal = $itens->sum(function ($item) { // Renomeado para $subtotal
             return $item->price * $item->quantity;
         });
 
@@ -293,12 +345,9 @@ class PagamentoController extends Controller
         $endereco = session('endereco_entrega');
         $formaPagamento = session('forma_pagamento');
 
-        // Criar um novo pedido base para usar o método
-        $pedidoModel = new \App\Models\Pedido(); // Renomeado para evitar conflito com $pedido abaixo
-
-        // Calcular o frete
-        $frete = $pedidoModel->calcularFrete($endereco['cep']);
-        $totalComFrete = $total + $frete;
+        // Calcular o frete usando o novo método
+        $frete = $this->calcularValorFrete($subtotal, $endereco['estado']);
+        $totalComFrete = $subtotal + $frete;
 
         // Aplicar desconto no PIX
         if ($formaPagamento === 'pix') {
@@ -306,7 +355,8 @@ class PagamentoController extends Controller
             $totalComFrete -= $descontoPix;
         }
 
-        return view('home.pagamento.revisao', compact('itens', 'total', 'endereco', 'formaPagamento', 'frete', 'totalComFrete'));
+        // Passamos 'subtotal' e 'totalComFrete' para a view
+        return view('home.pagamento.revisao', compact('itens', 'subtotal', 'endereco', 'formaPagamento', 'frete', 'totalComFrete'));
     }
 
 
@@ -354,39 +404,32 @@ class PagamentoController extends Controller
 
     protected function obterItensCheckout()
     {
-        $sessionItems = session('itens_checkout', []); // Garante que $sessionItems seja um array, mesmo que a sessão não exista
+        $sessionItems = session('itens_checkout', []);
 
         if (empty($sessionItems)) {
             \Log::warning('Sessão de checkout vazia ou sem itens.', ['session' => session()->all()]);
-            return collect(); // Retorna uma Collection vazia se não houver itens na sessão
+            return collect();
         }
 
-        // Transformar o array associativo em uma Collection de objetos stdClass diretos
         $itens = collect($sessionItems)->map(function ($itemData) {
-            // Lógica para extrair o stdClass, conforme definido anteriormente
             if (is_array($itemData) && isset($itemData['stdClass'])) {
                 return (object) $itemData['stdClass'];
             } elseif (is_object($itemData) && isset($itemData->stdClass)) {
                 return $itemData->stdClass;
             }
-            return (object) $itemData; // Fallback
+            return (object) $itemData;
         });
-
-        // Este if/throw agora pode ser removido daqui, pois o isEmpty() será tratado no processarPagamento
-        // if ($itens->isEmpty()) {
-        //     \Log::error('Itens do checkout vazios após recuperação e transformação.');
-        //     throw new \Exception('Nenhum item encontrado no carrinho após processamento.');
-        // }
 
         \Log::debug('Itens recuperados e transformados para o PagSeguro:', ['itens' => $itens->toArray()]);
 
-        return $itens; // Retorna uma Collection (pode ser vazia) de objetos stdClass direto
+        return $itens;
     }
 
     protected function criarPedido($itens, $endereco)
     {
         $pedido = new Pedido();
         $pedido->id_usuario = Auth::id();
+        // O campo 'total' aqui será o subtotal dos itens, o frete será adicionado depois
         $pedido->total = $itens->sum(function ($item) {
             return $item->price * $item->quantity;
         });
@@ -400,20 +443,22 @@ class PagamentoController extends Controller
 
     protected function calcularTotalFinal($pedido, $formaPagamento)
     {
-        $total = $pedido->total;
+        // O $pedido->total já é o subtotal dos itens
+        $subtotal = $pedido->total;
 
-        // Calcular frete
         // Acessar o endereço de entrega do pedido (já decodificado)
         $enderecoPedido = json_decode($pedido->endereco_entrega, true);
-        $frete = $pedido->calcularFrete($enderecoPedido['cep']);
-        $total += $frete;
+        $uf = $enderecoPedido['estado'] ?? 'SP'; // Default para SP se não encontrar
+
+        $frete = $this->calcularValorFrete($subtotal, $uf);
+        $totalComFrete = $subtotal + $frete;
 
         // Aplicar desconto no PIX
         if ($formaPagamento === 'pix') {
-            $total *= 0.95; // 5% de desconto
+            $totalComFrete *= 0.95; // 5% de desconto
         }
 
-        return $total;
+        return $totalComFrete;
     }
 
     protected function criarPagamento($pedido, $formaPagamento, $totalPedido, $request)
@@ -422,8 +467,9 @@ class PagamentoController extends Controller
         $pagamento->id_pedido = $pedido->id_pedido;
         $pagamento->metodo_pagamento = $formaPagamento;
         $pagamento->valor_pago = $totalPedido;
-        $pagamento->valor_original = $pedido->total;
-        $pagamento->desconto = $pedido->total - $totalPedido;
+        // O valor_original agora deve ser o subtotal do pedido (sem frete ou desconto inicial)
+        $pagamento->valor_original = $pedido->getOriginal('total'); // Pega o valor original salvo antes de atualizar
+        $pagamento->desconto = $pagamento->valor_original - $totalPedido; // Ajustar cálculo do desconto
         $pagamento->status = 'pendente';
 
         if ($formaPagamento === 'cartao') {
@@ -434,20 +480,19 @@ class PagamentoController extends Controller
         return $pagamento; // Retorna o objeto PagamentoCheckout criado
     }
 
+
     protected function adicionarItensAoPedido($pedido, $itens)
     {
         foreach ($itens as $item) {
-            // Separa o ID composto (formato: "id_produto-cor-tamanho")
             $partes = explode('-', $item->id);
-            $idProduto = $partes[0]; // Pega apenas a parte numérica do ID
+            $idProduto = $partes[0];
 
             $pedidoItem = new PedidoItem();
             $pedidoItem->id_pedido = $pedido->id_pedido;
-            $pedidoItem->id_produto = $idProduto; // Apenas o ID numérico
+            $pedidoItem->id_produto = $idProduto;
             $pedidoItem->quantidade = $item->quantity;
             $pedidoItem->preco_unitario = $item->price;
 
-            // Adiciona cor e tamanho se existirem
             if (count($partes) > 1) {
                 $pedidoItem->cor = $partes[1] ?? null;
                 $pedidoItem->tamanho = $partes[2] ?? null;
@@ -459,7 +504,6 @@ class PagamentoController extends Controller
 
     protected function finalizarCheckout()
     {
-        // Limpar carrinho baseado no tipo de checkout
         if (session('checkout_type') === 'selecionados') {
             $selectedItems = session('selected_items', []);
             foreach ($selectedItems as $itemId) {
@@ -469,14 +513,13 @@ class PagamentoController extends Controller
             \Cart::clear();
         }
 
-        // Limpar sessão de checkout
         session()->forget([
             'itens_checkout',
             'checkout_type',
             'selected_items',
             'endereco_entrega',
             'forma_pagamento',
-            'cupom_aplicado', // Se você tiver cupons, limpe-os também
+            'cupom_aplicado',
         ]);
     }
 
@@ -512,14 +555,15 @@ class PagamentoController extends Controller
                 return response()->json(['error' => true, 'message' => 'CPF do usuário não encontrado. Por favor, atualize seus dados cadastrais.'], 400);
             }
 
-            \Log::info('CPF enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]); // Mantenha este log aqui
-
+            \Log::info('CPF enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
 
             $pedido = $this->criarPedido($itens, $endereco);
             $this->adicionarItensAoPedido($pedido, $itens);
 
+            // Calcula o total final (subtotal + frete - desconto pix)
             $totalFinal = $this->calcularTotalFinal($pedido, $formaPagamento);
 
+            // Atualiza o total do pedido com o valor final que inclui o frete e descontos
             $pedido->total = $totalFinal;
             $pedido->save();
 
@@ -534,11 +578,8 @@ class PagamentoController extends Controller
                 $token = env('PAGSEGURO_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE');
 
                 $cpfCnpj = $usuario->cpf_ou_cnpj;
-
                 $cleanedCpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
-
                 Log::info('CPF enviado para PagSeguro:', ['cpf' => $cleanedCpfCnpj]);
-
 
                 $body = [
                     "reference_id" => "pedido-" . $pedido->id_pedido,
@@ -584,7 +625,7 @@ class PagamentoController extends Controller
                         ]
                     ],
                     "notification_urls" => [
-                        "https://alexandrecardoso-pagseguro.ultrahook.com"
+                        "https://0f98-45-164-145-73.ngrok-free.app/webhooks/pagseguro" // Certifique-se que esta URL é pública e acessível
                     ]
                 ];
 
@@ -597,8 +638,6 @@ class PagamentoController extends Controller
 
                 if ($response->successful()) {
                     $pagSeguroResponse = $response->json();
-
-                    // dd($pagSeguroResponse);
 
                     if (isset($pagSeguroResponse['qr_codes'][0]['links'][0]['href'])) {
                         $qrCodeData = $pagSeguroResponse['qr_codes'][0]['links'][0]['href'];
@@ -650,7 +689,6 @@ class PagamentoController extends Controller
     }
 
 
-
     // Em um método do seu PagamentoController (ou um novo método específico para 'pagamento.pagar')
     public function mostrarPagamentoPix(Request $request, Pedido $pedido)
     {
@@ -672,54 +710,6 @@ class PagamentoController extends Controller
 
 
 
-    public function confirmarPagamento(Request $request, Pedido $pedido)
-    {
-        // Esta é a confirmação manual, que deve ser usada como fallback ou para testes.
-        // A confirmação primária deve ser via webhook do PagSeguro.
-        try {
-            // Garante que o pedido existe e pertence ao usuário (ou é admin)
-            if (Auth::id() !== $pedido->id_usuario && (!Auth::user() || !Auth::user()->is_admin)) {
-                return response()->json(['success' => false, 'message' => 'Permissão negada ou pedido não encontrado.'], 403);
-            }
-
-            // Encontra o registro de pagamento associado
-            $pagamento = Pagamento::where('id_pedido', $pedido->id_pedido)->first();
-
-            if (!$pagamento) {
-                return response()->json(['success' => false, 'message' => 'Registro de pagamento não encontrado para este pedido.'], 404);
-            }
-
-            // Apenas altera para 'pago' se o status atual não for 'pago' (evita notificações duplicadas)
-            if ($pagamento->status !== 'pago') {
-                $pagamento->status = 'pago';
-                $pagamento->data_pagamento = now();
-                $pagamento->save();
-
-                $pedido->status = 'pago'; // Atualiza o status do pedido também
-                $pedido->save();
-
-                // Envia uma nova notificação ao administrador sobre o pagamento confirmado
-                $adminUser = User::where('is_admin', true)->first();
-                if ($adminUser) {
-                    Notification::send($adminUser, new NovoPedidoNotification($pedido));
-                    // Você pode criar uma notificação específica para 'Pagamento Confirmado' se quiser
-                    // Ex: new PagamentoConfirmadoNotification($pedido)
-                }
-            }
-
-            // Limpa dados do Pix da sessão
-            Session::forget(['qrCodeData', 'pixKey', 'expirationDate', 'last_pedido_id']);
-
-            return response()->json(['success' => true, 'message' => 'Pagamento confirmado com sucesso!']);
-
-        } catch (\Exception $e) {
-            Log::error("Erro ao confirmar pagamento manual: " . $e->getMessage(), [
-                'pedido_id' => $pedido->id_pedido,
-                'exception' => $e->getTraceAsString()
-            ]);
-            return response()->json(['success' => false, 'message' => 'Erro ao confirmar pagamento.']);
-        }
-    }
 
 
     // Adicione este método no PagamentoController

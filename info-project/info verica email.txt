@@ -9,7 +9,8 @@ APP_NAME=Laravel
 APP_ENV=local
 APP_KEY=base64:ot2kwY1s3sJb+2DvITR2mAJ1K4RKu1yUnSEDkwvbYzw=
 APP_DEBUG=true
-APP_URL=http://localhost
+APP_URL=https://0f98-45-164-145-73.ngrok-free.app
+# APP_URL=http://localhost
 
 LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null
@@ -22,11 +23,21 @@ DB_DATABASE=ecommerce
 DB_USERNAME=root
 DB_PASSWORD=
 
-PAGSEGURO_TOKEN="62a0f5aa-eb1e-4d3c-ad5d-b0e2230dd44d26fa0d7e462ea977fa349b0b9a3dfed1645c-91e0-4ffc-8266-504973839419"
-PAGSEGURO_URL=https://sandbox.api.pagseguro.com/orders
 
-# PAGSEGURO_TOKEN="b0835625-4c20-473c-92c3-c602451583a5bb28121945a6ad8448d113f16810cfa05df0-5c79-4bed-870d-2d0455936257" # token real de produção
-# PAGSEGURO_URL=https://api.pagseguro.com/orders # URL de produção
+PAGSEGURO_ENV=sandbox
+PAGSEGURO_EMAIL=kayandasilvajesus7@gmail.com
+PAGSEGURO_TOKEN=62a0f5aa-eb1e-4d3c-ad5d-b0e2230dd44d26fa0d7e462ea977fa349b0b9a3dfed1645c-91e0-4ffc-8266-504973839419
+# Se for o novo API de pagamentos (transparente/checkout v2):
+PAGSEGURO_BEARER_TOKEN=seu_token_BEARER_do_sandbox
+
+
+
+# PAGSEGURO_ENV=production
+# PAGSEGURO_EMAIL=kayandasilvajesus7@gmail.com
+# PAGSEGURO_TOKEN="9975d989-6246-4fcf-a61b-3886aa3a76a6505059794887a82a0f6a98c00883cc553a05-8e20-468c-9d43-0ca57a2dec72" # token real de produção
+# # Se for o novo API de pagamentos (transparente/checkout v2):
+# PAGSEGURO_BEARER_TOKEN=seu_token_BEARER_da_producao
+
 
 BROADCAST_DRIVER=pusher
 CACHE_DRIVER=file
@@ -59,7 +70,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 PUSHER_APP_ID=2004580
 PUSHER_APP_KEY=d8ec9f36674967741278
 PUSHER_APP_SECRET=dce6e70d8ffe9820740a
-PUSHER_APP_CLUSTER=sa-east-1 # Ou o cluster do seu app
+PUSHER_APP_CLUSTER=sa1
 PUSHER_HOST=
 PUSHER_PORT=443
 PUSHER_SCHEME=https
