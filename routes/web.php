@@ -164,6 +164,16 @@ Route::prefix('adm')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/pedidos', [PedidoController::class, 'index'])->name('adm.pedidos');
     Route::patch('/pedidos/{id}/status', [PedidoController::class, 'alterarStatus'])->name('adm.pedidos.alterar-status');
     Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('adm.pedidos.detalhes');
+
+    // Rota para ver os detalhes de um pedido específico
+    Route::get('/pedidos/{id_pedido}', [DashboardController::class, 'detalhePedido'])->name('adm.detalhe_pedido');
+
+    // Rota para atualizar o status da entrega (POST)
+    Route::post('/pedidos/{id_pedido}/atualizar-status-entrega', [DashboardController::class, 'atualizarStatusEntrega'])->name('adm.atualizar_status_entrega');
+
+    // Rota para adicionar/atualizar código de rastreio (POST)
+    Route::post('/pedidos/{id_pedido}/adicionar-rastreio', [DashboardController::class, 'adicionarRastreio'])->name('adm.adicionar_rastreio');
+
     // Notificações
     Route::get('/notificacoes', [NotificacaoController::class, 'index'])->name('adm.notificacoes');
     Route::post('/notificacoes/marcar-lida', [NotificacaoController::class, 'marcarComoLida'])->name('adm.notificacoes.marcar-lida');

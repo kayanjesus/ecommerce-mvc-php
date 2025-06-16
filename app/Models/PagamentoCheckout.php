@@ -8,6 +8,7 @@ class PagamentoCheckout extends Model
 {
     protected $table = 'pagamentos'; // Mantemos a tabela original
     protected $primaryKey = 'id_pagamento';
+    
 
     protected $fillable = [
         'id_pedido',          // Confirmar que está incluído

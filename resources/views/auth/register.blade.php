@@ -51,7 +51,7 @@
                 <div class="form-group">
                     <label for="cpf">CPF</label>
                     <input type="text" id="cpf" name="cpf" value="{{ old('cpf') }}" placeholder="Digite seu CPF"
-                        maxlength="14" required>
+                        maxlength="14" required oninput="formatarCPF(this)">
                     @error('cpf') <div class="error">{{ $message }}</div> @enderror
                 </div>
 
@@ -60,6 +60,14 @@
                     <input type="date" id="data_nasc" name="data_nasc" value="{{ old('data_nasc') }}" required>
                     @error('data_nasc') <div class="error">{{ $message }}</div> @enderror
                 </div>
+
+                <!-- <div class="mt-4">
+                    <x-input-label for="telefone" :value="__('Telefone')" />
+                    <x-text-input id="telefone" class="block mt-1 w-full" type="text" name="telefone"
+                        :value="old('telefone')" required autocomplete="tel"
+                        placeholder="(XX) XXXXX-XXXX ou (XX) XXXX-XXXX" />
+                    <x-input-error :messages="$errors->get('telefone')" class="mt-2" />
+                </div> -->
 
                 <div class="form-group">
                     <label for="password">Senha</label>
@@ -86,6 +94,54 @@
     <footer class="footer">
         © 2024 Cantinho da Isa. Todos os direitos reservados.
     </footer>
+
+    <!-- MASCARA CPF -->
+    <script>
+        function formatarCPF(campo) {
+            let cpf = campo.value.replace(/\D/g, ''); // Remove tudo que não é número
+            if (cpf.length > 11) cpf = cpf.slice(0, 11); // Limita a 11 dígitos
+            cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
+            cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
+            cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            campo.value = cpf;
+        }
+    </script>
+
+    <!-- MASCARA TELEFONE -->
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const telefoneInput = document.getElementById('telefone');
+
+            telefoneInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+                let formattedValue = '';
+
+                if (value.length > 0) {
+                    formattedValue = '(' + value.substring(0, 2);
+                    if (value.length > 2) {
+                        formattedValue += ') ';
+                        if (value.length <= 7) { // Para números de 8 dígitos (sem 9 na frente)
+                            formattedValue += value.substring(2, 6);
+                            if (value.length > 6) {
+                                formattedValue += '-' + value.substring(6, 10);
+                            }
+                        } else { // Para números de 9 dígitos (com 9 na frente)
+                            formattedValue += value.substring(2, 7);
+                            if (value.length > 7) {
+                                formattedValue += '-' + value.substring(7, 11);
+                            }
+                        }
+                    }
+                }
+                e.target.value = formattedValue;
+            });
+
+            // Garantir que a máscara é aplicada ao carregar a página se houver old('telefone')
+            if (telefoneInput.value) {
+                telefoneInput.dispatchEvent(new Event('input'));
+            }
+        });
+    </script> -->
 
 </body>
 

@@ -1,3 +1,5 @@
+<!-- resources/views/dashboard.blade.php -->
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -15,12 +17,12 @@
                     <div class="mb-8 flex space-x-4">
                         <a href="{{ route('home.dashboard', ['show' => 'pedidos']) }}"
                            class="px-4 py-2 rounded-md font-semibold text-sm
-                                  @if($currentView === 'pedidos') bg-indigo-600 text-white @else bg-gray-200 text-gray-700 hover:bg-gray-300 @endif">
+                                @if($currentView === 'pedidos') bg-indigo-600 text-white @else bg-gray-200 text-gray-700 hover:bg-gray-300 @endif">
                             <i class="fas fa-box mr-2"></i> Meus Pedidos
                         </a>
                         <a href="{{ route('home.dashboard', ['show' => 'favoritos']) }}"
                            class="px-4 py-2 rounded-md font-semibold text-sm
-                                  @if($currentView === 'favoritos') bg-indigo-600 text-white @else bg-gray-200 text-gray-700 hover:bg-gray-300 @endif">
+                                @if($currentView === 'favoritos') bg-indigo-600 text-white @else bg-gray-200 text-gray-700 hover:bg-gray-300 @endif">
                             <i class="fas fa-heart mr-2"></i> Favoritos
                         </a>
                     </div>
@@ -45,16 +47,47 @@
                                                 <p class="mb-2">
                                                     Status do Pedido:
                                                     <span class="font-semibold
-                                                                 @if($pedido->status === 'pago') text-green-600
-                                                                 @elseif($pedido->status === 'pendente') text-yellow-600
-                                                                 @elseif($pedido->status === 'cancelado') text-red-600
-                                                                 @else text-gray-600 @endif">
+                                                        @if($pedido->status === 'pago') text-green-600
+                                                        @elseif($pedido->status === 'pendente') text-yellow-600
+                                                        @elseif($pedido->status === 'cancelado') text-red-600
+                                                        @elseif($pedido->status === 'processando') text-blue-600
+                                                        @elseif($pedido->status === 'enviado' || $pedido->status === 'em_transito' || $pedido->status === 'saiu_para_entrega') text-purple-600
+                                                        @elseif($pedido->status === 'entregue') text-indigo-600
+                                                        @else text-gray-600 @endif">
                                                         {{ ucfirst($pedido->status) }}
                                                     </span>
                                                 </p>
                                                 <p class="mb-2 font-bold text-gray-800">
                                                     Valor Total: R$ {{ number_format($pedido->total, 2, ',', '.') }}
                                                 </p>
+
+                                                <!-- NOVO: INFORMAÇÕES DE ENTREGA -->
+                                                @if($pedido->entrega)
+                                                    <div class="mt-4 pt-3 border-t border-gray-200">
+                                                        <h5 class="font-semibold text-md text-gray-700 mb-2"><i class="fas fa-truck mr-2"></i> Status da Entrega:</h5>
+                                                        <p class="text-sm text-gray-600 mb-1">
+                                                            Método: {{ ucfirst($pedido->entrega->metodo_entrega) }}
+                                                        </p>
+                                                        <p class="text-sm text-gray-600 mb-1">
+                                                            Data de Envio: {{ $pedido->entrega->data_envio ? $pedido->entrega->data_envio->format('d/m/Y H:i') : 'Aguardando envio' }}
+                                                        </p>
+                                                        <p class="text-sm text-gray-600 mb-1">
+                                                            Data de Entrega Estimada: {{ $pedido->entrega->data_entrega ? $pedido->entrega->data_entrega->format('d/m/Y H:i') : 'Em breve' }}
+                                                        </p>
+                                                        @if($pedido->entrega->rastreio)
+                                                            <p class="text-sm text-gray-600 mb-0">
+                                                                Código de Rastreio: <span class="font-bold text-indigo-700">{{ $pedido->entrega->rastreio->codigo_rastreio }}</span>
+                                                                {{-- Opcional: link para site de rastreio --}}
+                                                                {{-- <a href="https://www.rastreio.com.br/?code={{ $pedido->entrega->rastreio->codigo_rastreio }}" target="_blank" class="text-blue-500 hover:underline ml-2">Rastrear</a> --}}
+                                                            </p>
+                                                        @else
+                                                            <p class="text-sm text-gray-600 mb-0">Código de Rastreio: Não disponível</p>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <p class="text-sm text-gray-600 mt-4">Informações de entrega não disponíveis ainda.</p>
+                                                @endif
+                                                <!-- FIM NOVO: INFORMAÇÕES DE ENTREGA -->
 
                                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                                                     @forelse($pedido->itens as $item)
@@ -96,6 +129,7 @@
                                 @endif
                             </div>
                         @elseif($currentView === 'favoritos')
+                            <!-- Seu código existente para Favoritos -->
                             <div class="mb-8">
                                 <h3 class="font-semibold text-lg text-gray-800 leading-tight mb-4">Meus Favoritos</h3>
 
@@ -127,7 +161,7 @@
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </form>
-                                                 </div>   
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Cor extends Model
 {
     protected $table = 'cores';
+    protected $primaryKey = 'id_cor'; // <--- ADICIONE ESTA LINHA SE A PK FOR 'id_cor'
     protected $fillable = ['nome', 'codigo_hex'];
     public $timestamps = true;
 
@@ -16,4 +17,3 @@ class Cor extends Model
         return $this->belongsToMany(Produto::class, 'cor_produto', 'id_cor', 'id_produto');
     }
 }
-

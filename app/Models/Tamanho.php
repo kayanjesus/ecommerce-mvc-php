@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Tamanho extends Model
 {
     protected $table = 'tamanhos';
-    protected $primaryKey = 'id'; // Isso já é o padrão, mas pode ser explícito
+    protected $primaryKey = 'id_tamanho'; // <--- CORREÇÃO: Altere para a chave primária real da sua tabela 'tamanhos'
     protected $fillable = ['nome'];
     public $timestamps = true;
 
@@ -17,4 +17,3 @@ class Tamanho extends Model
         return $this->belongsToMany(Produto::class, 'produto_tamanho', 'id_tamanho', 'id_produto');
     }
 }
-

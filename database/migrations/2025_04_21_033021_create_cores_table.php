@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cores', function (Blueprint $table) {
-            $table->id();  // Isso cria a chave primária com o nome 'id'
+            $table->id('id_cor');  // Isso cria a chave primária com o nome 'id'
             $table->string('nome');
             $table->string('codigo_hex', 7)->default('#FFFFFF');
             $table->timestamps();

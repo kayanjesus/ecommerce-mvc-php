@@ -65,7 +65,6 @@ class SiteController extends Controller
     }
 
 
-
     public function categoria($id_categoria, Request $request)
     {
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();

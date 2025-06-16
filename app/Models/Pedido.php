@@ -2,6 +2,9 @@
 
 namespace App\Models;
 use App\Models\PagamentoCheckout;
+use App\Models\Entrega;
+use App\Models\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -89,9 +92,6 @@ class Pedido extends Model
         return false;
     }
 
-
-
-    // app/Models/Pedido.php
     public function qualificarFreteGratis()
     {
         $estado = $this->endereco_entrega['estado'] ?? null;
@@ -103,5 +103,11 @@ class Pedido extends Model
         }
 
         return null;
+    }
+
+
+    public function entrega() // <-- NOVO RELACIONAMENTO
+    {
+        return $this->hasOne(Entrega::class, 'id_pedido', 'id_pedido');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo; // Importar BelongsTo
 
 class PedidoItem extends Model
 {
@@ -11,20 +12,32 @@ class PedidoItem extends Model
 
     protected $fillable = [
         'id_pedido',
-        'id_produto',  // Este deve ser apenas o ID numérico do produto
+        'id_produto',
         'quantidade',
         'preco_unitario',
-        'cor',       // Campo para armazenar a cor separadamente
-        'tamanho'    // Campo para armazenar o tamanho separadamente
+        'id_cor', // Agora seria id_cor
+        'id_tamanho' // Agora seria id_tamanho
     ];
 
-    public function pedido()
+    public function pedido(): BelongsTo
     {
         return $this->belongsTo(Pedido::class, 'id_pedido');
     }
 
-    public function produto()
+    public function produto(): BelongsTo
     {
         return $this->belongsTo(Produto::class, 'id_produto');
+    }
+
+    // NOVO: Adicione o relacionamento para Cor
+    public function cor(): BelongsTo
+    {
+        return $this->belongsTo(Cor::class, 'id_cor', 'id_cor'); // Assumindo que o PK de Cor é 'id_cor'
+    }
+
+    // NOVO: Adicione o relacionamento para Tamanho
+    public function tamanho(): BelongsTo
+    {
+        return $this->belongsTo(Tamanho::class, 'id_tamanho', 'id_tamanho'); // Assumindo que o PK de Tamanho é 'id_tamanho'
     }
 }

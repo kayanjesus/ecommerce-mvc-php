@@ -467,10 +467,9 @@ class PagamentoController extends Controller
         $pagamento->id_pedido = $pedido->id_pedido;
         $pagamento->metodo_pagamento = $formaPagamento;
         $pagamento->valor_pago = $totalPedido;
-        // O valor_original agora deve ser o subtotal do pedido (sem frete ou desconto inicial)
-        $pagamento->valor_original = $pedido->getOriginal('total'); // Pega o valor original salvo antes de atualizar
-        $pagamento->desconto = $pagamento->valor_original - $totalPedido; // Ajustar cálculo do desconto
-        $pagamento->status = 'pendente';
+        $pagamento->valor_original = $pedido->getOriginal('total');
+        $pagamento->desconto = $pagamento->valor_original - $totalPedido;
+        $pagamento->status = 'pendente'; // Status inicial, será atualizado após a chamada da API
 
         if ($formaPagamento === 'cartao') {
             $pagamento->parcelas = $request->parcelas ?? 1;
@@ -484,20 +483,27 @@ class PagamentoController extends Controller
     protected function adicionarItensAoPedido($pedido, $itens)
     {
         foreach ($itens as $item) {
-            $partes = explode('-', $item->id);
-            $idProduto = $partes[0];
+            try {
+                $partes = explode('-', $item->id);
+                $idProduto = $partes[0];
 
-            $pedidoItem = new PedidoItem();
-            $pedidoItem->id_pedido = $pedido->id_pedido;
-            $pedidoItem->id_produto = $idProduto;
-            $pedidoItem->quantidade = $item->quantity;
-            $pedidoItem->preco_unitario = $item->price;
+                $pedidoItem = new PedidoItem();
+                $pedidoItem->id_pedido = $pedido->id_pedido;
+                $pedidoItem->id_produto = $idProduto;
+                $pedidoItem->quantidade = $item->quantity;
+                $pedidoItem->preco_unitario = $item->price;
 
-            if (count($partes) > 1) {
-                $pedidoItem->cor = $partes[1] ?? null;
-                $pedidoItem->tamanho = $partes[2] ?? null;
+                if (count($partes) > 1) {
+                    $pedidoItem->id_cor = $partes[1] ?? null;
+                    $pedidoItem->id_tamanho = $partes[2] ?? null;
+                }
+            } catch (\Exception $e) {
+                Log::error("Erro ao adicionar item ao pedido #{$pedido->id_pedido}: " . $e->getMessage(), [
+                    'item' => $item,
+                    'exception' => $e->getTraceAsString()
+                ]);
+                throw new \Exception("Erro ao adicionar item ao pedido: " . $e->getMessage());
             }
-
             $pedidoItem->save();
         }
     }
@@ -523,12 +529,13 @@ class PagamentoController extends Controller
         ]);
     }
 
+
     public function processarPagamento(Request $request)
     {
         DB::beginTransaction();
 
         try {
-            $this->verificarEValidarDadosSessao();
+            $this->verificarEValidarDadosSessao(); // Certifique-se de que este método existe e funciona
 
             $itens = $this->obterItensCheckout();
             $endereco = session('endereco_entrega');
@@ -547,27 +554,36 @@ class PagamentoController extends Controller
                 return response()->json(['error' => true, 'message' => 'Endereço de entrega não encontrado. Por favor, revise seu endereço.'], 400);
             }
 
+            \Log::info('CPF do usuário (via $usuario->cpf):', ['cpf' => $usuario->cpf]);
+
             $cpfParaPagSeguro = null;
             if ($usuario->cpf) {
-                $cpfParaPagSeguro = preg_replace('/[^0-9]/', '', $usuario->cpf);
+                // $usuario->cpf já retorna o CPF descriptografado e limpo (apenas números)
+                $cpfParaPagSeguro = $usuario->cpf; // Removido preg_replace redundante aqui
             } else {
                 \Log::warning('CPF do usuário ' . $usuario->id . ' está nulo ou não foi descriptografado corretamente.');
-                return response()->json(['error' => true, 'message' => 'CPF do usuário não encontrado. Por favor, atualize seus dados cadastrais.'], 400);
+                return response()->json(['error' => true, 'message' => 'CPF/CNPJ do cliente inválido. Por favor, atualize seus dados cadastrais com um CPF/CNPJ válido.'], 400);
             }
 
-            \Log::info('CPF enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
+            \Log::info('CPF após limpeza para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
+
+            if (strlen($cpfParaPagSeguro) !== 11 && strlen($cpfParaPagSeguro) !== 14) {
+                \Log::error('CPF do usuário ' . $usuario->id . ' inválido ou com tamanho incorreto após limpeza: ' . $cpfParaPagSeguro);
+                return response()->json(['error' => true, 'message' => 'CPF/CNPJ do cliente com formato inválido. Por favor, atualize seus dados cadastrais.'], 400);
+            }
+
+            \Log::info('CPF FINAL enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
 
             $pedido = $this->criarPedido($itens, $endereco);
             $this->adicionarItensAoPedido($pedido, $itens);
 
-            // Calcula o total final (subtotal + frete - desconto pix)
             $totalFinal = $this->calcularTotalFinal($pedido, $formaPagamento);
 
-            // Atualiza o total do pedido com o valor final que inclui o frete e descontos
             $pedido->total = $totalFinal;
             $pedido->save();
 
-            $pagamento = $this->criarPagamento($pedido, $formaPagamento, $totalFinal, $request);
+            // Cria o registro de pagamento INICIALMENTE
+            $pagamentoCheckout = $this->criarPagamento($pedido, $formaPagamento, $totalFinal, $request);
 
             $qrCodeData = null;
             $pixKey = null;
@@ -576,10 +592,6 @@ class PagamentoController extends Controller
             if ($formaPagamento === 'pix') {
                 $endpoint = 'https://sandbox.api.pagseguro.com/orders';
                 $token = env('PAGSEGURO_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE');
-
-                $cpfCnpj = $usuario->cpf_ou_cnpj;
-                $cleanedCpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
-                Log::info('CPF enviado para PagSeguro:', ['cpf' => $cleanedCpfCnpj]);
 
                 $body = [
                     "reference_id" => "pedido-" . $pedido->id_pedido,
@@ -603,7 +615,6 @@ class PagamentoController extends Controller
                             "unit_amount" => (int) round(($item->price ?? 0) * 100)
                         ];
                     })->values()->toArray(),
-
                     "qr_codes" => [
                         [
                             "amount" => [
@@ -625,7 +636,7 @@ class PagamentoController extends Controller
                         ]
                     ],
                     "notification_urls" => [
-                        "https://0f98-45-164-145-73.ngrok-free.app/webhooks/pagseguro" // Certifique-se que esta URL é pública e acessível
+                        "https://419f-45-164-145-73.ngrok-free.app/webhooks/pagseguro"
                     ]
                 ];
 
@@ -634,7 +645,8 @@ class PagamentoController extends Controller
                     'Authorization' => 'Bearer ' . $token,
                 ])->post($endpoint, $body);
 
-                \Log::info('PagSeguro API Response:', ['status' => $response->status(), 'body' => $response->json()]);
+                $pagSeguroResponse = $response->json();
+                \Log::info('PagSeguro API Response:', ['status' => $response->status(), 'body' => $pagSeguroResponse]); // Logar a resposta completa
 
                 if ($response->successful()) {
                     $pagSeguroResponse = $response->json();
@@ -643,11 +655,31 @@ class PagamentoController extends Controller
                         $qrCodeData = $pagSeguroResponse['qr_codes'][0]['links'][0]['href'];
                         $pixKey = $pagSeguroResponse['qr_codes'][0]['text'];
                         $expirationDate = $pagSeguroResponse['qr_codes'][0]['expiration_date'];
+                        $pagSeguroOrderId = $pagSeguroResponse['id']; // ID da transação do PagSeguro
+
+                        // **ATUALIZAÇÃO DO MODELO PagamentoCheckout AQUI**
+                        // Use a coluna 'codigo_transacao' para o ID do PagSeguro   
+                        $pagamentoCheckout->codigo_transacao = $pagSeguroOrderId;
+                        $pagamentoCheckout->status = 'pendente'; // Status mais limpo
+                        $pagamentoCheckout->data_pagamento = now(); // Define a data de pagamento para agora (se for gerado PIX)
+
+                        // Se você tiver a coluna 'detalhes' como JSON (e ela está no $casts como 'array'),
+                        // você pode armazenar a resposta completa do PagSeguro aqui para debug futuro
+                        $pagamentoCheckout->detalhes = $pagSeguroResponse;
+
+                        $pagamentoCheckout->save(); // Salva as alterações no banco de dados
+
+                        \Log::info('PagamentoCheckout atualizado com dados da transação PagSeguro:', [
+                            'pagamento_id' => $pagamentoCheckout->id_pagamento, // Use id_pagamento, sua primary key
+                            'status' => $pagamentoCheckout->status,
+                            'codigo_transacao' => $pagamentoCheckout->codigo_transacao
+                        ]);
+
                     } else {
                         throw new \Exception('QR Code URL não encontrado na resposta do PagSeguro.');
                     }
                 } else {
-                    $errorMessage = $response->json('error_messages')[0]['description'] ?? ($response->json('error_message') ?? 'Erro desconhecido ao gerar QR Code Pix.');
+                    $errorMessage = $pagSeguroResponse['error_messages'][0]['description'] ?? ($pagSeguroResponse['error_message'] ?? 'Erro desconhecido ao gerar QR Code Pix.');
                     throw new \Exception('Erro na comunicação com PagSeguro: ' . $errorMessage);
                 }
 
@@ -661,17 +693,23 @@ class PagamentoController extends Controller
                 $redirectUrl = route('pagamento.pagar', ['pedidoId' => $pedido->id_pedido]);
 
             } elseif ($formaPagamento === 'cartao') {
+                // Lógica para cartão
+                $pagamentoCheckout->status = 'aguardando_captura_cartao'; // Exemplo de status
+                $pagamentoCheckout->save();
                 $redirectUrl = route('pagamento.sucesso', ['pedidoId' => $pedido->id_pedido]);
 
             } elseif ($formaPagamento === 'boleto') {
+                // Lógica para boleto
+                $pagamentoCheckout->status = 'boleto_gerado'; // Exemplo de status
+                $pagamentoCheckout->save();
                 $redirectUrl = route('pagamento.sucesso', ['pedidoId' => $pedido->id_pedido]);
 
             } else {
                 throw new \Exception('Forma de pagamento inválida selecionada.');
             }
 
-            $this->notificarAdministradores($pedido);
-            $this->finalizarCheckout();
+            $this->notificarAdministradores($pedido); // Certifique-se de que este método existe e funciona
+            $this->finalizarCheckout(); // Certifique-se de que este método existe e funciona
 
             DB::commit();
 
@@ -688,8 +726,7 @@ class PagamentoController extends Controller
         }
     }
 
-
-    // Em um método do seu PagamentoController (ou um novo método específico para 'pagamento.pagar')
+    // --- Outros métodos permanecem como estão (mostrarPagamentoPix, pagar) ---
     public function mostrarPagamentoPix(Request $request, Pedido $pedido)
     {
         // Verifica se o pedido realmente pertence ao usuário logado ou se há dados na sessão
@@ -708,23 +745,12 @@ class PagamentoController extends Controller
         return view('pagamento.pagar', compact('pedido', 'total', 'qrCodeData', 'pixKey'));
     }
 
-
-
-
-
-    // Adicione este método no PagamentoController
     public function pagar(Request $request, $pedidoId)
     {
         try {
-            // Remove Pedido::findOrFail($pedidoId) se você estiver usando type-hinting na rota,
-            // mas como $pedidoId é um escalar, o findOrFail é necessário aqui.
             $pedido = Pedido::findOrFail($pedidoId);
 
-            // dd(Session::all());
-
-            // Permissão: Garanta que o usuário logado é o dono do pedido ou é um admin
             if (Auth::id() !== $pedido->id_usuario && (!Auth::user() || !Auth::user()->isAdmin())) {
-                // Adicione uma verificação para Auth::user() para evitar erro se o usuário não estiver logado
                 return redirect()->route('home')->with('erro', 'Você não tem permissão para acessar este pagamento.');
             }
 
@@ -732,21 +758,16 @@ class PagamentoController extends Controller
             $pixKey = session('pixKey');
             $expirationDate = session('expirationDate');
 
-            // Se a sessão expirou ou foi limpa, e você precisa regenerar, aqui seria o lugar
             if (!$qrCodeData || !$pixKey || !$expirationDate) {
-                // Se a sessão expirou ou foi limpa, e os dados do Pix não estão lá,
-                // considere regenerar o PIX ou redirecionar.
-                // Por simplicidade, vamos redirecionar por enquanto.
                 return redirect()->route('pagamento.erro')->with('erro', 'Dados do PIX não encontrados. Por favor, tente novamente ou gere um novo pagamento.');
             }
-
 
             return view('home.pagamento.pagar', [
                 'pedido' => $pedido,
                 'qrCodeData' => $qrCodeData,
                 'pixKey' => $pixKey,
                 'expirationDate' => $expirationDate,
-                'total' => $pedido->total // Ou $pedido->total_com_desconto_e_frete se você já tem isso salvo no modelo
+                'total' => $pedido->total
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

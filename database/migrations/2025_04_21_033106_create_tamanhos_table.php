@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('tamanhos', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_tamanho');
             $table->string('nome');
             $table->enum('tipo', ['bebe', 'infantil', 'adulto']);
             $table->timestamps();

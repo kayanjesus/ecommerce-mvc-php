@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->string('variacao')->nullable();
             $table->integer('quantidade');
             $table->decimal('preco_unitario', 10, 2);
-            $table->string('cor')->nullable();
-            $table->string('tamanho')->nullable();
+            $table->string('id_cor')->nullable();
+            $table->string('id_tamanho')->nullable();
             $table->timestamps();
 
             $table->foreign('id_pedido')->references('id_pedido')->on('pedidos')->onDelete('cascade');

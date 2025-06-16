@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('id_usuario');
             $table->timestamp('data_pedido')->useCurrent();
             $table->decimal('total', 10, 2);
-            $table->enum('status', ['pendente', 'pago', 'cancelado', 'processando', 'enviado', 'entregue']);
+            $table->enum('status', ['pendente', 'pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue']);
             $table->unsignedBigInteger('id_cupom')->nullable();
             $table->json('endereco_entrega'); // Adicionado campo para armazenar o endereço completo
             $table->text('observacoes')->nullable();

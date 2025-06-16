@@ -17,9 +17,11 @@ return new class extends Migration {
             $table->text('cpf')->nullable(); // TEXT para criptografia
             $table->string('cpf_hash', 64)->nullable();
             $table->date('data_nasc')->nullable(); // DATE para data de nascimento
+            // $table->string('telefone')->nullable()->after('data_nasc');
             $table->string('password');
             $table->string('access_level')->default('user');
             $table->timestamp('email_verified_at')->nullable();
+            // $table->timestamp('telefone_verified_at')->nullable()->after('telefone');
             $table->rememberToken();
             $table->timestamps();
         });

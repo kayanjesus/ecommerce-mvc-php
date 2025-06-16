@@ -6,11 +6,14 @@ use App\Models\Categoria;
 use App\Models\Cor;
 use App\Models\Produto;
 use App\Models\Pedido;
+use App\Models\Entrega;
+use App\Models\Rastreio;
 use App\Models\User; // Certifique-se que o User model está importado
 use DB; // Certifique-se que DB está importado
+use Illuminate\Support\Facades\{Auth, Http, Log, };
 
 use Illuminate\Http\Request;
-
+    
 class DashboardController extends Controller
 {
     public function index()
@@ -57,16 +60,45 @@ class DashboardController extends Controller
 
     public function detalhePedido($id_pedido)
     {
-        // Busca o pedido pelo ID com todas as relações necessárias
-        $pedido = Pedido::with([
-            'usuario',
-            'itens.produto',
-            // 'itens.cor',    // Já removemos estas, o que está correto
-            // 'itens.tamanho',// Já removemos estas, o que está correto
-            'pagamentoCheckout' // <--- AQUI ESTÁ A MUDANÇA!
-        ])->findOrFail($id_pedido);
+        // Eager loading para carregar os relacionamentos necessários de uma vez
+        $pedido = Pedido::with(['usuario', 'itens.tamanho', 'pagamentoCheckout', 'entrega.rastreio'])
+            ->find($id_pedido);
 
-        // Passa o pedido para a view
+        if (!$pedido) {
+            return redirect()->route('adm.pedidos')->with('erro', 'Pedido não encontrado.');
+        }
+
+        // Se o pedido não tem uma entrega associada, crie uma com status inicial
+        if (!$pedido->entrega) {
+            // Determina um método de entrega fictício para o TCC
+            $metodo_entrega = 'sedex'; // Pode ser 'pac' ou 'retirada'
+
+            // Valor do frete já deve ter sido calculado e salvo no pedido->total (ou em outro lugar)
+            // Para simplicidade na demonstração fictícia, vamos usar o valor do frete do pedido
+            // ou um valor default se não estiver explícito na estrutura atual do pedido.
+            // Para o TCC, o importante é ter um valor.
+            $valor_entrega = $pedido->total - ($pedido->pagamentoCheckout->valor_original ?? $pedido->total);
+            if ($valor_entrega < 0) { // Garante que o frete não seja negativo por causa de descontos
+                $valor_entrega = 0.00;
+            }
+
+            try {
+                $entrega = Entrega::create([
+                    'id_pedido' => $pedido->id_pedido,
+                    'metodo_entrega' => $metodo_entrega,
+                    'valor_entrega' => $valor_entrega,
+                    'data_envio' => null, // Ainda não enviado
+                    'data_entrega' => null, // Ainda não entregue
+                ]);
+                // Recarrega o relacionamento para que o objeto $pedido agora tenha $pedido->entrega
+                $pedido->load('entrega');
+                Log::info("Entrega criada automaticamente para o pedido #{$pedido->id_pedido}");
+            } catch (\Exception $e) {
+                Log::error("Erro ao criar entrega para o pedido #{$pedido->id_pedido}: " . $e->getMessage());
+                return redirect()->route('adm.pedidos')->with('erro', 'Erro ao preparar informações de entrega.');
+            }
+        }
+
         return view('adm.detalhe_pedido', compact('pedido'));
     }
 
@@ -89,6 +121,105 @@ class DashboardController extends Controller
 
         return back()->with('sucesso', 'Status do pedido atualizado para ' . ucfirst($novoStatus) . '!');
     }
+
+
+    public function atualizarStatusEntrega(Request $request, $id_pedido)
+    {
+        $request->validate([
+            'status_entrega' => [
+                'required',
+                'in:pendente,processando,enviado,em_transito,saiu_para_entrega,entregue'
+            ],
+        ]);
+
+        $pedido = Pedido::with('entrega')->find($id_pedido);
+
+        if (!$pedido) {
+            return redirect()->back()->with('erro', 'Pedido não encontrado.');
+        }
+
+        if (!$pedido->entrega) {
+            return redirect()->back()->with('erro', 'Registro de entrega não encontrado para este pedido. Por favor, recarregue a página.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Atualiza o status do PEDIDO
+            $pedido->status = $request->status_entrega;
+            $pedido->save();
+
+            // Atualiza o status da ENTREGA e datas relevantes
+            $entrega = $pedido->entrega;
+            switch ($request->status_entrega) {
+                case 'enviado':
+                    if (is_null($entrega->data_envio)) {
+                        $entrega->data_envio = now();
+                    }
+                    $entrega->data_entrega = null; // Garante que a data de entrega seja nula até ser entregue
+                    break;
+                case 'entregue':
+                    if (is_null($entrega->data_envio)) { // Se for entregue direto, marca o envio também
+                        $entrega->data_envio = now();
+                    }
+                    $entrega->data_entrega = now();
+                    break;
+                default:
+                    // Para outros status, pode limpar datas ou deixá-las como estão
+                    $entrega->data_entrega = null;
+                    if ($request->status_entrega === 'pendente' || $request->status_entrega === 'processando') {
+                        $entrega->data_envio = null;
+                    }
+                    break;
+            }
+            $entrega->save();
+
+            DB::commit();
+            return redirect()->back()->with('sucesso', 'Status da entrega do pedido #' . $id_pedido . ' atualizado para "' . ucfirst($request->status_entrega) . '".');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Erro ao atualizar status da entrega para o pedido #{$id_pedido}: " . $e->getMessage(), ['exception' => $e->getTraceAsString()]);
+            return redirect()->back()->with('erro', 'Ocorreu um erro ao atualizar o status da entrega.');
+        }
+    }
+
+
+
+    /**
+     * Adiciona ou atualiza o código de rastreio para uma entrega.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id_pedido
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function adicionarRastreio(Request $request, $id_pedido)
+    {
+        $request->validate([
+            'codigo_rastreio' => ['required', 'string', 'max:50'],
+        ]);
+
+        $pedido = Pedido::with('entrega')->find($id_pedido);
+
+        if (!$pedido || !$pedido->entrega) {
+            return redirect()->back()->with('erro', 'Pedido ou registro de entrega não encontrado.');
+        }
+
+        DB::beginTransaction();
+        try {
+            Rastreio::updateOrCreate(
+                ['id_entrega' => $pedido->entrega->id_entrega],
+                ['codigo_rastreio' => strtoupper($request->codigo_rastreio)] // Armazena em maiúsculas
+            );
+
+            DB::commit();
+            return redirect()->back()->with('sucesso', 'Código de rastreio adicionado/atualizado para o pedido #' . $id_pedido . '.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Erro ao adicionar código de rastreio para o pedido #{$id_pedido}: " . $e->getMessage(), ['exception' => $e->getTraceAsString()]);
+            return redirect()->back()->with('erro', 'Ocorreu um erro ao adicionar o código de rastreio.');
+        }
+    }
+
+
 
     public function pdtestoque()
     {

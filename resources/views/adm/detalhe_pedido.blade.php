@@ -4,13 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cantinho da Isa - Detalhes do Pedido #{{ $pedido->id_pedido }}</title>
+    <title>Detalhes do Pedido - Cantinho da Isa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/adm/pedidos.css') }}"> {{-- Reutiliza o CSS geral da página de pedidos
-    --}}
-    <link rel="stylesheet" href="{{ asset('css/adm/detalhe_pedido.css') }}"> {{-- Novo CSS para detalhes específicos
-    --}}
+    <link rel="stylesheet" href="{{ asset('css/adm/pedidos.css') }}">
+    <style>
+        /* Estilos adicionais para a página de detalhes */
+        .card-header-expanded {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title-underline {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge-lg {
+            font-size: 1.1em;
+            padding: 0.5em 1em;
+            border-radius: 0.5rem;
+        }
+
+        .info-block {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-block h6 {
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+
+        .info-block p {
+            margin-bottom: 0.5rem;
+        }
+
+        .item-detail-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            background-color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .item-detail-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+
+        .item-detail-card .item-info {
+            flex-grow: 1;
+        }
+
+        .item-detail-card .item-name {
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .item-detail-card .item-qty-price {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .form-status-rastreio {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+
+        .form-status-rastreio h5 {
+            margin-bottom: 15px;
+            color: #343a40;
+        }
+
+        .form-status-rastreio .form-group {
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,7 +109,7 @@
         <aside class="sidebar">
             <div class="user-info">
                 <label for="profile-img" class="profile-icon">
-                    <i class="fas fa-user-circle"></i>
+                    <i class="fas fa-user-circle"></i> {{-- Ícone de usuário mais moderno --}}
                 </label>
                 <input type="text" id="username" value="{{ Auth::user()->email }}" readonly />
             </div>
@@ -55,12 +140,13 @@
         </aside>
 
         <main class="content-area">
-            <section class="detalhe-pedido-section">
-                <a href="{{ route('adm.pedidos') }}" class="btn btn-secondary btn-sm mb-4">
-                    <i class="fas fa-arrow-left me-2"></i> Voltar para Pedidos
-                </a>
-
-                <h3 class="section-title mb-4">Detalhes do Pedido #{{ $pedido->id_pedido }}</h3>
+            <section class="pedidos-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="section-title mb-0">Detalhes do Pedido #{{ $pedido->id_pedido }}</h3>
+                    <a href="{{ route('adm.pedidos') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i> Voltar para Pedidos
+                    </a>
+                </div>
 
                 @if(session('sucesso'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -74,191 +160,186 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
 
                 <div class="row">
-                    {{-- Coluna de Detalhes do Pedido --}}
-                    <div class="col-lg-7 col-md-12 mb-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0">Informações do Pedido</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">
-                                    <strong>Status do Pagamento:</strong>
-                                    <span class="badge {{
+                    <div class="col-lg-8">
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header-expanded">
+                                <h5 class="mb-0">Informações Gerais do Pedido</h5>
+                                <span class="badge status-badge-lg {{
     $pedido->status === 'pago' ? 'bg-success' :
     ($pedido->status === 'processando' ? 'bg-warning text-dark' :
         ($pedido->status === 'enviado' ? 'bg-info' :
             ($pedido->status === 'entregue' ? 'bg-primary' : 'bg-secondary')))
-                                    }} ms-2">
-                                        {{ ucfirst($pedido->status) }}
-                                    </span>
-                                </p>
-                                <p class="card-text">
-                                    <strong>Status do Pagamento:</strong>
-                                    @if($pedido->pagamentoCheckout)
-                                                                    <span class="badge {{
-                                        $pedido->pagamentoCheckout->status === 'pago' ? 'bg-success' :
-                                        ($pedido->pagamentoCheckout->status === 'pendente' ? 'bg-danger' : 'bg-secondary')
-                                                                                                        }} ms-2">
-                                                                        {{ ucfirst($pedido->pagamentoCheckout->status) }}
-                                                                    </span>
-                                    @else
-                                        <span class="badge bg-secondary ms-2">Não Informado</span>
-                                    @endif
-                                </p>
-                                <p class="card-text">
-                                    <i class="fas fa-calendar-alt me-2"></i> <strong>Data do Pedido:</strong>
-                                    {{ $pedido->created_at->format('d/m/Y H:i') }}
-                                </p>
-                                <p class="card-text fs-4 text-success">
-                                    <i class="fas fa-dollar-sign me-2"></i> <strong>Total do Pedido:</strong> R$
-                                    {{ number_format($pedido->total, 2, ',', '.') }}
-                                </p>
-
-                                <hr>
-                                <h6 class="mb-3">Ações do Pedido:</h6>
-                                <div class="pedido-actions d-flex flex-wrap gap-2">
-                                    @if($pedido->pagamentoCheckout && $pedido->pagamentoCheckout->status === 'pago')
-                                        @if($pedido->status === 'pago')
-                                            <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="processando">
-                                                <button type="submit" class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-spinner"></i> Processando Envio
-                                                </button>
-                                            </form>
-                                        @elseif($pedido->status === 'processando')
-                                            <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="enviado">
-                                                <button type="submit" class="btn btn-info btn-sm">
-                                                    <i class="fas fa-truck"></i> Marcar como Enviado
-                                                </button>
-                                            </form>
-                                        @elseif($pedido->status === 'enviado')
-                                            <form action="{{ route('adm.pedidos.alterar-status', $pedido->id_pedido) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="status" value="entregue">
-                                                <button type="submit" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-box"></i> Marcar como Entregue
-                                                </button>
-                                            </form>
-                                        @endif
-                                    @else
-                                        <span class="text-danger small">Aguardando Confirmação de Pagamento para Alterar
-                                            Status</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Coluna de Informações do Cliente e Endereço --}}
-                    <div class="col-lg-5 col-md-12 mb-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0">Informações do Cliente</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text"><i class="fas fa-user-circle me-2"></i> <strong>Nome:</strong>
-                                    {{ $pedido->usuario->name }}</p>
-                                <p class="card-text"><i class="fas fa-envelope me-2"></i> <strong>Email:</strong>
-                                    {{ $pedido->usuario->email }}</p>
-                                {{-- Adicione outros dados do usuário se disponíveis no modelo User, ex: telefone --}}
-                                {{-- <p class="card-text"><i class="fas fa-phone me-2"></i> <strong>Telefone:</strong>
-                                    {{ $pedido->usuario->telefone ?? 'N/A' }}</p> --}}
-
-                                <hr>
-                                <h6 class="mb-3">Endereço de Entrega:</h6>
-                                <div class="address-details p-3 border rounded bg-light">
-                                    @php
-                                        // Garante que $endereco seja um array, decodificando se for uma string JSON
-                                        $endereco = is_array($pedido->endereco_entrega)
-                                            ? $pedido->endereco_entrega
-                                            : json_decode($pedido->endereco_entrega, true);
-                                    @endphp
-                                    <p class="mb-1"><i class="fas fa-road me-2"></i> <strong>Rua:</strong>
-                                        {{ $endereco['rua'] }}, {{ $endereco['numero'] }}</p>
-                                    @if(!empty($endereco['complemento']))
-                                        <p class="mb-1"><i class="fas fa-home me-2"></i> <strong>Complemento:</strong>
-                                            {{ $endereco['complemento'] }}</p>
-                                    @endif
-                                    <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i> <strong>Bairro:</strong>
-                                        {{ $endereco['bairro'] }}</p>
-                                    <p class="mb-1"><i class="fas fa-city me-2"></i> <strong>Cidade/UF:</strong>
-                                        {{ $endereco['cidade'] }}/{{ $endereco['estado'] }}</p>
-                                    <p class="mb-0"><i class="fas fa-mail-bulk me-2"></i> <strong>CEP:</strong>
-                                        {{ $endereco['cep'] }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Coluna de Itens do Pedido (pode ser movida para baixo se for muito longa) --}}
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0">Itens do Pedido</h5>
+                                }}">
+                                    Status: {{ ucfirst($pedido->status) }}
+                                </span>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    @foreach($pedido->itens as $item)
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="item-card d-flex align-items-center p-3 border rounded h-100">
-                                                {{-- Lógica da imagem atualizada para buscar a principal --}}
-                                                @if($item->produto && $item->produto->imagens->isNotEmpty())
-                                                    @php
-                                                        $mainImage = $item->produto->imagens->firstWhere('principal', true) ?: $item->produto->imagens->first();
-                                                    @endphp
-                                                    @if($mainImage)
-                                                        <img src="{{ asset($mainImage->caminho) }}" {{--
-                                                            Adicionado 'storage/' aqui, se necessário --}}
-                                                            alt="{{ $item->produto->nome_produto ?? 'Produto' }}"
-                                                            class="img-thumbnail me-3 item-image">
-                                                    @else
-                                                        <div class="img-thumbnail me-3 item-image d-flex align-items-center justify-content-center bg-light text-muted"
-                                                            style="width: 64px; height: 64px;">
-                                                            <i class="fas fa-image fa-2x"></i> {{-- Ícone maior para placeholder
-                                                            --}}
-                                                        </div>
-                                                    @endif
-                                                @else
-                                                    {{-- Fallback para foto_produto, se ainda usar, ou placeholder padrão --}}
-                                                    @if($item->produto && $item->produto->foto_produto)
-                                                        <img src="{{ asset('storage/' . $item->produto->foto_produto) }}"
-                                                            alt="{{ $item->produto->nome_produto }}"
-                                                            class="img-thumbnail me-3 item-image">
-                                                    @else
-                                                        <div class="img-thumbnail me-3 item-image d-flex align-items-center justify-content-center bg-light text-muted"
-                                                            style="width: 64px; height: 64px;">
-                                                            <i class="fas fa-image fa-2x"></i>
-                                                        </div>
-                                                    @endif
-                                                @endif
-                                                {{-- Fim da lógica da imagem --}}
+                                    <div class="col-md-6">
+                                        <p><strong>Comprador:</strong> {{ $pedido->usuario->name }}</p>
+                                        <p><strong>Email:</strong> {{ $pedido->usuario->email }}</p>
+                                        <p><strong>Telefone:</strong>
+                                            {{ $pedido->usuario->telefone ?? 'Não informado' }}</p>
+                                        <p><strong>Data do Pedido:</strong>
+                                            {{ $pedido->data_pedido->format('d/m/Y H:i') }}</p>
+                                        <p><strong>Observações:</strong> {{ $pedido->observacoes ?? 'Nenhuma' }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Total do Pedido:</strong> <span class="text-success fs-5">R$
+                                                {{ number_format($pedido->total, 2, ',', '.') }}</span></p>
+                                        @if($pedido->pagamentoCheckout)
+                                                                            <p><strong>Método de Pagamento:</strong>
+                                                                                {{ ucfirst($pedido->pagamentoCheckout->metodo_pagamento) }}</p>
+                                                                            <p><strong>Status Pagamento:</strong> <span class="badge {{
+                                            $pedido->pagamentoCheckout->status === 'pago' ? 'bg-success' :
+                                            ($pedido->pagamentoCheckout->status === 'pendente' ? 'bg-danger' : 'bg-secondary')
+                                                                                }}">{{ ucfirst($pedido->pagamentoCheckout->status) }}</span></p>
+                                                                            <p><strong>Cód. Transação PagSeguro:</strong>
+                                                                                {{ $pedido->pagamentoCheckout->codigo_transacao ?? 'N/A' }}</p>
+                                        @else
+                                            <p><strong>Informações de Pagamento:</strong> Não disponíveis</p>
+                                        @endif
+                                    </div>
+                                </div>
 
-                                                <div class="item-details flex-grow-1">
-                                                    <h6 class="mb-1">{{ $item->produto->nome_produto }}</h6>
-                                                    <p class="mb-1 small text-muted">Quantidade: {{ $item->quantidade }}</p>
-                                                    <p class="mb-1 small text-muted">
-                                                        @if($item->cor) Cor: {{ $item->cor }} @endif
-                                                        @if($item->tamanho) Tamanho: {{ $item->tamanho }} @endif
-                                                    </p>
-                                                    <p class="mb-0 fw-bold text-primary">R$
-                                                        {{ number_format($item->preco_unitario, 2, ',', '.') }} (unit.)
-                                                    </p>
+                                <h5 class="mt-4 section-title-underline">Itens do Pedido</h5>
+                                <div class="items-list-detail">
+                                    @forelse($pedido->itens as $item)
+                                        <div class="item-detail-card">
+                                            @php
+                                                $mainImage = $item->produto && $item->produto->imagens->isNotEmpty() ? ($item->produto->imagens->firstWhere('principal', true) ?: $item->produto->imagens->first()) : null;
+                                            @endphp
+                                            @if($mainImage)
+                                                <img src="{{ asset($mainImage->caminho) }}"
+                                                    alt="{{ $item->produto->nome_produto ?? 'Produto' }}" class="img-fluid">
+                                            @else
+                                                <div class="d-flex align-items-center justify-content-center bg-light text-muted"
+                                                    style="width: 80px; height: 80px; border-radius: 0.25rem;">
+                                                    <i class="fas fa-image fa-2x"></i>
                                                 </div>
+                                            @endif
+                                            <div class="item-info">
+                                                <div class="item-name">
+                                                    {{ $item->produto->nome_produto ?? 'Produto Indisponível' }}</div>
+                                                <div class="item-qty-price">
+                                                    Qtd: {{ $item->quantidade }} | Preço Unit.: R$
+                                                    {{ number_format($item->preco_unitario, 2, ',', '.') }}
+                                                </div>
+                                                @if($item->cor || $item->tamanho)
+                                                    <small class="text-muted">
+                                                        ({{ $item->cor->nome ?? '' }}{{ $item->cor && $item->tamanho ? ', ' : '' }}{{ $item->tamanho->nome ?? '' }})
+                                                    </small>
+                                                @endif
+                                            </div>
+                                            <div class="item-total">
+                                                <strong>R$
+                                                    {{ number_format($item->quantidade * $item->preco_unitario, 2, ',', '.') }}</strong>
                                             </div>
                                         </div>
-                                    @endforeach
+                                    @empty
+                                        <p class="text-muted">Nenhum item encontrado para este pedido.</p>
+                                    @endforelse
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        {{-- ENDEREÇO DE ENTREGA --}}
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header-expanded">
+                                <h5 class="mb-0">Endereço de Entrega</h5>
+                            </div>
+                            <div class="card-body info-block">
+                                @php
+                                    $endereco = json_decode($pedido->endereco_entrega, true);
+                                @endphp
+                                @if($endereco)
+                                    <p>{{ $endereco['rua'] }}, {{ $endereco['numero'] }}
+                                        {{ $endereco['complemento'] ? ' - ' . $endereco['complemento'] : '' }}</p>
+                                    <p>{{ $endereco['bairro'] }}</p>
+                                    <p>{{ $endereco['cidade'] }} - {{ $endereco['estado'] }}, {{ $endereco['cep'] }}</p>
+                                @else
+                                    <p class="text-muted">Endereço não disponível.</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- GESTÃO DE ENTREGA --}}
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-header-expanded">
+                                <h5 class="mb-0">Gestão de Entrega</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Método de Entrega:</strong>
+                                    {{ ucfirst($pedido->entrega->metodo_entrega ?? 'Não definido') }}</p>
+                                <p><strong>Valor do Frete:</strong> R$
+                                    {{ number_format($pedido->entrega->valor_entrega ?? 0, 2, ',', '.') }}</p>
+                                <p><strong>Data de Envio:</strong>
+                                    {{ $pedido->entrega->data_envio ? $pedido->entrega->data_envio->format('d/m/Y H:i') : 'Não enviado' }}
+                                </p>
+                                <p><strong>Data de Entrega:</strong>
+                                    {{ $pedido->entrega->data_entrega ? $pedido->entrega->data_entrega->format('d/m/Y H:i') : 'Não entregue' }}
+                                </p>
+                                <p><strong>Código de Rastreio:</strong>
+                                    @if($pedido->entrega && $pedido->entrega->rastreio)
+                                        <span
+                                            class="badge bg-secondary">{{ $pedido->entrega->rastreio->codigo_rastreio }}</span>
+                                    @else
+                                        N/A
+                                    @endif
+                                </p>
+
+                                <hr class="my-3">
+
+                                {{-- FORMULÁRIO DE ATUALIZAÇÃO DE STATUS --}}
+                                <form action="{{ route('adm.atualizar_status_entrega', $pedido->id_pedido) }}"
+                                    method="POST" class="form-status-rastreio">
+                                    @csrf
+                                    <h5 class="mb-3">Atualizar Status da Entrega</h5>
+                                    <div class="form-group mb-3">
+                                        <label for="status_entrega" class="form-label">Status do Pedido:</label>
+                                        <select class="form-select" id="status_entrega" name="status_entrega" required>
+                                            <option value="pago" {{ $pedido->status == 'pago' ? 'selected' : '' }}>Pago
+                                            </option>
+                                            <option value="processando" {{ $pedido->status == 'processando' ? 'selected' : '' }}>Processando</option>
+                                            <option value="enviado" {{ $pedido->status == 'enviado' ? 'selected' : '' }}>
+                                                Enviado</option>
+                                            <option value="em_transito" {{ $pedido->status == 'em_transito' ? 'selected' : '' }}>Em Trânsito</option>
+                                            <option value="saiu_para_entrega" {{ $pedido->status == 'saiu_para_entrega' ? 'selected' : '' }}>Saiu para Entrega</option>
+                                            <option value="entregue" {{ $pedido->status == 'entregue' ? 'selected' : '' }}>Entregue</option>                                            
+                                            <option value="pendente" {{ $pedido->status == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Atualizar Status</button>
+                                </form>
+
+                                {{-- FORMULÁRIO DE CÓDIGO DE RASTREIO --}}
+                                <form action="{{ route('adm.adicionar_rastreio', $pedido->id_pedido) }}" method="POST"
+                                    class="form-status-rastreio">
+                                    @csrf
+                                    <h5 class="mb-3">Adicionar/Atualizar Rastreio</h5>
+                                    <div class="form-group mb-3">
+                                        <label for="codigo_rastreio" class="form-label">Código de Rastreio:</label>
+                                        <input type="text" class="form-control" id="codigo_rastreio"
+                                            name="codigo_rastreio"
+                                            value="{{ $pedido->entrega->rastreio->codigo_rastreio ?? old('codigo_rastreio') }}"
+                                            placeholder="Ex: AB123456789BR" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">Salvar Rastreio</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -268,6 +349,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- Se você tiver 'pedidos.js' e 'app.js' que não conflitem, mantenha-os --}}
     <script src="{{ asset('js/adm/pedidos.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
 </body>

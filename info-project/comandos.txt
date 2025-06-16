@@ -1,20 +1,21 @@
 Instalação:
-composer global require laravel/installer
-composer update
-npm install
+Win+R->cmd        -> composer global require laravel/installer
+WinPowerShell-ADM -> Set-ExecutionPolicy RemoteSigned
+cmd-Raiz Project  -> composer update
+cmd-Raiz Project  -> npm install
 
 --------------------------------------------------------------
 
 Rodar para o projeto funcionar:
-rodar projeto -> php artisan serve
-rodar projeto -> npm run dev
-Criar banco   -> php artisan migrate
-Img aparecer  -> php artisan storage:link
-Tunel pagbank -> ngrok http 8000
-notificações  -> php artisan queue:work
+Rodar Projeto -> php artisan serve
+Rodar Projeto -> npm run dev
+Criar Banco   -> php artisan migrate
+Imgs Aparecer -> php artisan storage:link
+Tunel Net     -> ngrok http 8000 (linkar com a sua conta ngrok)
+Notificações  -> php artisan queue:work (Desnecessario)
 
 --------------------------------------------------------------
 
-Rodar dps que criar o banco:
-Cores banco   -> php artisan db:seed
+Depois de criar o banco:
+Cores Banco -> php artisan db:seed
 
