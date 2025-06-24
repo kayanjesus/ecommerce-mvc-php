@@ -7,7 +7,7 @@
     <title>Detalhes do Pedido - Cantinho da Isa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/adm/pedidos.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/adm/pedidosdetalhe.css') }}">
     <style>
         /* Estilos adicionais para a página de detalhes */
         .card-header-expanded {
@@ -106,7 +106,7 @@
     </header>
 
     <div class="admin-wrapper">
-        <aside class="sidebar">
+        <!-- <aside class="sidebar">
             <div class="user-info">
                 <label for="profile-img" class="profile-icon">
                     <i class="fas fa-user-circle"></i> {{-- Ícone de usuário mais moderno --}}
@@ -137,7 +137,7 @@
                 @csrf
                 <button type="submit" class="logout-btn">SAIR</button>
             </form>
-        </aside>
+        </aside> -->
 
         <main class="content-area">
             <section class="pedidos-section">
@@ -188,12 +188,13 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p><strong>Comprador:</strong> {{ $pedido->usuario->name }}</p>
-                                        <p><strong>Email:</strong> {{ $pedido->usuario->email }}</p>
-                                        <p><strong>Telefone:</strong>
-                                            {{ $pedido->usuario->telefone ?? 'Não informado' }}</p>
+                                        <p><strong>Comprador:</strong>
+                                            {{ $pedido->usuario->name ?? 'Usuário Desconhecido' }}</p>
+                                        <p><strong>Email:</strong> {{ $pedido->usuario->email ?? 'N/A' }}</p>
+
+                                        {{ $pedido->usuario->telefone ?? 'Não informado' }}</p>
                                         <p><strong>Data do Pedido:</strong>
-                                            {{ $pedido->data_pedido->format('d/m/Y H:i') }}</p>
+                                            {{ $pedido->data_pedido?->format('d/m/Y H:i') ?? 'Data não informada' }}</p>
                                         <p><strong>Observações:</strong> {{ $pedido->observacoes ?? 'Nenhuma' }}</p>
                                     </div>
                                     <div class="col-md-6">
@@ -202,10 +203,12 @@
                                         @if($pedido->pagamentoCheckout)
                                                                             <p><strong>Método de Pagamento:</strong>
                                                                                 {{ ucfirst($pedido->pagamentoCheckout->metodo_pagamento) }}</p>
-                                                                            <p><strong>Status Pagamento:</strong> <span class="badge {{
+                                                                            <p><strong>Status Pagamento:</strong> <span
+                                                                                    class="badge {{
                                             $pedido->pagamentoCheckout->status === 'pago' ? 'bg-success' :
                                             ($pedido->pagamentoCheckout->status === 'pendente' ? 'bg-danger' : 'bg-secondary')
-                                                                                }}">{{ ucfirst($pedido->pagamentoCheckout->status) }}</span></p>
+                                                                                                                                                                                            }}">{{ ucfirst($pedido->pagamentoCheckout->status) }}</span>
+                                                                            </p>
                                                                             <p><strong>Cód. Transação PagSeguro:</strong>
                                                                                 {{ $pedido->pagamentoCheckout->codigo_transacao ?? 'N/A' }}</p>
                                         @else
@@ -232,7 +235,8 @@
                                             @endif
                                             <div class="item-info">
                                                 <div class="item-name">
-                                                    {{ $item->produto->nome_produto ?? 'Produto Indisponível' }}</div>
+                                                    {{ $item->produto->nome_produto ?? 'Produto Indisponível' }}
+                                                </div>
                                                 <div class="item-qty-price">
                                                     Qtd: {{ $item->quantidade }} | Preço Unit.: R$
                                                     {{ number_format($item->preco_unitario, 2, ',', '.') }}
@@ -268,7 +272,8 @@
                                 @endphp
                                 @if($endereco)
                                     <p>{{ $endereco['rua'] }}, {{ $endereco['numero'] }}
-                                        {{ $endereco['complemento'] ? ' - ' . $endereco['complemento'] : '' }}</p>
+                                        {{ $endereco['complemento'] ? ' - ' . $endereco['complemento'] : '' }}
+                                    </p>
                                     <p>{{ $endereco['bairro'] }}</p>
                                     <p>{{ $endereco['cidade'] }} - {{ $endereco['estado'] }}, {{ $endereco['cep'] }}</p>
                                 @else
@@ -286,12 +291,16 @@
                                 <p><strong>Método de Entrega:</strong>
                                     {{ ucfirst($pedido->entrega->metodo_entrega ?? 'Não definido') }}</p>
                                 <p><strong>Valor do Frete:</strong> R$
-                                    {{ number_format($pedido->entrega->valor_entrega ?? 0, 2, ',', '.') }}</p>
-                                <p><strong>Data de Envio:</strong>
-                                    {{ $pedido->entrega->data_envio ? $pedido->entrega->data_envio->format('d/m/Y H:i') : 'Não enviado' }}
+                                    {{ number_format($pedido->entrega->valor_entrega ?? 0, 2, ',', '.') }}
                                 </p>
+                                {{-- Linha 297: Data de Envio --}}
+                                <p><strong>Data de Envio:</strong>
+                                    {{ $pedido->entrega?->data_envio?->format('d/m/Y H:i') ?? 'Não enviado' }}
+                                </p>
+
+                                {{-- Linha 300: Data de Entrega --}}
                                 <p><strong>Data de Entrega:</strong>
-                                    {{ $pedido->entrega->data_entrega ? $pedido->entrega->data_entrega->format('d/m/Y H:i') : 'Não entregue' }}
+                                    {{ $pedido->entrega?->data_entrega?->format('d/m/Y H:i') ?? 'Não entregue' }}
                                 </p>
                                 <p><strong>Código de Rastreio:</strong>
                                     @if($pedido->entrega && $pedido->entrega->rastreio)
@@ -312,15 +321,11 @@
                                     <div class="form-group mb-3">
                                         <label for="status_entrega" class="form-label">Status do Pedido:</label>
                                         <select class="form-select" id="status_entrega" name="status_entrega" required>
-                                            <option value="pago" {{ $pedido->status == 'pago' ? 'selected' : '' }}>Pago
-                                            </option>
                                             <option value="processando" {{ $pedido->status == 'processando' ? 'selected' : '' }}>Processando</option>
                                             <option value="enviado" {{ $pedido->status == 'enviado' ? 'selected' : '' }}>
                                                 Enviado</option>
                                             <option value="em_transito" {{ $pedido->status == 'em_transito' ? 'selected' : '' }}>Em Trânsito</option>
                                             <option value="saiu_para_entrega" {{ $pedido->status == 'saiu_para_entrega' ? 'selected' : '' }}>Saiu para Entrega</option>
-                                            <option value="entregue" {{ $pedido->status == 'entregue' ? 'selected' : '' }}>Entregue</option>                                            
-                                            <option value="pendente" {{ $pedido->status == 'pendente' ? 'selected' : '' }}>Pendente</option>
                                         </select>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100">Atualizar Status</button>

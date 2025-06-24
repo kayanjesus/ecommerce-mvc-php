@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Respect\Validation\Validator as v;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Categoria;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 
 
@@ -28,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        View::composer('layouts.cabecario', function ($view) {
+            $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
+            $view->with('categoriasTopo', $categoriasTopo);
+        });
+
         // Registrar a validação personalizada
         Validator::extend('cpf', function ($attribute, $value, $parameters, $validator) {
             return v::cpf()->validate($value);

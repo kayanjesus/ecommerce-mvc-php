@@ -19,7 +19,7 @@
             <section class="top-nav">
                 <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
                 <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-                <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
+                <a href="{{ route('pagamento.cep') }}"><i class="fas fa-shopping-cart"></i> Carrinho</a>
             </section>
         </nav>
         <section class="search-bar">

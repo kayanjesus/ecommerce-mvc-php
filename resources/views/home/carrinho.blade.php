@@ -14,6 +14,8 @@
             display: inline-block;
             margin-right: 5px;
             border-radius: 50%;
+            border: 1px solid #ccc;
+            /* Adicionado para visibilidade de cores claras */
         }
 
         .quantity-input {

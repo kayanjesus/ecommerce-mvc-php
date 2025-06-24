@@ -3,20 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\{Endereco, Pedido, PedidoItem, PagamentoCheckout as Pagamento, Cupom, User};
-use App\Models\PagamentoCheckout;
+use App\Models\{Endereco, Pedido, PedidoItem, PagamentoCheckout, Cupom, User};
 use App\Notifications\NovoPedidoNotification;
 use Illuminate\Support\Facades\{Auth, Http, Log, DB};
 use Darryldecode\Cart\Facades\CartFacade as Cart;
 use Illuminate\Support\Facades\Session;
-
-
+use App\Models\Tamanho;
+use App\Models\Cor;
+use Carbon\Carbon;
 
 class PagamentoController extends Controller
 {
     public function cep(Request $request)
     {
+        $userId = Auth::id();
         $tipoCheckout = $request->input('tipo_checkout', 'todos');
+
+        $itens = collect([]);
+        $total = 0;
 
         if ($tipoCheckout === 'selecionados') {
             $selectedItems = json_decode($request->input('selected_items', '[]'), true);
@@ -25,37 +29,42 @@ class PagamentoController extends Controller
                 return redirect()->back()->with('erro', 'Selecione pelo menos um item para finalizar o pedido');
             }
 
-            $itens = collect(\Cart::getContent())->filter(function ($item) use ($selectedItems) {
+            $itens = \Cart::session($userId)->getContent()->filter(function ($item) use ($selectedItems) {
                 return in_array($item->id, $selectedItems);
             });
 
-            // Debug: Verifique os itens antes de salvar
-            \Log::debug('Itens do carrinho (selecionados):', ['itens' => $itens->toArray()]);
+            Log::debug('Itens do carrinho (selecionados):', ['itens' => $itens->toArray()]);
 
             session([
                 'checkout_type' => 'selecionados',
                 'selected_items' => $selectedItems,
-                'itens_checkout' => $itens->toArray() // Converta para array para garantir persistência
+                'itens_checkout' => $itens->toArray()
             ]);
         } else {
-            $itens = \Cart::getContent();
+            $itens = \Cart::session($userId)->getContent();
 
-            // Debug: Verifique os itens antes de salvar
-            \Log::debug('Itens do carrinho (todos):', ['itens' => $itens->toArray()]);
+            Log::debug('Itens do carrinho (todos):', ['itens' => $itens->toArray()]);
 
             session([
                 'checkout_type' => 'todos',
-                'itens_checkout' => $itens->toArray() // Converta para array para garantir persistência
+                'itens_checkout' => $itens->toArray()
             ]);
         }
 
-        if ($itens->isEmpty()) {
-            return redirect()->back()->with('erro', 'Seu carrinho está vazio');
+        foreach ($itens as $item) {
+            if (isset($item->attributes['cor_id'])) {
+                $item->cor = Cor::find($item->attributes['cor_id']);
+            }
+            if (isset($item->attributes['tamanho_id'])) {
+                $item->tamanho = Tamanho::find($item->attributes['tamanho_id']);
+            }
         }
 
-        $total = $itens->sum(function ($item) {
-            return $item->price * $item->quantity;
-        });
+        if (!$itens->isEmpty()) {
+            $total = $itens->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+        }
 
         return view('home.pagamento.cep', compact('itens', 'total'));
     }
@@ -68,7 +77,6 @@ class PagamentoController extends Controller
         try {
             $cep = preg_replace('/[^0-9]/', '', $request->cep);
 
-            // Verifica se o CEP tem 8 dígitos
             if (strlen($cep) !== 8) {
                 return response()->json([
                     'error' => 'CEP deve conter 8 dígitos'
@@ -85,7 +93,6 @@ class PagamentoController extends Controller
 
             $data = $response->json();
 
-            // Verifica se os dados essenciais existem
             if (empty($data['logradouro']) || empty($data['bairro']) || empty($data['localidade']) || empty($data['uf'])) {
                 return response()->json([
                     'error' => 'Dados do CEP incompletos. Por favor, preencha manualmente.'
@@ -178,7 +185,6 @@ class PagamentoController extends Controller
             return redirect()->route('pagamento.cep');
         }
 
-        // Usa os itens da sessão de checkout
         if (!session()->has('itens_checkout')) {
             return redirect()->route('pagamento.cep')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
         }
@@ -222,11 +228,9 @@ class PagamentoController extends Controller
             $endereco
         );
 
-        // Redireciona de volta para a etapa apropriada
         if (session()->has('forma_pagamento')) {
             return redirect()->route('pagamento.revisao');
         } else {
-            // Garante que os itens da sessão de checkout ainda existam
             if (!session()->has('itens_checkout')) {
                 return redirect()->route('pagamento.cep')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
             }
@@ -241,15 +245,12 @@ class PagamentoController extends Controller
             return redirect()->route('pagamento.cep')->with('erro', 'Por favor, informe o endereço de entrega');
         }
 
-        // Usa os itens da sessão de checkout
         if (!session()->has('itens_checkout')) {
             return redirect()->route('pagamento.cep')->with('erro', 'Sessão expirada. Por favor, selecione os itens novamente.');
         }
 
-        // Converta o array para coleção
         $itens = collect(session('itens_checkout'));
 
-        // Agora podemos usar sum()
         $total = $itens->sum(function ($item) {
             return $item['price'] * $item['quantity'];
         });
@@ -269,19 +270,9 @@ class PagamentoController extends Controller
     }
 
 
-    /**
-     * Define as constantes para as regiões do Brasil.
-     */
     const REGIAO_SUL = ['PR', 'SC', 'RS'];
     const REGIAO_SUDESTE = ['MG', 'SP', 'RJ', 'ES'];
-    const VALOR_FRETE_PADRAO = 25.00; // Valor padrão do frete se não for grátis
-
-    /**
-     * Determina a região a partir de um estado (UF).
-     * @param string $uf
-     * @return string|null
-     */
-
+    const VALOR_FRETE_PADRAO = 25.00;
 
     protected function getRegiaoPorUf(string $uf): ?string
     {
@@ -292,31 +283,21 @@ class PagamentoController extends Controller
         if (in_array($uf, self::REGIAO_SUDESTE)) {
             return 'sudeste';
         }
-        // Inclui demais regiões (Norte, Nordeste, Centro-Oeste)
         return 'outras';
     }
 
-    /**
-     * Calcula o valor do frete baseado na região e no subtotal.
-     * @param float $subtotal
-     * @param string $uf
-     * @return float
-     */
     protected function calcularValorFrete(float $subtotal, string $uf): float
     {
         $regiao = $this->getRegiaoPorUf($uf);
 
-        // Regra de frete grátis para Sul e Sudeste
         if (in_array($regiao, ['sul', 'sudeste']) && $subtotal >= 250.00) {
-            return 0.00; // Frete grátis
+            return 0.00;
         }
 
-        // Regra de frete grátis para demais regiões
         if ($regiao === 'outras' && $subtotal >= 399.00) {
-            return 0.00; // Frete grátis
+            return 0.00;
         }
 
-        // Se não for frete grátis, aplica o valor padrão
         return self::VALOR_FRETE_PADRAO;
     }
 
@@ -325,12 +306,11 @@ class PagamentoController extends Controller
     {
         $itens = session('itens_checkout', \Cart::getContent()->toArray());
 
-        // Converta para coleção
         $itens = collect($itens)->map(function ($item) {
             return (object) $item;
         });
 
-        $subtotal = $itens->sum(function ($item) { // Renomeado para $subtotal
+        $subtotal = $itens->sum(function ($item) {
             return $item->price * $item->quantity;
         });
 
@@ -345,17 +325,14 @@ class PagamentoController extends Controller
         $endereco = session('endereco_entrega');
         $formaPagamento = session('forma_pagamento');
 
-        // Calcular o frete usando o novo método
         $frete = $this->calcularValorFrete($subtotal, $endereco['estado']);
         $totalComFrete = $subtotal + $frete;
 
-        // Aplicar desconto no PIX
         if ($formaPagamento === 'pix') {
             $descontoPix = $totalComFrete * 0.05;
             $totalComFrete -= $descontoPix;
         }
 
-        // Passamos 'subtotal' e 'totalComFrete' para a view
         return view('home.pagamento.revisao', compact('itens', 'subtotal', 'endereco', 'formaPagamento', 'frete', 'totalComFrete'));
     }
 
@@ -381,22 +358,18 @@ class PagamentoController extends Controller
 
     protected function verificarEValidarDadosSessao()
     {
-        // Verifica se os itens do checkout estão na sessão
         if (!session()->has('itens_checkout') || empty(session('itens_checkout'))) {
             throw new \Exception('Nenhum item encontrado no carrinho. Por favor, adicione itens antes de finalizar o pedido.');
         }
 
-        // Verifica se o endereço de entrega está na sessão
         if (!session()->has('endereco_entrega')) {
             throw new \Exception('Endereço de entrega não encontrado. Por favor, informe o endereço antes de finalizar o pedido.');
         }
 
-        // Verifica se a forma de pagamento está na sessão
         if (!session()->has('forma_pagamento')) {
             throw new \Exception('Forma de pagamento não selecionada. Por favor, selecione uma forma de pagamento antes de finalizar o pedido.');
         }
 
-        // Verifica se o usuário está autenticado
         if (!Auth::check()) {
             throw new \Exception('Usuário não autenticado. Por favor, faça login antes de finalizar o pedido.');
         }
@@ -412,10 +385,16 @@ class PagamentoController extends Controller
         }
 
         $itens = collect($sessionItems)->map(function ($itemData) {
-            if (is_array($itemData) && isset($itemData['stdClass'])) {
-                return (object) $itemData['stdClass'];
-            } elseif (is_object($itemData) && isset($itemData->stdClass)) {
-                return $itemData->stdClass;
+            if (is_array($itemData)) {
+                if (isset($itemData['stdClass']) && is_array($itemData['stdClass'])) {
+                    return (object) $itemData['stdClass'];
+                }
+                return (object) $itemData;
+            } elseif (is_object($itemData)) {
+                if (isset($itemData->stdClass) && is_object($itemData->stdClass)) {
+                    return $itemData->stdClass;
+                }
+                return $itemData;
             }
             return (object) $itemData;
         });
@@ -429,12 +408,11 @@ class PagamentoController extends Controller
     {
         $pedido = new Pedido();
         $pedido->id_usuario = Auth::id();
-        // O campo 'total' aqui será o subtotal dos itens, o frete será adicionado depois
         $pedido->total = $itens->sum(function ($item) {
             return $item->price * $item->quantity;
         });
         $pedido->status = 'pendente';
-        $pedido->endereco_entrega = json_encode($endereco); // Armazena como JSON
+        $pedido->endereco_entrega = json_encode($endereco);
         $pedido->data_pedido = now();
         $pedido->save();
 
@@ -443,19 +421,16 @@ class PagamentoController extends Controller
 
     protected function calcularTotalFinal($pedido, $formaPagamento)
     {
-        // O $pedido->total já é o subtotal dos itens
         $subtotal = $pedido->total;
 
-        // Acessar o endereço de entrega do pedido (já decodificado)
         $enderecoPedido = json_decode($pedido->endereco_entrega, true);
-        $uf = $enderecoPedido['estado'] ?? 'SP'; // Default para SP se não encontrar
+        $uf = $enderecoPedido['estado'] ?? 'SP';
 
         $frete = $this->calcularValorFrete($subtotal, $uf);
         $totalComFrete = $subtotal + $frete;
 
-        // Aplicar desconto no PIX
         if ($formaPagamento === 'pix') {
-            $totalComFrete *= 0.95; // 5% de desconto
+            $totalComFrete *= 0.95;
         }
 
         return $totalComFrete;
@@ -469,14 +444,14 @@ class PagamentoController extends Controller
         $pagamento->valor_pago = $totalPedido;
         $pagamento->valor_original = $pedido->getOriginal('total');
         $pagamento->desconto = $pagamento->valor_original - $totalPedido;
-        $pagamento->status = 'pendente'; // Status inicial, será atualizado após a chamada da API
+        $pagamento->status = 'pendente';
 
         if ($formaPagamento === 'cartao') {
             $pagamento->parcelas = $request->parcelas ?? 1;
         }
 
         $pagamento->save();
-        return $pagamento; // Retorna o objeto PagamentoCheckout criado
+        return $pagamento;
     }
 
 
@@ -490,8 +465,8 @@ class PagamentoController extends Controller
                 $pedidoItem = new PedidoItem();
                 $pedidoItem->id_pedido = $pedido->id_pedido;
                 $pedidoItem->id_produto = $idProduto;
-                $pedidoItem->quantidade = $item->quantity;
-                $pedidoItem->preco_unitario = $item->price;
+                $pedidoItem->quantidade = (int) $item->quantity;
+                $pedidoItem->preco_unitario = (float) $item->price;
 
                 if (count($partes) > 1) {
                     $pedidoItem->id_cor = $partes[1] ?? null;
@@ -510,13 +485,14 @@ class PagamentoController extends Controller
 
     protected function finalizarCheckout()
     {
+        $userId = Auth::id();
         if (session('checkout_type') === 'selecionados') {
             $selectedItems = session('selected_items', []);
             foreach ($selectedItems as $itemId) {
-                \Cart::remove($itemId);
+                \Cart::session($userId)->remove($itemId);
             }
         } else {
-            \Cart::clear();
+            \Cart::session($userId)->clear();
         }
 
         session()->forget([
@@ -535,7 +511,7 @@ class PagamentoController extends Controller
         DB::beginTransaction();
 
         try {
-            $this->verificarEValidarDadosSessao(); // Certifique-se de que este método existe e funciona
+            $this->verificarEValidarDadosSessao();
 
             $itens = $this->obterItensCheckout();
             $endereco = session('endereco_entrega');
@@ -554,25 +530,26 @@ class PagamentoController extends Controller
                 return response()->json(['error' => true, 'message' => 'Endereço de entrega não encontrado. Por favor, revise seu endereço.'], 400);
             }
 
-            \Log::info('CPF do usuário (via $usuario->cpf):', ['cpf' => $usuario->cpf]);
+            $cpfParaPagSeguro = preg_replace('/[^0-9]/', '', $usuario->cpf ?? '');
 
-            $cpfParaPagSeguro = null;
-            if ($usuario->cpf) {
-                // $usuario->cpf já retorna o CPF descriptografado e limpo (apenas números)
-                $cpfParaPagSeguro = $usuario->cpf; // Removido preg_replace redundante aqui
-            } else {
-                \Log::warning('CPF do usuário ' . $usuario->id . ' está nulo ou não foi descriptografado corretamente.');
-                return response()->json(['error' => true, 'message' => 'CPF/CNPJ do cliente inválido. Por favor, atualize seus dados cadastrais com um CPF/CNPJ válido.'], 400);
+            if (empty($cpfParaPagSeguro)) {
+                \Log::warning('CPF do usuário ' . $usuario->id . ' está nulo ou vazio após limpeza.');
+                return response()->json(['error' => true, 'message' => 'CPF/CNPJ do cliente é obrigatório e não pode estar vazio. Por favor, atualize seus dados cadastrais.'], 400);
             }
-
-            \Log::info('CPF após limpeza para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
-
             if (strlen($cpfParaPagSeguro) !== 11 && strlen($cpfParaPagSeguro) !== 14) {
                 \Log::error('CPF do usuário ' . $usuario->id . ' inválido ou com tamanho incorreto após limpeza: ' . $cpfParaPagSeguro);
                 return response()->json(['error' => true, 'message' => 'CPF/CNPJ do cliente com formato inválido. Por favor, atualize seus dados cadastrais.'], 400);
             }
-
             \Log::info('CPF FINAL enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
+
+            // --- CORREÇÃO: Usar telefone placeholder se não houver um real ---
+            // Como o cliente não terá telefone no cadastro, usaremos um número genérico válido para o PagSeguro.
+            // O PagSeguro requer um número de 8 ou 9 dígitos para 'number' e 2 dígitos para 'area'.
+            $dddPagSeguro = '11'; // DDD de São Paulo como placeholder
+            $numeroPagSeguro = '999999999'; // Número de 9 dígitos (celular) como placeholder
+
+            \Log::info('Telefone PLACEHOLDER enviado para PagSeguro (usuário não possui telefone cadastrado):', ['ddd' => $dddPagSeguro, 'number' => $numeroPagSeguro]);
+            // --- FIM CORREÇÃO TELEFONE ---
 
             $pedido = $this->criarPedido($itens, $endereco);
             $this->adicionarItensAoPedido($pedido, $itens);
@@ -582,7 +559,6 @@ class PagamentoController extends Controller
             $pedido->total = $totalFinal;
             $pedido->save();
 
-            // Cria o registro de pagamento INICIALMENTE
             $pagamentoCheckout = $this->criarPagamento($pedido, $formaPagamento, $totalFinal, $request);
 
             $qrCodeData = null;
@@ -593,6 +569,20 @@ class PagamentoController extends Controller
                 $endpoint = 'https://sandbox.api.pagseguro.com/orders';
                 $token = env('PAGSEGURO_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE');
 
+                $shippingAddress = [
+                    "street" => $endereco['rua'] ?? '',
+                    "number" => $endereco['numero'] ?? '',
+                    "locality" => $endereco['bairro'] ?? '',
+                    "city" => $endereco['cidade'] ?? '',
+                    "region_code" => $endereco['estado'] ?? '',
+                    "country" => "BRA",
+                    "postal_code" => preg_replace('/[^0-9]/', '', $endereco['cep'] ?? '')
+                ];
+
+                if (!empty($endereco['complemento'])) {
+                    $shippingAddress["complement"] = $endereco['complemento'];
+                }
+
                 $body = [
                     "reference_id" => "pedido-" . $pedido->id_pedido,
                     "customer" => [
@@ -602,8 +592,8 @@ class PagamentoController extends Controller
                         "phones" => [
                             [
                                 "country" => "55",
-                                "area" => substr(preg_replace('/[^0-9]/', '', $usuario->telefone ?? '11999999999'), 0, 2),
-                                "number" => substr(preg_replace('/[^0-9]/', '', $usuario->telefone ?? '11999999999'), 2),
+                                "area" => $dddPagSeguro,       // Usando o DDD placeholder
+                                "number" => $numeroPagSeguro, // Usando o número placeholder
                                 "type" => "MOBILE"
                             ]
                         ]
@@ -624,19 +614,10 @@ class PagamentoController extends Controller
                         ]
                     ],
                     "shipping" => [
-                        "address" => [
-                            "street" => $endereco['rua'] ?? '',
-                            "number" => $endereco['numero'] ?? '',
-                            "complement" => $endereco['complemento'] ?? '',
-                            "locality" => $endereco['bairro'] ?? '',
-                            "city" => $endereco['cidade'] ?? '',
-                            "region_code" => $endereco['estado'] ?? '',
-                            "country" => "BRA",
-                            "postal_code" => preg_replace('/[^0-9]/', '', $endereco['cep'] ?? '')
-                        ]
+                        "address" => $shippingAddress
                     ],
                     "notification_urls" => [
-                        "https://419f-45-164-145-73.ngrok-free.app/webhooks/pagseguro"
+                        "https://1f96-45-164-145-73.ngrok-free.app/webhooks/pagseguro" // Placeholder! MUDAR ISSO!
                     ]
                 ];
 
@@ -646,40 +627,38 @@ class PagamentoController extends Controller
                 ])->post($endpoint, $body);
 
                 $pagSeguroResponse = $response->json();
-                \Log::info('PagSeguro API Response:', ['status' => $response->status(), 'body' => $pagSeguroResponse]); // Logar a resposta completa
+                \Log::info('PagSeguro API Response:', ['status' => $response->status(), 'body' => $pagSeguroResponse]);
 
                 if ($response->successful()) {
-                    $pagSeguroResponse = $response->json();
-
-                    if (isset($pagSeguroResponse['qr_codes'][0]['links'][0]['href'])) {
+                    if (isset($pagSeguroResponse['qr_codes'][0]['links'][0]['href']) && isset($pagSeguroResponse['qr_codes'][0]['text'])) {
                         $qrCodeData = $pagSeguroResponse['qr_codes'][0]['links'][0]['href'];
                         $pixKey = $pagSeguroResponse['qr_codes'][0]['text'];
                         $expirationDate = $pagSeguroResponse['qr_codes'][0]['expiration_date'];
-                        $pagSeguroOrderId = $pagSeguroResponse['id']; // ID da transação do PagSeguro
+                        $pagSeguroOrderId = $pagSeguroResponse['id'];
 
-                        // **ATUALIZAÇÃO DO MODELO PagamentoCheckout AQUI**
-                        // Use a coluna 'codigo_transacao' para o ID do PagSeguro   
                         $pagamentoCheckout->codigo_transacao = $pagSeguroOrderId;
-                        $pagamentoCheckout->status = 'pendente'; // Status mais limpo
-                        $pagamentoCheckout->data_pagamento = now(); // Define a data de pagamento para agora (se for gerado PIX)
-
-                        // Se você tiver a coluna 'detalhes' como JSON (e ela está no $casts como 'array'),
-                        // você pode armazenar a resposta completa do PagSeguro aqui para debug futuro
+                        $pagamentoCheckout->status = 'pendente';
+                        $pagamentoCheckout->data_pagamento = now();
                         $pagamentoCheckout->detalhes = $pagSeguroResponse;
 
-                        $pagamentoCheckout->save(); // Salva as alterações no banco de dados
+                        $pagamentoCheckout->save();
 
                         \Log::info('PagamentoCheckout atualizado com dados da transação PagSeguro:', [
-                            'pagamento_id' => $pagamentoCheckout->id_pagamento, // Use id_pagamento, sua primary key
+                            'pagamento_id' => $pagamentoCheckout->id_pagamento,
                             'status' => $pagamentoCheckout->status,
                             'codigo_transacao' => $pagamentoCheckout->codigo_transacao
                         ]);
 
                     } else {
-                        throw new \Exception('QR Code URL não encontrado na resposta do PagSeguro.');
+                        throw new \Exception('QR Code URL ou Pix Key não encontrados na resposta do PagSeguro.');
                     }
                 } else {
-                    $errorMessage = $pagSeguroResponse['error_messages'][0]['description'] ?? ($pagSeguroResponse['error_message'] ?? 'Erro desconhecido ao gerar QR Code Pix.');
+                    $errorMessage = 'Erro desconhecido ao gerar QR Code Pix.';
+                    if (isset($pagSeguroResponse['error_messages']) && !empty($pagSeguroResponse['error_messages'][0]['description'])) {
+                        $errorMessage = $pagSeguroResponse['error_messages'][0]['description'];
+                    } elseif (isset($pagSeguroResponse['error_message'])) {
+                        $errorMessage = $pagSeguroResponse['error_message'];
+                    }
                     throw new \Exception('Erro na comunicação com PagSeguro: ' . $errorMessage);
                 }
 
@@ -693,14 +672,12 @@ class PagamentoController extends Controller
                 $redirectUrl = route('pagamento.pagar', ['pedidoId' => $pedido->id_pedido]);
 
             } elseif ($formaPagamento === 'cartao') {
-                // Lógica para cartão
-                $pagamentoCheckout->status = 'aguardando_captura_cartao'; // Exemplo de status
+                $pagamentoCheckout->status = 'aguardando_captura_cartao';
                 $pagamentoCheckout->save();
                 $redirectUrl = route('pagamento.sucesso', ['pedidoId' => $pedido->id_pedido]);
 
             } elseif ($formaPagamento === 'boleto') {
-                // Lógica para boleto
-                $pagamentoCheckout->status = 'boleto_gerado'; // Exemplo de status
+                $pagamentoCheckout->status = 'boleto_gerado';
                 $pagamentoCheckout->save();
                 $redirectUrl = route('pagamento.sucesso', ['pedidoId' => $pedido->id_pedido]);
 
@@ -708,8 +685,8 @@ class PagamentoController extends Controller
                 throw new \Exception('Forma de pagamento inválida selecionada.');
             }
 
-            $this->notificarAdministradores($pedido); // Certifique-se de que este método existe e funciona
-            $this->finalizarCheckout(); // Certifique-se de que este método existe e funciona
+            $this->notificarAdministradores($pedido);
+            $this->finalizarCheckout();
 
             DB::commit();
 
@@ -718,7 +695,8 @@ class PagamentoController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             Log::error('Erro de validação ao processar pagamento: ' . $e->getMessage(), $e->errors());
-            return response()->json(['error' => true, 'message' => 'Dados inválidos: ' . current($e->errors())[0]], 422);
+            $firstError = collect($e->errors())->flatten()->first();
+            return response()->json(['error' => true, 'message' => 'Dados inválidos: ' . $firstError], 422);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Erro no processo de pagamento: " . $e->getMessage(), ['exception' => $e->getTraceAsString()]);
@@ -726,20 +704,14 @@ class PagamentoController extends Controller
         }
     }
 
-    // --- Outros métodos permanecem como estão (mostrarPagamentoPix, pagar) ---
     public function mostrarPagamentoPix(Request $request, Pedido $pedido)
     {
-        // Verifica se o pedido realmente pertence ao usuário logado ou se há dados na sessão
-        // É importante ter lógica de segurança aqui!
-
         $qrCodeData = session('qrCodeData');
         $pixKey = session('pixKey');
-        // Assumindo que você tem o total do pedido em $pedido->total ou o calcula novamente
         $total = $pedido->total;
 
         if (!$qrCodeData || !$pixKey) {
-            // Redireciona de volta se os dados do Pix não estiverem na sessão
-            return redirect()->route('carrinho')->with('error', 'Dados do PIX não encontrados. Por favor, tente novamente.');
+            return redirect()->route('carrinho.index')->with('error', 'Dados do PIX não encontrados. Por favor, tente novamente.');
         }
 
         return view('pagamento.pagar', compact('pedido', 'total', 'qrCodeData', 'pixKey'));
@@ -751,7 +723,7 @@ class PagamentoController extends Controller
             $pedido = Pedido::findOrFail($pedidoId);
 
             if (Auth::id() !== $pedido->id_usuario && (!Auth::user() || !Auth::user()->isAdmin())) {
-                return redirect()->route('home')->with('erro', 'Você não tem permissão para acessar este pagamento.');
+                return redirect()->route('home.index')->with('erro', 'Você não tem permissão para acessar este pagamento.');
             }
 
             $qrCodeData = session('qrCodeData');
@@ -778,12 +750,16 @@ class PagamentoController extends Controller
         }
     }
 
-
-
-
     public function erro()
     {
         return view('home.pagamento.erro');
     }
-}
 
+    public function sucesso($pedidoId)
+    {
+        $pedido = Pedido::with('pagamentoCheckout')->findOrFail($pedidoId);
+        return view('home.pagamento.sucesso', compact('pedido'));
+    }
+
+
+}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo; // Importar BelongsTo
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PedidoItem extends Model
 {
@@ -39,5 +40,10 @@ class PedidoItem extends Model
     public function tamanho(): BelongsTo
     {
         return $this->belongsTo(Tamanho::class, 'id_tamanho', 'id_tamanho'); // Assumindo que o PK de Tamanho é 'id_tamanho'
+    }
+
+    public function avaliacao(): HasOne
+    {
+        return $this->hasOne(Avaliacao::class, 'id_pedido_item', 'id_item');
     }
 }

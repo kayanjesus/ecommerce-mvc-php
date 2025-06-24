@@ -4,29 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{asset('css/cadastro.css')}}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <title>Cadastro - Cantinho da Isa</title>
+    <title>Cantinho da Isa - Cadastro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    {{-- A linha abaixo assume que seu CSS de cadastro agora está em public/css/cadastro.css --}}
+    <link rel="stylesheet" href="{{ asset('css/cadastro.css') }}">
+    <script src="{{ asset('javascript/bloco-categoria.js') }}"></script>
 </head>
 
-<body>
-    <nav class="header-line">
-        <div class="social-icons">
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        </div>
-        <div class="top-nav">
-            <a href="#"><i class="fas fa-box"></i> Meus pedidos</a>
-            <a href="#"><i class="fas fa-heart"></i> Favoritos</a>
-            <a href="#"><i class="fas fa-shopping-cart"></i> Meu carrinho</a>
-        </div>
-    </nav>
+@extends('layouts.cabecario') {{-- ESTE É O NOVO TOPO DO SEU ARQUIVO --}}
 
-    <header>
-        <div class="logo">
-            <img src="../img/logo/ft_logo.png" alt="logo" class="logo-img">
-        </div>
-    </header>
+@section('content') {{-- TUDO ABAIXO SERÁ O CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}
+
+
 
     <main>
         <section class="cadastro">
@@ -55,19 +44,35 @@
                     @error('cpf') <div class="error">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="data_nasc">Data de Nascimento</label>
-                    <input type="date" id="data_nasc" name="data_nasc" value="{{ old('data_nasc') }}" required>
-                    @error('data_nasc') <div class="error">{{ $message }}</div> @enderror
+                {{-- Campos separados para Dia, Mês e Ano --}}
+                <div class="form-group data-nascimento">
+                    <label>Data de Nascimento</label>
+                    <div class="data-inputs">
+                        <input type="number" id="dia" name="day" min="1" max="31" required placeholder="Dia"
+                            value="{{ old('day') }}"
+                            oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);">
+                        <input type="number" id="mes" name="month" min="1" max="12" required placeholder="Mês"
+                            value="{{ old('month') }}"
+                            oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);">
+                        <input type="number" id="ano" name="year" min="1900" max="{{ date('Y') }}" required
+                            placeholder="Ano" value="{{ old('year') }}"
+                            oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);">
+                    </div>
+                    {{-- Exibir erros para os campos de data, se houver --}}
+                    @error('day') <div class="error">{{ $message }}</div> @enderror
+                    @error('month') <div class="error">{{ $message }}</div> @enderror
+                    @error('year') <div class="error">{{ $message }}</div> @enderror
+                    {{-- Ou um erro geral se a combinação for inválida --}}
+                    @error('data_nascimento') <div class="error">{{ $message }}</div> @enderror
                 </div>
 
-                <!-- <div class="mt-4">
-                    <x-input-label for="telefone" :value="__('Telefone')" />
-                    <x-text-input id="telefone" class="block mt-1 w-full" type="text" name="telefone"
-                        :value="old('telefone')" required autocomplete="tel"
-                        placeholder="(XX) XXXXX-XXXX ou (XX) XXXX-XXXX" />
-                    <x-input-error :messages="$errors->get('telefone')" class="mt-2" />
-                </div> -->
+                <!-- <div class="form-group">
+                        <label for="telefone">Número de Contato (com DDD)</label>
+                        <input type="tel" id="telefone" name="telefone" value="{{ old('telefone') }}"
+                            pattern="\(\d{2}\)\s?\d{4,5}-?\d{4}" placeholder="(XX) XXXXX-XXXX" required
+                            oninput="formatarTelefone(this)">
+                        @error('telefone') <div class="error">{{ $message }}</div> @enderror
+                    </div> -->
 
                 <div class="form-group">
                     <label for="password">Senha</label>
@@ -91,58 +96,56 @@
         </section>
     </main>
 
-    <footer class="footer">
-        © 2024 Cantinho da Isa. Todos os direitos reservados.
-    </footer>
+@endsection
 
-    <!-- MASCARA CPF -->
-    <script>
-        function formatarCPF(campo) {
-            let cpf = campo.value.replace(/\D/g, ''); // Remove tudo que não é número
-            if (cpf.length > 11) cpf = cpf.slice(0, 11); // Limita a 11 dígitos
-            cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
-            cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
-            cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            campo.value = cpf;
-        }
-    </script>
 
-    <!-- MASCARA TELEFONE -->
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const telefoneInput = document.getElementById('telefone');
+<script>
+    function formatarCPF(campo) {
+        let cpf = campo.value.replace(/\D/g, '');
+        if (cpf.length > 11) cpf = cpf.slice(0, 11);
+        cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
+        cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        campo.value = cpf;
+    }
+</script>
 
-            telefoneInput.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
-                let formattedValue = '';
+<script>
+    function formatarTelefone(campo) {
+        let value = campo.value.replace(/\D/g, '');
+        let formattedValue = '';
 
-                if (value.length > 0) {
-                    formattedValue = '(' + value.substring(0, 2);
-                    if (value.length > 2) {
-                        formattedValue += ') ';
-                        if (value.length <= 7) { // Para números de 8 dígitos (sem 9 na frente)
-                            formattedValue += value.substring(2, 6);
-                            if (value.length > 6) {
-                                formattedValue += '-' + value.substring(6, 10);
-                            }
-                        } else { // Para números de 9 dígitos (com 9 na frente)
-                            formattedValue += value.substring(2, 7);
-                            if (value.length > 7) {
-                                formattedValue += '-' + value.substring(7, 11);
-                            }
-                        }
+        if (value.length > 0) {
+            formattedValue = '(' + value.substring(0, 2);
+            if (value.length > 2) {
+                formattedValue += ') ';
+                if (value.length <= 7) {
+                    formattedValue += value.substring(2, 6);
+                    if (value.length > 6) {
+                        formattedValue += '-' + value.substring(6, 10);
+                    }
+                } else {
+                    formattedValue += value.substring(2, 7);
+                    if (value.length > 7) {
+                        formattedValue += '-' + value.substring(7, 11);
                     }
                 }
-                e.target.value = formattedValue;
-            });
-
-            // Garantir que a máscara é aplicada ao carregar a página se houver old('telefone')
-            if (telefoneInput.value) {
-                telefoneInput.dispatchEvent(new Event('input'));
             }
-        });
-    </script> -->
+        }
+        campo.value = formattedValue;
+    }
 
-</body>
+    document.addEventListener('DOMContentLoaded', function () {
+        const telefoneInput = document.getElementById('telefone');
+        if (telefoneInput && telefoneInput.value) {
+            formatarTelefone(telefoneInput);
+        }
+    });
+</script>
+
+{{-- Script para blocos de categoria, se necessário --}}
+{{--
+<script src="{{ asset('javascript/bloco-categoria.js') }}"></script> --}}
+
 
 </html>

@@ -135,44 +135,30 @@
         </div>
     </main>
 
-    <section class="customer-reviews">
-        <h2 class="titulo-avaliacoes">Avaliações dos Clientes</h2>
-        <div class="faixa"></div>
-        <div class="reviews-container">
+   <section class="customer-reviews">
+    <h2 class="titulo-avaliacoes">Avaliações dos Clientes</h2>
+    <div class="faixa"></div>
+    <div class="reviews-container">
+        @forelse($avaliacoes as $avaliacao)
             <div class="review">
-                <p class="review-texto">"Produtos de ótima qualidade, recomendo a todos!"</p>
+                <p class="review-texto">"{{ $avaliacao->comentario }}"</p>
                 <div class="review-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= $avaliacao->nota)
+                            <i class="fas fa-star"></i> {{-- Estrela cheia --}}
+                        @else
+                            <i class="far fa-star"></i> {{-- Estrela vazia (contorno) --}}
+                        @endif
+                    @endfor
                 </div>
-                <span class="review-author">- Ana Clara</span>
+                <span class="review-author">- {{ $avaliacao->usuario->name ?? 'Anônimo' }}</span>
             </div>
-            <div class="review">
-                <p class="review-texto">"Entrega rápida e atendimento incrível. Minha filha adorou!"</p>
-                <div class="review-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-alt"></i>
-                </div>
-                <span class="review-author">- Lucas Ferreira</span>
+        @empty
+            <div class="text-center py-8">
+                <p class="text-gray-600 text-lg">Ainda não há avaliações de clientes para exibir. Seja o primeiro a avaliar!</p>
             </div>
-            <div class="review">
-                <p class="review-texto">"Roupa linda, bem acabada e com preço justo. Voltarei a comprar!"</p>
-                <div class="review-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                </div>
-                <span class="review-author">- Mariana Silva</span>
-            </div>
-        </div>
-    </section>
+        @endforelse
+    </div>
+</section>
 
 @endsection {{-- FIM DO CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}

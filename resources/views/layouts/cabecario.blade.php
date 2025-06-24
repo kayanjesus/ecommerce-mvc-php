@@ -15,7 +15,7 @@
     <header>
         <div class="header-top">
             <div class="social-links">
-                <a href="https://instagram.com/cantinhodaisa"><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="https://www.instagram.com/cantinho_das_isas_?igsh=MXVjbDF6cDBpMjR4cw=="><i class="fab fa-instagram fa-lg"></i></a>
                 <a href="https://wa.me/5511999999999"><i class="fab fa-whatsapp fa-lg"></i></a>
             </div>
             <nav class="user-nav">
@@ -23,7 +23,7 @@
                     pedidos</a>
                 <a href="{{ route('home.dashboard', ['show' => 'favoritos']) }}"><i class="fas fa-heart fa-lg"></i>
                     Favoritos</a>
-                <a href="{{ route('home.carrinho') }}"><i class="fas fa-shopping-cart fa-lg"></i> Carrinho</a>
+                <a href="{{ route('pagamento.cep') }}"><i class="fas fa-shopping-cart fa-lg"></i> Carrinho</a>
             </nav>
         </div>
 

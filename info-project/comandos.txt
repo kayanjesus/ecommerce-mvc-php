@@ -3,7 +3,8 @@ Win+R->cmd        -> composer global require laravel/installer
 WinPowerShell-ADM -> Set-ExecutionPolicy RemoteSigned
 cmd-Raiz Project  -> composer update
 cmd-Raiz Project  -> npm install
-
+npm install laravel-echo pusher-js
+npm audit fix
 --------------------------------------------------------------
 
 Rodar para o projeto funcionar:

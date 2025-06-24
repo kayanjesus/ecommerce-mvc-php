@@ -10,15 +10,19 @@ return new class extends Migration {
      */
     public function up(): void
     {
+
         Schema::create('produto_variacoes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('produto_id');
-            $table->foreignId('cor_id')->constrained('cores')->onDelete('cascade');
-            $table->foreignId('tamanho_id')->constrained('tamanhos')->onDelete('cascade');
+            $table->unsignedBigInteger('cor_id');
+            $table->unsignedBigInteger('tamanho_id');
             $table->integer('estoque')->default(0);
             $table->decimal('preco', 10, 2)->nullable();
             $table->timestamps();
+
             $table->foreign('produto_id')->references('id_produto')->on('produtos')->onDelete('cascade');
+            $table->foreign('cor_id')->references('id_cor')->on('cores')->onDelete('cascade');
+            $table->foreign('tamanho_id')->references('id_tamanho')->on('tamanhos')->onDelete('cascade');
         });
 
     }

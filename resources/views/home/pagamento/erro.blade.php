@@ -1,6 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro no Pagamento</title>
+    <!-- Inclua seus CSS globais ou do layout principal se aplicável -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+        xintegrity="sha512-jnSuA4Ss2PnkZvQoKD8RbWdcOJTqMtngh5/+c3qgRwfdkjGtxK/0myefKCycqff1JzOCXQFF6qXGCuWTiCXlJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
 
-    <div class="container py-5">
+<body>
+    <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card border-danger">
@@ -19,7 +32,8 @@
                         @endif
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="{{ route('home.carrinho') }}" class="btn btn-outline-secondary">
+                            {{-- CORREÇÃO AQUI: Use o nome correto da sua rota de carrinho 'carrinho.index' --}}
+                            <a href="{{ route('home.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left"></i> Voltar ao carrinho
                             </a>
                             <a href="{{ route('home.index') }}" class="btn btn-primary">
@@ -31,3 +45,7 @@
             </div>
         </div>
     </div>
+    <!-- Inclua seus scripts JS globais ou do layout principal se aplicável -->
+</body>
+
+</html>

@@ -1,176 +1,140 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento PIX - Cantinho da Isa</title>
-    {{-- ADICIONE ESTA LINHA PARA O CSRF TOKEN --}}
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .pix-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 30px;
-            border-radius: 10px;
-            background-color: #f8f9fa;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirmação de Compra</title>
+    {{-- Importar a fonte Inter do Google Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-        .qr-code-wrapper {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            border: 1px solid #dee2e6;
-        }
-
-        .qr-code-img {
-            max-width: 250px;
-            height: auto;
-            margin: 0 auto 15px;
-        }
-
-        .pix-key-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .copy-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .timer {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #dc3545;
-            margin-bottom: 20px;
-        }
-
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .step {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: #0d6efd;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .step.active {
-            background-color: #0d6efd;
-        }
-
-        .step.completed {
-            background-color: #198754;
-        }
-
-        .step-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #dee2e6;
-            z-index: 1;
-        }
-
-        .step-line-progress {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background-color: #198754;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/pagamento-confirmacao.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
-    <div class="container py-5">
-        <div class="pix-container">
-            <h2 class="text-center mb-4">Pagamento via PIX</h2>
+    <header class="topo">
+        <div class="logo">
+            <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Cantinho da Isa" />
+        </div>
+        <div class="barra-progresso">
+            <div class="etapa completo">
+                <span class="texto-etapa">Carrinho</span>
+                <div class="bolinha"></div>
+            </div>
+            <div class="etapa completo">
+                <span class="texto-etapa">Pagamento</span>
+                <div class="bolinha"></div>
+            </div>
+            <div class="etapa ativo">
+                <span class="texto-etapa">Confirmação</span>
+                <div class="bolinha"></div>
+            </div>
+        </div>
+    </header>
 
-            <div class="steps">
-                <div class="step completed">
-                    <i class="fas fa-check"></i>
-                </div>
-                <div class="step active">
-                    2
-                </div>
-                <div class="step">
-                    3
-                </div>
-                <div class="step-line">
-                    <div class="step-line-progress" style="width: 33%;"></div>
-                </div>
+    <main class="confirmacao-container">
+        <div class="confirmacao-box">
+            <div class="sucesso-header">
+                <i class="fas fa-check-circle sucesso-icon"></i>
+                <p class="mensagem">Sua compra foi realizada com sucesso!</p>
             </div>
 
-            <div class="text-center mb-4">
-                <h4>Pedido #{{ $pedido->id_pedido }}</h4>
-                <h5 class="text-success">R$ {{ number_format($total, 2, ',', '.') }}</h5>
-            </div>
-
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                Você tem <strong>30 minutos</strong> para realizar o pagamento.
-            </div>
-
-            <div class="qr-code-wrapper">
-                <h5 class="mb-3">Escaneie o QR Code</h5>
-                @if($qrCodeData)
-                    <img src="{{ $qrCodeData }}" alt="QR Code PIX" class="img-fluid qr-code-img">
-                    <p class="text-muted">Abra o app do seu banco e escaneie o código acima</p>
-                @else
-                    <div class="alert alert-danger">
-                        Não foi possível gerar o QR Code. Por favor, tente novamente.
+            @if(isset($pedido))
+                <div class="pedido-detalhes">
+                    <h4 class="detalhe-pedido-titulo">Detalhes do Pedido</h4>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Pedido ID:</span>
+                        <span class="detalhe-valor">#{{ $pedido->id_pedido }}</span>
                     </div>
-                @endif
-            </div>
 
-            <div class="mb-4">
-                <h5 class="mb-3">Ou copie o código PIX</h5>
-                <div class="pix-key-container">
-                    <input type="text" id="pixKey" class="form-control" value="{{ $pixKey ?? 'Não disponível' }}"
-                        readonly>
-                    <button class="btn btn-outline-secondary copy-btn" onclick="copyPixKey()">
-                        <i class="fas fa-copy"></i>
-                    </button>
+                    {{-- QR Code section --}}
+                    @if(isset($qrCodeData))
+                        <div class="qr-code-wrapper">
+                            <h5 class="qr-code-titulo">Escaneie o QR Code</h5>
+                            @if($qrCodeData)
+                                <div class="qr-code-border">
+                                    <img src="{{ $qrCodeData }}" alt="QR Code PIX" class="img-fluid qr-code-img">
+                                </div>
+                                <p class="qr-code-instrucao">Abra o app do seu banco e escaneie o código acima</p>
+                            @else
+                                <div class="alert alert-danger">
+                                    Não foi possível gerar o QR Code. Por favor, tente novamente.
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    <div class="pix-section">
+                        <h5 class="pix-titulo">Ou copie o código PIX</h5>
+                        <div class="pix-key-container">
+                            <input type="text" id="pixKey" class="form-control pix-input"
+                                value="{{ $pixKey ?? 'Não disponível' }}" readonly>
+                            <button class="btn btn-pix-copy" onclick="copyPixKey()">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                        <small class="pix-ajuda">Cole este código no app do seu banco para pagar</small>
+                    </div>
+
+                    <div class="timer-container">
+                        <i class="fas fa-clock timer-icon"></i>
+                        <span id="countdown" class="timer-text">Carregando tempo...</span>
+                    </div>
+
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Total:</span>
+                        <span class="detalhe-valor total">R$ {{ number_format($pedido->total, 2, ',', '.') }}</span>
+                    </div>
+
+                    <div class="detalhe-item status">
+                        <span class="detalhe-label">Status:</span>
+                        <span
+                            class="detalhe-valor status-badge">{{ ucfirst(str_replace('_', ' ', $pedido->status)) }}</span>
+                    </div>
+
+                    <p class="detalhe-info">Você receberá os detalhes da compra no seu e-mail.</p>
                 </div>
-                <small class="text-muted">Cole este código no app do seu banco para pagar</small>
-            </div>
+            @else
+                <p class="detalhe-info">Detalhes do pedido não disponíveis.</p>
+            @endif
 
-            <div class="timer text-center mb-4">
-                <i class="fas fa-clock me-2"></i>
-                <span id="countdown">Carregando tempo...</span>
-            </div>
+            <hr class="divisor-confirmacao" />
 
-            <div class="d-grid gap-2">
-                <button class="btn btn-success" onclick="confirmPayment()">
-                    <i class="fas fa-check-circle me-2"></i> Já efetuei o pagamento
-                </button>
-                <a href="{{ route('home.index') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i> Voltar
+            <div class="voltar-container">
+                <a href="{{ route('home.index') }}" class="botao-voltar">
+                    <i class="fas fa-arrow-left me-2"></i> Voltar à página inicial
                 </a>
             </div>
         </div>
-    </div>
+    </main>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>Institucional</h3>
+                <ul>
+                    <li><a href="#">Quem Somos</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                    <li><a href="#">Troca e Devolução</a></li>
+                    <li><a href="#">Política de Entrega</a></li>
+                    <li><a href="#">Política de Pagamento</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Atendimento</h3>
+                <p>( xx ) xxxx-xxxx</p>
+                <p>De segunda-feira a sexta-feira:<br>12h às 18h</p>
+            </div>
+            <div class="footer-column">
+                <h3>Compre Seguro</h3>
+            </div>
+        </div>
+    </footer>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -239,6 +203,7 @@
             startCountdown();
         });
     </script>
+
 </body>
 
 </html>

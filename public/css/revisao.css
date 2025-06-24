@@ -1,0 +1,176 @@
+/* revisao.css */
+
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    border-bottom: 30px solid #9b2a2a;
+    /* Nova cor para a borda do topo */
+}
+
+.logo img {
+    height: 120px;
+    /* Altura da logo */
+}
+
+.barra-progresso {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1000px;
+    /* Largura da barra de progresso */
+    margin-left: auto;
+    margin-right: 30px;
+    padding-top: 10px;
+}
+
+.barra-progresso::before {
+    content: '';
+    position: absolute;
+    top: 41px;
+    /* Ajuste para alinhar a linha */
+    left: 20px;
+    right: 0px;
+    height: 5px;
+    background-color: #ddd;
+    /* Cor da linha de progresso inativa */
+    z-index: 0;
+    width: 94%;
+    /* Largura da linha */
+}
+
+.etapa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.texto-etapa {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #aaa;
+    /* Cor do texto da etapa inativa */
+}
+
+.bolinha {
+    width: 16px;
+    height: 16px;
+    background-color: #aaa;
+    /* Cor da bolinha da etapa inativa */
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.etapa.ativo .bolinha {
+    background-color: #9b2a2a;
+    /* Nova cor para a bolinha da etapa ativa */
+}
+
+.etapa.ativo .texto-etapa {
+    color: #9b2a2a;
+    /* Nova cor para o texto da etapa ativa */
+    font-weight: bold;
+}
+
+.linha-branca {
+    height: 30px;
+    background-color: white;
+}
+
+.frete-banner {
+    background-color: #2aa389;
+    /* Cor de fundo do banner de frete */
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* Estilos para o restante da página (exemplo, pode precisar de ajustes) */
+body {
+    font-family: sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.produto-container,
+.form-container {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.produto-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.color-preview {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.resumo-financeiro {
+    border: 1px solid #dee2e6;
+}
+
+.frete-gratis {
+    color: #2aa389;
+    font-weight: bold;
+}
+
+.desconto-badge {
+    background-color: #2aa389;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    margin-left: 5px;
+}
+
+.btn-remover {
+    color: #dc3545;
+    border: none;
+    background: transparent;
+}
+
+.btn-remover:hover {
+    color: #c82333;
+}
+
+/* Mudanças de cor para #9b2a2a */
+.text-primary {
+    color: #7a2222 !important;
+}
+.btn-primary {
+    color: #ffffff !important;
+    /* Força a cor para elementos Bootstrap que usam text-primary */
+}
+
+.btn-primary {
+    background-color: #9b2a2a !important;
+    border-color: #9b2a2a !important;
+}
+
+.btn-primary:hover {
+    background-color: #7a2222 !important;
+    /* Um tom ligeiramente mais escuro para o hover */
+    border-color: #7a2222 !important;
+}

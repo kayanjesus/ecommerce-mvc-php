@@ -1,185 +1,365 @@
-<!-- resources/views/dashboard.blade.php -->
+<!DOCTYPE html>
+<html lang="pt-br">
 
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cantinho da Isa</title>
+    <link rel="stylesheet" href="{{ asset("css/perfil-user.css") }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <p>Olá {{ Auth::user()->name }}</p>
-                    <br>
+<body>
+    <div class="header-top">
+        <div class="social-links">
+            <a href="https://www.instagram.com/cantinho_das_isas_?igsh=MXVjbDF6cDBpMjR4cw=="><i
+                    class="fab fa-instagram fa-lg"></i></a>
+            <a href="https://wa.me/5511999999999"><i class="fab fa-whatsapp fa-lg"></i></a>
+        </div>
+        <nav class="user-nav">
+            <a href="{{ route('home.dashboard', ['show' => 'pedidos']) }}"><i class="fas fa-box fa-lg"></i> Meus
+                pedidos</a>
+            <a href="{{ route('home.dashboard', ['show' => 'favoritos']) }}"><i class="fas fa-heart fa-lg"></i>
+                Favoritos</a>
+            <a href="{{ route('pagamento.cep') }}"><i class="fas fa-shopping-cart fa-lg"></i> Carrinho</a>
+        </nav>
 
-                    <div class="mb-8 flex space-x-4">
-                        <a href="{{ route('home.dashboard', ['show' => 'pedidos']) }}"
-                           class="px-4 py-2 rounded-md font-semibold text-sm
-                                @if($currentView === 'pedidos') bg-indigo-600 text-white @else bg-gray-200 text-gray-700 hover:bg-gray-300 @endif">
-                            <i class="fas fa-box mr-2"></i> Meus Pedidos
-                        </a>
-                        <a href="{{ route('home.dashboard', ['show' => 'favoritos']) }}"
-                           class="px-4 py-2 rounded-md font-semibold text-sm
-                                @if($currentView === 'favoritos') bg-indigo-600 text-white @else bg-gray-200 text-gray-700 hover:bg-gray-300 @endif">
-                            <i class="fas fa-heart mr-2"></i> Favoritos
-                        </a>
+    </div>
+
+    <main>
+        <div class="left-column">
+
+
+            <div class="user-section">
+                <div class="user-icon"><i class="fas fa-user"></i></div>
+                <span class="username">{{ Auth::user()->name }}</span>
+                <a href="{{ route('profile.edit') }}" class="edit-btn" id="editProfileBtn">Editar</a>
+                <form method="POST" class="logout-form" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="edit-btn">SAIR</button>
+                </form>
+            </div>
+
+            <div class="button-section">
+                <button class="nav-button @if($currentView === 'pedidos') active @endif" data-view="pedidos"
+                    onclick="window.location.href='{{ route('home.dashboard', ['show' => 'pedidos']) }}'">
+                    Pedidos <span>&gt;</span>
+                </button>
+                <button class="nav-button @if($currentView === 'favoritos') active @endif" data-view="favoritos"
+                    onclick="window.location.href='{{ route('home.dashboard', ['show' => 'favoritos']) }}'">
+                    Favoritos <span>&gt;</span>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="logo">
+            <a href="{{ route('home.index') }}">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
+            </a>
+        </div>
+
+        <div id="dynamic-content">
+            <div class="content-view">
+                @if($currentView === 'pedidos')
+                    <div class="pedidos-header">
+                        <h2><i class="fas fa-box-open"></i> Meus Pedidos</h2>
                     </div>
 
-                    <div id="content-area">
-                        @if($currentView === 'pedidos')
-                            <div class="mb-8">
-                                <h3 class="font-semibold text-lg text-gray-800 leading-tight mb-4">Seus Pedidos Recentes</h3>
-
-                                @if($pedidos->isEmpty())
-                                    <p class="text-gray-600">Você ainda não fez nenhum pedido.</p>
-                                @else
-                                    <div class="space-y-6">
-                                        @foreach($pedidos as $pedido)
-                                            <div class="border rounded-lg p-4 bg-gray-50 shadow-sm">
-                                                <div class="flex justify-between items-center mb-3">
-                                                    <h4 class="font-bold text-md text-gray-800">Pedido #{{ $pedido->id_pedido }}</h4>
-                                                    <span class="text-sm text-gray-600">
-                                                        Data: {{ \Carbon\Carbon::parse($pedido->created_at)->format('d/m/Y H:i') }}
+                    @if($pedidos->isEmpty())
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <h3>Nenhum pedido encontrado</h3>
+                            <p>Você ainda não fez nenhum pedido em nossa loja.</p>
+                            <a href="{{ url('/') }}" class="action-btn primary-btn">
+                                <i class="fas fa-shopping-cart mr-2"></i> Começar a Comprar
+                            </a>
+                        </div>
+                    @else
+                            <div class="pedidos-list">
+                                @foreach($pedidos as $pedido)
+                                        <div class="pedido-card" data-status="{{ $pedido->status }}">
+                                            <div class="pedido-header">
+                                                <div class="pedido-info">
+                                                    <h3>Pedido #{{ $pedido->id_pedido }}</h3>
+                                                    <span class="pedido-date">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                        {{ \Carbon\Carbon::parse($pedido->created_at)->format('d/m/Y') }}
                                                     </span>
                                                 </div>
-                                                <p class="mb-2">
-                                                    Status do Pedido:
-                                                    <span class="font-semibold
-                                                        @if($pedido->status === 'pago') text-green-600
-                                                        @elseif($pedido->status === 'pendente') text-yellow-600
-                                                        @elseif($pedido->status === 'cancelado') text-red-600
-                                                        @elseif($pedido->status === 'processando') text-blue-600
-                                                        @elseif($pedido->status === 'enviado' || $pedido->status === 'em_transito' || $pedido->status === 'saiu_para_entrega') text-purple-600
-                                                        @elseif($pedido->status === 'entregue') text-indigo-600
-                                                        @else text-gray-600 @endif">
-                                                        {{ ucfirst($pedido->status) }}
-                                                    </span>
-                                                </p>
-                                                <p class="mb-2 font-bold text-gray-800">
-                                                    Valor Total: R$ {{ number_format($pedido->total, 2, ',', '.') }}
-                                                </p>
+                                                <div class="pedido-status {{ $pedido->status }}">
+                                                    <span>{{ ucfirst(str_replace('_', ' ', $pedido->status)) }}</span>
+                                                </div>
+                                            </div>
 
-                                                <!-- NOVO: INFORMAÇÕES DE ENTREGA -->
-                                                @if($pedido->entrega)
-                                                    <div class="mt-4 pt-3 border-t border-gray-200">
-                                                        <h5 class="font-semibold text-md text-gray-700 mb-2"><i class="fas fa-truck mr-2"></i> Status da Entrega:</h5>
-                                                        <p class="text-sm text-gray-600 mb-1">
-                                                            Método: {{ ucfirst($pedido->entrega->metodo_entrega) }}
-                                                        </p>
-                                                        <p class="text-sm text-gray-600 mb-1">
-                                                            Data de Envio: {{ $pedido->entrega->data_envio ? $pedido->entrega->data_envio->format('d/m/Y H:i') : 'Aguardando envio' }}
-                                                        </p>
-                                                        <p class="text-sm text-gray-600 mb-1">
-                                                            Data de Entrega Estimada: {{ $pedido->entrega->data_entrega ? $pedido->entrega->data_entrega->format('d/m/Y H:i') : 'Em breve' }}
-                                                        </p>
-                                                        @if($pedido->entrega->rastreio)
-                                                            <p class="text-sm text-gray-600 mb-0">
-                                                                Código de Rastreio: <span class="font-bold text-indigo-700">{{ $pedido->entrega->rastreio->codigo_rastreio }}</span>
-                                                                {{-- Opcional: link para site de rastreio --}}
-                                                                {{-- <a href="https://www.rastreio.com.br/?code={{ $pedido->entrega->rastreio->codigo_rastreio }}" target="_blank" class="text-blue-500 hover:underline ml-2">Rastrear</a> --}}
-                                                            </p>
-                                                        @else
-                                                            <p class="text-sm text-gray-600 mb-0">Código de Rastreio: Não disponível</p>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <p class="text-sm text-gray-600 mt-4">Informações de entrega não disponíveis ainda.</p>
-                                                @endif
-                                                <!-- FIM NOVO: INFORMAÇÕES DE ENTREGA -->
-
-                                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                                                    @forelse($pedido->itens as $item)
-                                                        <div class="flex items-center space-x-3 border p-3 rounded-md bg-white">
+                                            <div class="pedido-body">
+                                                <div class="pedido-produtos">
+                                                    @foreach($pedido->itens->take(3) as $item)
+                                                        <div class="produto-item">
                                                             @if($item->produto && $item->produto->imagens->isNotEmpty())
                                                                 @php
                                                                     $mainImage = $item->produto->imagens->firstWhere('principal', true) ?: $item->produto->imagens->first();
                                                                 @endphp
-                                                                @if($mainImage)
-                                                                    <img src="{{ asset($mainImage->caminho) }}"
-                                                                        alt="{{ $item->produto->nome_produto ?? 'Produto' }}"
-                                                                        class="w-16 h-16 object-cover rounded-md">
-                                                                @else
-                                                                    <div class="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-md">
-                                                                        <i class="fas fa-image text-gray-500"></i>
-                                                                    </div>
-                                                                @endif
+                                                                <img src="{{ asset($mainImage->caminho) }}"
+                                                                    alt="{{ $item->produto->nome_produto ?? 'Produto' }}" class="produto-img">
                                                             @else
-                                                                <div class="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-md">
-                                                                    <i class="fas fa-image text-gray-500"></i>
+                                                                <div class="produto-img empty">
+                                                                    <i class="fas fa-image"></i>
                                                                 </div>
                                                             @endif
-                                                            <div>
-                                                                <p class="font-medium text-gray-800">
-                                                                    {{ $item->produto->nome_produto ?? 'Produto Indisponível' }}
-                                                                </p>
-                                                                <p class="text-sm text-gray-600">Qtd: {{ $item->quantidade }} | R$
+                                                            <div class="produto-info">
+                                                                <h4>{{ $item->produto->nome_produto ?? 'Produto Indisponível' }}</h4>
+                                                                <p>Qtd: {{ $item->quantidade }} | R$
                                                                     {{ number_format($item->preco_unitario, 2, ',', '.') }}
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                    @empty
-                                                        <p class="text-gray-600 col-span-full">Nenhum item encontrado para este pedido.</p>
-                                                    @endforelse
+                                                    @endforeach
+                                                    @if($pedido->itens->count() > 3)
+                                                        <div class="mais-itens">
+                                                            +{{ $pedido->itens->count() - 3 }} itens
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                                <div class="pedido-total">
+                                                    <span>Total do pedido:</span>
+                                                    <strong>R$ {{ number_format($pedido->total, 2, ',', '.') }}</strong>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-                        @elseif($currentView === 'favoritos')
-                            <!-- Seu código existente para Favoritos -->
-                            <div class="mb-8">
-                                <h3 class="font-semibold text-lg text-gray-800 leading-tight mb-4">Meus Favoritos</h3>
 
-                                @if($favoritos->isEmpty())
-                                    <div class="text-center p-8 bg-blue-100 border border-blue-200 rounded-lg">
-                                        <p class="text-blue-800 font-semibold mb-2">Seus favoritos estão vazios!</p>
-                                        <p class="text-blue-600">Aproveite nossas promoções e adicione produtos que você amou aqui!</p>
-                                        <a href="{{ url('/') }}" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-                                            <i class="fas fa-arrow-left mr-2"></i> Continuar comprando
-                                        </a>
-                                    </div>
-                                @else
-                                    <p class="text-gray-600 mb-4">Você tem {{ $favoritos->count() }} iten(s) favoritado(s)</p>
+                                            <div class="pedido-footer">
+                                                <div class="pedido-actions">
+                                                    @if($pedido->podeSerCanceladoPeloCliente())
+                                                        <form action="{{ route('cliente.pedidos.cancelar', $pedido->id_pedido) }}" method="POST"
+                                                            onsubmit="return confirm('Tem certeza que deseja cancelar este pedido?');">
+                                                            @csrf
+                                                            <button type="submit" class="action-btn cancel-btn">
+                                                                <i class="fas fa-times-circle"></i> Cancelar
+                                                            </button>
+                                                        </form>
+                                                    @endif
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        @foreach ($favoritos as $item)
-                                            <div class="border rounded-lg p-4 bg-white shadow-md flex items-center space-x-4">
-                                                <img src="{{ asset($item->attributes->image) }}" alt="{{ $item->name }}"
-                                                     class="w-20 h-20 object-cover rounded-md flex-shrink-0">
-                                                <div class="flex-grow">
-                                                    <p class="font-semibold text-gray-800 text-lg">{{ $item->name }}</p>
-                                                    <p class="text-gray-700 text-sm">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
-                                                </div>
-                                                <div class="flex flex-col space-y-2">
-                                                    <form action="{{ route('home.removefavoritos') }}" method="POST" class="inline-block">
-                                                        @csrf
-                                                        <input type="hidden" name="id" value="{{ $item->id }}">
-                                                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-md transition duration-300" title="Remover dos favoritos">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </form>
+                                                    @if($pedido->podeConfirmarEntrega())
+                                                        <form action="{{ route('cliente.pedidos.confirmarEntrega', $pedido->id_pedido) }}"
+                                                            method="POST" onsubmit="return confirm('Confirma o recebimento deste pedido?');">
+                                                            @csrf
+                                                            <button type="submit" class="action-btn confirm-btn">
+                                                                <i class="fas fa-check-circle"></i> Confirmar Recebimento
+                                                            </button>
+                                                        </form>
+                                                    @endif
+
+                                                    <a href="{{ route('cliente.pedidos.verDetalhesPedido', $pedido->id_pedido) }}"
+                                                        class="action-btn details-btn">
+                                                        <i class="fas fa-eye"></i> Ver Detalhes
+                                                    </a>
+
+                                                            @if($pedido->status === 'entregue' && $pedido->confirmado_pelo_cliente)
+            @if($pedido->podeAvaliar())
+                <a href="{{ route('cliente.pedidos.avaliar.view', $pedido->id_pedido) }}"
+                    class="action-btn primary-btn"> {{-- Use uma classe de botão consistente --}}
+                    <i class="fas fa-star"></i> Avaliar Produto
+                </a>
+            @else
+                <span
+                   class="action-btn primary-btn"> {{-- Use uma classe de botão consistente --}}
+                    <i class="fas fa-star"></i> Avaliado
+                </span>
+            @endif
+        @endif
+                                                
+
+                                                {{-- Adicionando o botão de solicitar reembolso --}}
+                                                @if($pedido->status === 'entregue' && $pedido->podeSolicitarReembolso() && $pedido->prazoReembolsoRestante > 0)
+                                                    <div class="action-btn primary-btn">
+                                                        <a href="#" class="action-btn primary-btn" data-bs-toggle="modal"
+                                                            data-bs-target="#reembolsoModal-{{ $pedido->id_pedido }}">
+                                                            <i class="fas fa-undo"></i> Solicitar Reembolso
+                                                        </a>
+               
+                                                    </div>
+                                                @elseif($pedido->status === 'entregue' && $pedido->prazoReembolsoRestante !== null && $pedido->prazoReembolsoRestante <= 0)
+                                                    <div class="mt-3">
+                                                        <span class="action-btn disabled-refund-btn">
+                                                            <i class="fas fa-info-circle"></i> Prazo de Reembolso Expirado
+                                                        </span>
+                                                    </div>
+                                                @endif
+</div>
+                                                {{-- Modal para Solicitar Reembolso (dentro do loop para cada pedido) --}}
+                                                <div class="modal fade" id="reembolsoModal-{{ $pedido->id_pedido }}" tabindex="-1"
+                                                    aria-labelledby="reembolsoModalLabel-{{ $pedido->id_pedido }}" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content rounded-lg shadow-xl p-6 border border-gray-200">
+                                                            <form
+                                                                action="{{ route('cliente.pedidos.solicitarReembolso', $pedido->id_pedido) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                <div
+                                                                    class="modal-header border-b pb-4 mb-4 flex items-center justify-between">
+                                                                    <h5 class="modal-title font-bold text-2xl text-gray-800"
+                                                                        id="reembolsoModalLabel-{{ $pedido->id_pedido }}">
+                                                                        Solicitar Reembolso
+                                                                    </h5>
+                                                                    <button type="button"
+                                                                        class="btn-close text-gray-500 hover:text-gray-800 focus:outline-none"
+                                                                        data-bs-dismiss="modal" aria-label="Close">
+                                                                        <i class="fas fa-times text-lg"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body text-gray-700">
+                                                                    <p class="mb-4 text-lg">Você está prestes a solicitar um reembolso para
+                                                                        o pedido <span class="font-bold">#{{ $pedido->id_pedido }}</span> no
+                                                                        valor de <span class="font-bold text-green-700">R$
+                                                                            {{ number_format($pedido->total, 2, ',', '.') }}</span>.
+                                                                    </p>
+
+                                                                    @if($pedido->prazoReembolsoRestante !== null && $pedido->prazoReembolsoRestante > 0)
+                                                                        <p
+                                                                            class="text-sm text-blue-600 mb-4 bg-blue-50 p-3 rounded-md border border-blue-200 flex items-center">
+                                                                            <i class="fas fa-info-circle mr-2 text-lg"></i> Você tem
+                                                                            {{ $pedido->prazoReembolsoRestante }} dia(s) restantes
+                                                                            para solicitar o reembolso.
+                                                                        </p>
+                                                                    @elseif($pedido->prazoReembolsoRestante !== null && $pedido->prazoReembolsoRestante === 0)
+                                                                        <p
+                                                                            class="text-sm text-red-600 mb-4 bg-red-50 p-3 rounded-md border border-red-200 flex items-center">
+                                                                            <i class="fas fa-exclamation-triangle mr-2 text-lg"></i> O
+                                                                            prazo para solicitar reembolso para este pedido expirou.
+                                                                        </p>
+                                                                    @endif
+
+                                                                    <div class="mb-4">
+                                                                        <label for="motivo_reembolso_{{ $pedido->id_pedido }}"
+                                                                            class="form-label font-semibold text-gray-700">
+                                                                            Motivo do Reembolso:
+                                                                        </label>
+                                                                        <textarea
+                                                                            class="form-control mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                            id="motivo_reembolso_{{ $pedido->id_pedido }}"
+                                                                            name="motivo_reembolso" rows="4"
+                                                                            placeholder="Descreva brevemente o motivo do reembolso..."
+                                                                            required></textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer flex justify-end gap-2 border-t pt-4 mt-4">
+                                                                    <button type="button" class="action-btn secondary-btn"
+                                                                        data-bs-dismiss="modal">
+                                                                        Cancelar
+                                                                    </button>
+                                                                    <button type="submit" class="action-btn primary-btn">
+                                                                        Confirmar Solicitação
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
 
-                                    <div class="mt-8 flex justify-center space-x-4">
-                                        <a href="{{ url('/') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-                                            <i class="fas fa-arrow-left mr-2"></i> Continuar comprando
-                                        </a>
-                                        <a href="{{ route('home.limparfavoritos') }}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-                                            <i class="fas fa-times-circle mr-2"></i> Limpar favoritos
-                                        </a>
+                                            @if($pedido->entrega)
+                                                <div class="pedido-entrega">
+                                                    <div class="entrega-info">
+                                                        <i class="fas fa-truck"></i>
+                                                        <div>
+                                                            <span>Enviado via {{ ucfirst($pedido->entrega->metodo_entrega) }}</span>
+                                                            @if($pedido->entrega->rastreio)
+                                                                <small>Código de rastreio:
+                                                                    {{ $pedido->entrega->rastreio->codigo_rastreio }}</small>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="entrega-status">
+                                                        @if($pedido->entrega->data_entrega)
+                                                            <span>Entregue em {{ $pedido->entrega->data_entrega->format('d/m/Y') }}</span>
+                                                        @elseif($pedido->entrega->data_envio)
+                                                            <span>Enviado em {{ $pedido->entrega->data_envio->format('d/m/Y') }}</span>
+                                                        @else
+                                                            <span>Aguardando envio</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
-                            </div>
-                        @endif
+                                @endforeach
+                        </div>
+                    @endif
+                @elseif($currentView === 'favoritos')
+                <div class="favoritos-section">
+                    <div class="favoritos-header">
+                        <h2><i class="fas fa-heart"></i> Meus Favoritos</h2>
+                        <div class="favoritos-count">
+                            <span>{{ $favoritos->count() }} itens</span>
+                        </div>
                     </div>
+
+                    @if($favoritos->isEmpty())
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-heart-broken"></i>
+                            </div>
+                            <h3>Seus favoritos estão vazios!</h3>
+                            <p>Aproveite nossas promoções e adicione produtos que você amou aqui!</p>
+                            <a href="{{ url('/') }}" class="action-btn primary-btn">
+                                <i class="fas fa-arrow-left mr-2"></i> Continuar Comprando
+                            </a>
+                        </div>
+                    @else
+                        <div class="favoritos-grid">
+                            @foreach ($favoritos as $item)
+                                <div class="favorito-card">
+                                    <div class="favorito-img-container">
+                                        <img src="{{ asset($item->attributes->image) }}" alt="{{ $item->name }}"
+                                            class="favorito-img">
+                                        <form action="{{ route('home.removefavoritos') }}" method="POST" class="remove-favorito">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $item->id }}">
+                                            <button type="submit" class="remove-btn" title="Remover dos favoritos">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="favorito-info">
+                                        <h3 class="favorito-title">{{ $item->name }}</h3>
+                                        <p class="favorito-price">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
+                                        <div class="favorito-actions">
+                                            <a href="#" class="action-btn small-btn add-to-cart">
+                                                <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="favoritos-footer">
+                            <a href="{{ url('/') }}" class="action-btn primary-btn">
+                                <i class="fas fa-arrow-left mr-2"></i> Continuar Comprando
+                            </a>
+                            <form action="{{ route('home.limparfavoritos') }}" method="POST" class="inline-form">
+                                @csrf
+                                <button type="submit" class="action-btn cancel-btn"
+                                    onclick="return confirm('Tem certeza que deseja limpar todos os favoritos?')">
+                                    <i class="fas fa-trash-alt mr-2"></i> Limpar Favoritos
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
-            </div>
+            @endif
         </div>
-    </div>
-</x-app-layout>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../javascript/perfil-usuario.js"></script>
+</body>
+
+</html>

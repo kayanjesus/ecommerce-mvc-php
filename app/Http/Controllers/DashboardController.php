@@ -8,12 +8,15 @@ use App\Models\Produto;
 use App\Models\Pedido;
 use App\Models\Entrega;
 use App\Models\Rastreio;
+use App\Models\Avaliacao;
+use App\Models\Reembolso;
 use App\Models\User; // Certifique-se que o User model está importado
 use DB; // Certifique-se que DB está importado
 use Illuminate\Support\Facades\{Auth, Http, Log, };
+use Carbon\Carbon;
 
 use Illuminate\Http\Request;
-    
+
 class DashboardController extends Controller
 {
     public function index()
@@ -28,22 +31,81 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        // Obter métricas
-        $vendasHoje = Pedido::whereDate('created_at', today())->count();
-        $valorRecebido = Pedido::whereDate('created_at', today())->sum('total');
-        $avaliacoes = 0; // Adicione sua lógica para avaliações se necessário
-        $notificacoes = auth()->user()->unreadNotifications()->latest()->take(10)->get();
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
+            abort(403, 'Acesso não autorizado. Você não é um administrador.');
+        }
 
-        // Obter categorias para o menu (se necessário)
-        $categoriasMenu = Categoria::all();
+        // Definir os status que consideramos como "valor recebido" ou "venda efetivada"
+        $statusRecebidosOuConcluidos = [
+            'pago',
+            'processando',
+            'enviado',
+            'em_transito',
+            'saiu_para_entrega',
+            'entregue',
+            'reembolso_solicitado',
+            'reembolso_aprovado',
+            'reembolso_processando',
+            'reembolso_concluido'
+        ];
 
-        return view('adm.dashboard', compact(
-            'vendasHoje',
-            'valorRecebido',
-            'avaliacoes',
-            'notificacoes',
-            'categoriasMenu'
-        ));
+        // Métrica: Vendas hoje (pedidos com status que indicam venda efetivada, criados hoje)
+        // Alterado para incluir mais status, para que a contagem seja mais abrangente.
+        $vendasHoje = Pedido::whereDate('created_at', today())
+            ->whereIn('status', $statusRecebidosOuConcluidos)
+            ->count();
+
+        // Métrica: Valor recebido hoje (pedidos com status de recebimento, criados hoje)
+        $valorRecebido = Pedido::whereDate('created_at', today())
+            ->whereIn('status', $statusRecebidosOuConcluidos)
+            ->sum('total');
+
+        // Métrica: Total de Avaliações
+        $totalAvaliacoes = Avaliacao::count();
+
+        // Carrega todas as notificações não lidas para exibição inicial
+        $notificacoes = Auth::user()->unreadNotifications()->get();
+
+        return view('adm.dashboard', compact('vendasHoje', 'valorRecebido', 'totalAvaliacoes', 'notificacoes'));
+    }
+
+    /**
+     * Retorna as métricas via AJAX para o dashboard principal (adm.dashboard).
+     */
+    public function metricas()
+    {
+        // Definir os status que consideramos como "valor recebido" ou "venda efetivada"
+        $statusRecebidosOuConcluidos = [
+            'pago',
+            'processando',
+            'enviado',
+            'em_transito',
+            'saiu_para_entrega',
+            'entregue',
+            'reembolso_solicitado',
+            'reembolso_aprovado',
+            'reembolso_processando',
+            'reembolso_concluido'
+        ];
+
+        // Métrica: Vendas hoje (pedidos com status que indicam venda efetivada, criados hoje)
+        $vendasHoje = Pedido::whereDate('created_at', today())
+            ->whereIn('status', $statusRecebidosOuConcluidos)
+            ->count();
+
+        // Métrica: Valor recebido hoje (pedidos com status de recebimento, criados hoje)
+        $valorRecebido = Pedido::whereDate('created_at', today())
+            ->whereIn('status', $statusRecebidosOuConcluidos)
+            ->sum('total');
+
+        // Métrica: Total de Avaliações
+        $totalAvaliacoes = Avaliacao::count();
+
+        return response()->json([
+            'vendasHoje' => $vendasHoje,
+            'valorRecebido' => $valorRecebido,
+            'avaliacoes' => $totalAvaliacoes
+        ]);
     }
 
     public function pedidos()
@@ -246,16 +308,93 @@ class DashboardController extends Controller
         return view('adm.cdtproduto', compact('tamanhos', 'cores', 'categoriasMenu', 'categorias'));
     }
 
-    public function usercadastrado()
+    public function usercadastrado(Request $request)
     {
-        // Exemplo: buscar usuários cadastrados
-        $users = User::all();
-        return view('adm.usercadastrado', compact('users'));
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
+            abort(403, 'Acesso não autorizado. Você não é um administrador.');
+        }
+
+        $search = $request->query('search');
+        $usersQuery = User::query();
+        if ($search) {
+            $usersQuery->where('name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%'); // Adicionei busca por email também
+        }
+        $users = $usersQuery->paginate(10);
+
+
+        // Dados para o gráfico "Aquisição de usuários"
+        $usersByMonth = User::select(
+            DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
+            DB::raw("COUNT(*) as total_users")
+        )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $userAno = $usersByMonth->pluck('month')->map(function ($month) {
+            return Carbon::createFromFormat('Y-m', $month)->translatedFormat('M Y');
+        })->toJson();
+
+        $userTotal = $usersByMonth->pluck('total_users')->toJson();
+
+        $userLabel = json_encode(['Novos Usuários']); // Um array JSON para o label
+
+        return view('adm.usercadastrado', compact('users', 'userAno', 'userTotal', 'userLabel', 'search'));
     }
+
 
     public function vendas()
     {
-        // Lógica para a página de vendas
-        return view('adm.vendas');
+        // Calcular dados dos últimos 3 meses para os cards
+        $mesesData = [];
+        for ($i = 0; $i < 3; $i++) {
+            $mes = Carbon::now()->subMonths($i);
+            $nomeMes = $mes->translatedFormat('F'); // Nome do mês em português
+            $ano = $mes->year;
+
+            $totalVendasMes = Pedido::whereMonth('created_at', $mes->month)
+                ->whereYear('created_at', $ano)
+                ->count();
+
+            // Considera todos os status que implicam recebimento
+            $faturamentoMes = Pedido::whereMonth('created_at', $mes->month)
+                ->whereYear('created_at', $ano)
+                ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
+                ->sum('total');
+
+            $mesesData[] = [
+                'nome' => ucfirst($nomeMes),
+                'ano' => $ano,
+                'total_recebido' => $faturamentoMes,
+                'total_vendas' => $totalVendasMes,
+            ];
+        }
+        $mesesData = array_reverse($mesesData); // Para exibir do mais antigo para o mais recente
+
+        // Dados para os gráficos (últimos 5 meses)
+        $labelsGraficos = [];
+        $dataVendas = [];
+        $dataFaturamento = [];
+
+        for ($i = 4; $i >= 0; $i--) { // De 4 meses atrás até o atual
+            $mes = Carbon::now()->subMonths($i);
+            $labelsGraficos[] = ucfirst($mes->translatedFormat('F'));
+
+            $vendas = Pedido::whereMonth('created_at', $mes->month)
+                ->whereYear('created_at', $mes->year)
+                ->count();
+
+            // Considera todos os status que implicam recebimento
+            $faturamento = Pedido::whereMonth('created_at', $mes->month)
+                ->whereYear('created_at', $mes->year)
+                ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
+                ->sum('total');
+
+            $dataVendas[] = $vendas;
+            $dataFaturamento[] = $faturamento;
+        }
+
+        return view('adm.vendas', compact('mesesData', 'labelsGraficos', 'dataVendas', 'dataFaturamento'));
     }
 }

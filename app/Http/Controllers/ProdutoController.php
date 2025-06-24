@@ -56,9 +56,9 @@ class ProdutoController extends Controller
                 'categorias.*' => 'exists:categorias,id_categoria',
                 'descricao' => 'required|string|max:255', // Alterado de 'variacao' para 'descricao'
                 'cores' => 'required|array',
-                'cores.*' => 'exists:cores,id', // Mantido pois agora enviamos IDs
+                'cores.*' => 'exists:cores,id_cor', // Mantido pois agora enviamos IDs
                 'tamanhos' => 'required|array',
-                'tamanhos.*' => 'exists:tamanhos,id', // Alterado para validar IDs
+                'tamanhos.*' => 'exists:tamanhos,id_tamanho', // Alterado para validar IDs
                 'estacao' => 'required|in:Verão,Inverno',
                 'marca' => 'required|string|max:255',
                 'valor' => 'required|numeric',
@@ -151,9 +151,9 @@ class ProdutoController extends Controller
                 'categorias.*' => 'exists:categorias,id_categoria',
                 'descricao' => 'required|string|max:255',
                 'cores' => 'required|array',
-                'cores.*' => 'exists:cores,id',
+                'cores.*' => 'exists:cores,id_cor',
                 'tamanhos' => 'required|array',
-                'tamanhos.*' => 'exists:tamanhos,id',
+                'tamanhos.*' => 'exists:tamanhos,id_tamanho',
                 'estacao' => 'required|in:Verão,Inverno',
                 'marca' => 'required|string|max:255',
                 'valor' => 'required|numeric',
