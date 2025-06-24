@@ -55,6 +55,12 @@ class Produto extends Model
         return $this->hasMany(ProdutoVariacoes::class, 'produto_id', 'id_produto'); // tava ProdutoVariacao
     }
 
+
+    public function avaliacao()
+    {
+        return $this->hasMany(Avaliacao::class, 'id_produto', 'id_produto');
+    }
+
     // No model Produto.php
     public function imagens()
     {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Tamanho;
 use App\Models\Categoria;
 use App\Models\Cor;
@@ -15,7 +16,7 @@ use DB; // Certifique-se que DB está importado
 use Illuminate\Support\Facades\{Auth, Http, Log, };
 use Carbon\Carbon;
 
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; // Importe a classe Request
 
 class DashboardController extends Controller
 {
@@ -50,7 +51,6 @@ class DashboardController extends Controller
         ];
 
         // Métrica: Vendas hoje (pedidos com status que indicam venda efetivada, criados hoje)
-        // Alterado para incluir mais status, para que a contagem seja mais abrangente.
         $vendasHoje = Pedido::whereDate('created_at', today())
             ->whereIn('status', $statusRecebidosOuConcluidos)
             ->count();
@@ -60,14 +60,23 @@ class DashboardController extends Controller
             ->whereIn('status', $statusRecebidosOuConcluidos)
             ->sum('total');
 
+        // --- Consulta para os últimos pedidos ---
+        $ultimosPedidos = Pedido::with('usuario')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+        // --- Fim da consulta de últimos pedidos ---
+
         // Métrica: Total de Avaliações
         $totalAvaliacoes = Avaliacao::count();
 
         // Carrega todas as notificações não lidas para exibição inicial
         $notificacoes = Auth::user()->unreadNotifications()->get();
 
-        return view('adm.dashboard', compact('vendasHoje', 'valorRecebido', 'totalAvaliacoes', 'notificacoes'));
+        // --- UM ÚNICO RETURN VIEW PASSANDO TODAS AS VARIÁVEIS ---
+        return view('adm.dashboard', compact('vendasHoje', 'valorRecebido', 'totalAvaliacoes', 'notificacoes', 'ultimosPedidos'));
     }
+
 
     /**
      * Retorna as métricas via AJAX para o dashboard principal (adm.dashboard).
@@ -282,12 +291,51 @@ class DashboardController extends Controller
     }
 
 
-
-    public function pdtestoque()
+    /**
+     * Exibe a página de produtos e estoque com funcionalidades de pesquisa e filtro.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function pdtestoque(Request $request)
     {
-        // Listagem de produtos com variações, cor e tamanho
-        $produtos = Produto::with(['variacoes.cor', 'variacoes.tamanho', 'categorias'])->get();
-        return view('adm.pdtestoque', compact('produtos'));
+        // 1. Obter parâmetros da requisição
+        $search = $request->query('search'); // Termo de pesquisa
+        $stockFilter = $request->query('stock_filter', 'todos'); // Filtro de estoque, padrão 'todos'
+
+        // 2. Iniciar a query para produtos com as relações necessárias
+        $produtosQuery = Produto::with(['imagens', 'categorias', 'variacoes.cor', 'variacoes.tamanho']);
+
+        // 3. Aplicar filtro de pesquisa por nome do produto
+        if ($search) {
+            $produtosQuery->where('nome_produto', 'like', '%' . $search . '%');
+        }
+
+        // 4. Aplicar filtro de estoque
+        if ($stockFilter === 'estoque') {
+            // Produtos com estoque: onde pelo menos uma variação tem estoque > 0
+            $produtosQuery->whereHas('variacoes', function ($query) {
+                $query->where('estoque', '>', 0);
+            });
+        } elseif ($stockFilter === 'semestoque') {
+            // Produtos sem estoque: onde NENHUMA variação tem estoque > 0 (todas são <= 0)
+            // E o produto realmente tem variações associadas (para não listar produtos sem variações como 'sem estoque').
+            $produtosQuery->whereDoesntHave('variacoes', function ($query) {
+                $query->where('estoque', '>', 0);
+            })->whereHas('variacoes'); 
+        }
+        // Se $stockFilter for 'todos', nenhuma condição de estoque é adicionada,
+        // exibindo todos os produtos (com e sem estoque).
+
+        // 5. Paginador
+        $produtos = $produtosQuery->paginate(10); // 10 produtos por página. Ajuste conforme sua preferência.
+
+        // 6. Passar os dados para a view
+        return view('adm.pdtestoque', [
+            'produtos' => $produtos,
+            'searchQuery' => $search, // Passa o termo de pesquisa para a view manter no input
+            'stockFilter' => $stockFilter, // Passa o filtro ativo para a view manter o botão ativo
+        ]);
     }
 
     public function cdtproduto()

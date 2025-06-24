@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cantinho da Isa - Produtos e Estoque</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset("css/adm/produtos e estoque.css") }}">
+    <link rel="stylesheet" href="{{ asset("css/adm/produtos e estoque.css") }}"> {{-- Certifique-se que o nome do CSS
+    está correto --}}
 </head>
+
 <body>
     <header class="main-header">
         <div class="container-fluid">
@@ -28,7 +31,7 @@
                             <i class="fas fa-user"></i> {{ Auth::user()->email }}
                         </div>
                     </div>
-                    
+
                     <ul class="nav flex-column sidebar-menu flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link menu-button" href="{{ route('adm.dashboard') }}">
@@ -61,7 +64,7 @@
                             </a>
                         </li>
                     </ul>
-                    
+
                     <div class="mt-auto p-3">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -72,7 +75,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content pt-2">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="mb-0">Produtos e Estoque</h3>
@@ -80,23 +83,47 @@
                         <i class="fas fa-plus"></i> Novo Produto
                     </a>
                 </div>
-                
+
+                {{-- Mensagens de sucesso/erro (se você tiver no seu controlador) --}}
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between mb-3">
+                        {{-- Formulário de Pesquisa e Filtros --}}
+                        <form action="{{ route('adm.pdtestoque') }}" method="GET"
+                            class="mb-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                             <div class="input-group" style="max-width: 300px;">
-                                <input type="text" class="form-control" id="pesquisaProduto" placeholder="Pesquisar produto">
-                                <button class="btn btn-outline-secondary" type="button" id="btnPesquisar">
+                                <input type="text" class="form-control" name="search" placeholder="Pesquisar produto"
+                                    value="{{ $searchQuery }}">
+                                <button class="btn btn-outline-secondary" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
-                            <div class="btn-group">
-                                <button class="btn btn-outline-secondary active" data-filter="todos">Todos</button>
-                                <button class="btn btn-outline-secondary" data-filter="estoque">Com Estoque</button>
-                                <button class="btn btn-outline-secondary" data-filter="semestoque">Sem Estoque</button>
+                            <div class="btn-group" role="group" aria-label="Filtro de Estoque">
+                                {{-- Os botões agora são do tipo 'submit' e enviam o valor do filtro --}}
+                                <button type="submit" name="stock_filter" value="todos"
+                                    class="btn btn-outline-secondary {{ $stockFilter === 'todos' ? 'active' : '' }}">Todos</button>
+                                <button type="submit" name="stock_filter" value="estoque"
+                                    class="btn btn-outline-secondary {{ $stockFilter === 'estoque' ? 'active' : '' }}">Com
+                                    Estoque</button>
+                                <button type="submit" name="stock_filter" value="semestoque"
+                                    class="btn btn-outline-secondary {{ $stockFilter === 'semestoque' ? 'active' : '' }}">Sem
+                                    Estoque</button>
                             </div>
-                        </div>
-                        
+                        </form>
+                        {{-- Fim do Formulário de Pesquisa e Filtros --}}
+
                         <div class="table-responsive">
                             <table class="table table-hover" id="tabelaProdutos">
                                 <thead>
@@ -115,7 +142,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($produtos as $produto)
+                                    @forelse ($produtos as $produto)
                                         <tr>
                                             <td>{{ $produto->nome_produto }}</td>
                                             <td>
@@ -123,10 +150,11 @@
                                                     @php
                                                         $mainImage = $produto->imagens->where('principal', true)->first() ?? $produto->imagens->first();
                                                     @endphp
-                                                    <img src="{{ asset($mainImage->caminho) }}" alt="Imagem de {{ $produto->nome_produto }}"
-                                                        width="60" class="product-img">
+                                                    <img src="{{ asset($mainImage->caminho) }}"
+                                                        alt="Imagem de {{ $produto->nome_produto }}" width="60"
+                                                        class="product-img">
                                                 @else
-                                                    <i class="fas fa-camera" style="font-size: 20px;"></i>
+                                                    <i class="fas fa-camera" style="font-size: 20px; color: #ccc;"></i>
                                                 @endif
                                             </td>
                                             <td>
@@ -137,55 +165,65 @@
                                             <td>
                                                 @foreach($produto->variacoes->unique('cor_id') as $variacao)
                                                     <span
-                                                        style="background-color: {{ $variacao->cor->codigo_hex }}; 
-                                                                    display: inline-block; width: 15px; height: 15px; border-radius: 50%;"></span>
-                                                    {{ $variacao->cor->nome }}@if(!$loop->last), @endif
+                                                        style="background-color: {{ $variacao->cor->codigo_hex ?? '#000' }}; 
+                                                                        display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle;"></span>
+                                                    {{ $variacao->cor->nome ?? 'N/A' }}@if(!$loop->last), @endif
                                                 @endforeach
                                             </td>
                                             <td>{{ $produto->marca }}</td>
                                             <td>
                                                 @foreach($produto->variacoes->unique('tamanho_id') as $variacao)
-                                                    {{ $variacao->tamanho->nome }}@if(!$loop->last), @endif
+                                                    {{ $variacao->tamanho->nome ?? 'N/A' }}@if(!$loop->last), @endif
                                                 @endforeach
                                             </td>
                                             <td>{{ $produto->modelo }}</td>
                                             <td>{{ $produto->estacao }}</td>
                                             <td>R${{ number_format($produto->preco, 2, ',', '.') }}</td>
                                             <td>
-                                                @foreach($produto->variacoes as $variacao)
-                                                    {{ $variacao->estoque }} ({{ $variacao->tamanho->nome }})@if(!$loop->last)<br>@endif
-                                                @endforeach
+                                                @forelse($produto->variacoes as $variacao)
+                                                    {{ $variacao->estoque }}
+                                                    ({{ $variacao->tamanho->nome ?? 'N/A' }})@if(!$loop->last)<br>@endif
+                                                @empty
+                                                    N/A
+                                                @endforelse
                                             </td>
                                             <td>
                                                 <!-- Botão Editar -->
-                                                <a href="{{ route('produtos.edit', $produto->id_produto) }}" class="btn btn-sm btn-outline-primary me-1"
-                                                    title="Editar produto">
+                                                <a href="{{ route('produtos.edit', $produto->id_produto) }}"
+                                                    class="btn btn-sm btn-outline-primary me-1" title="Editar produto">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
 
                                                 <!-- Botão Excluir -->
-                                                <form action="{{ route('produtos.destroy', $produto->id_produto) }}" method="POST"
-                                                    class="d-inline">
+                                                <form action="{{ route('produtos.destroy', $produto->id_produto) }}"
+                                                    method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Excluir produto"
-                                                        onclick="showConfirmModal(this)">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        title="Excluir produto" onclick="showConfirmModal(this)">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="11" class="text-center py-4 text-muted">Nenhum produto encontrado
+                                                com os critérios de busca e filtro.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
-                        
+
+                        {{-- Paginação --}}
                         <nav aria-label="Navegação de páginas">
-                            <ul class="pagination justify-content-center mt-3" id="paginacao">
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            </ul>
+                            {{ $produtos->appends(['search' => $searchQuery, 'stock_filter' => $stockFilter])->links('pagination::bootstrap-5') }}
+                            {{--
+                            O método appends() garante que os parâmetros de pesquisa e filtro sejam mantidos
+                            ao clicar nos links de paginação.
+                            'pagination::bootstrap-5' especifica o template de paginação do Bootstrap 5.
+                            --}}
                         </nav>
                     </div>
                 </div>
@@ -193,7 +231,7 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação -->
+    <!-- Modal de Confirmação (Mantido como estava) -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -247,6 +285,12 @@
                 modal.style.display = 'none';
             }
         });
+
+        // Com o formulário GET, o JavaScript para pesquisa e filtro é simplificado
+        // A lógica principal é tratada pelo servidor.
+        // O `value="{{ $searchQuery }}"` no input e a classe `{{ $stockFilter === 'todos' ? 'active' : '' }}`
+        // nos botões garantem que o estado seja persistido após o envio.
     </script>
 </body>
+
 </html>

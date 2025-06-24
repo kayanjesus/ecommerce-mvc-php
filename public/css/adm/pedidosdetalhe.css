@@ -1,482 +1,285 @@
-/* Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    /* Use 'Segoe UI' as a fallback, but Bootstrap usually sets its own font stack */
-    font-family: 'Segoe UI', sans-serif;
+:root {
+    --primary-color: #9b2a2a;
+    --primary-light: #f3d8d8;
+    --primary-lighter: #f9ebeb;
+    --primary-dark: #7a2121;
+    --primary-darker: #5c1919;
+    --sidebar-bg: #f5f5f5;
+    --button-border: #ddd;
 }
 
-body {
-    background-color: #f9f9f9;
-    color: #333;
-    line-height: 1.6; /* Improve readability */
-}
-
-a {
-    text-decoration: none; /* Default for all links */
-}
-
-/* --- Header --- */
+/* Cabeçalho Principal */
 .main-header {
-    background-color: #9b2a2a; /* Deep Red */
-    padding: 15px 30px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.header-brand {
+    background-color: var(--primary-color);
     color: white;
-    font-size: 1.8rem;
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.header-brand:hover {
-    color: #e0e0e0;
-}
-
-/* --- Admin Layout Wrapper --- */
-.admin-wrapper {
-    display: flex;
-    /* Calculate height considering the header */
-    min-height: calc(100vh - 65px); /* Adjust based on actual header height */
-}
-
-/* --- Sidebar --- */
-.sidebar {
-    background-color: #d9d9d9; /* Light Gray */
-    padding: 25px;
-    width: 280px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05); /* Shadow to the right */
-    flex-shrink: 0; /* Prevent sidebar from shrinking */
-}
-
-.user-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.user-info .profile-icon {
-    font-size: 5rem;
-    color: #9b2a2a; /* Deep Red */
-    margin-bottom: 15px;
-}
-
-/* Using .user-info .form-control for input, assuming Bootstrap's form-control class */
-.user-info .form-control {
-    border: none;
-    background-color: transparent;
-    font-weight: bold;
-    color: #333;
-    font-size: 1.1rem;
-    text-align: center;
+    padding: 12px 0;
     width: 100%;
-    padding: 5px 0;
-    cursor: default;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.menu {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Allows menu to take available space */
-}
-
-.menu-btn {
-    background-color: white;
-    border: none;
-    margin-bottom: 12px;
-    padding: 15px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    width: 100%;
-    text-align: left;
-    color: #555;
-    font-size: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for buttons */
-    display: flex; /* For icon and text alignment */
-    align-items: center;
-    gap: 10px; /* Space between icon and text */
-}
-
-.menu-btn:hover {
-    background-color: #f0f0f0;
-    color: #9b2a2a;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.menu-btn.active {
-    background-color: #9b2a2a; /* Deep Red */
+.store-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+    text-transform: uppercase;
     color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.logout-form {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.logout-btn {
-    background-color: #dc3545; /* Bootstrap Danger Red */
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    font-size: 1.1rem;
-}
-
-.logout-btn:hover {
-    background-color: #c82333; /* Darker Red on hover */
-}
-
-/* --- Main Content Area --- */
-.content-area {
-    flex: 1; /* Allows content area to fill remaining space */
-    padding: 30px;
+/* Layout Principal */
+body {
+    padding-top: 56px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f9f9f9;
 }
 
-.pedidos-section {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08); /* Stronger shadow for main section */
+/* Sidebar */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    height: calc(100vh - 56px);
+    position: fixed;
+    width: 250px;
+    top: 56px;
+    padding: 0;
+    border-right: 1px solid #e0e0e0;
 }
 
-.section-title {
-    color: #9b2a2a; /* Deep Red */
-    margin-bottom: 25px;
-    font-weight: 700;
-    font-size: 1.8rem;
-    text-align: center;
+.admin-container {
+    padding: 8px 5px;
 }
 
-.section-title-underline {
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-/* --- Alerts (using Bootstrap's .alert class directly) --- */
-.alert {
-    margin-bottom: 20px;
-    border-radius: 8px;
-}
-
-/* --- Pedido Card Links & Styles (for the main pedido list page) --- */
-/* These styles might not be strictly necessary for 'pedidosdetalhe.css'
-   but are kept for completeness if this CSS is shared. */
-.pedidos-grid {
-    display: block;
-}
-
-.pedido-card-link {
-    display: block;
+.admin-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: #555;
+    background-color: white;
+    border: 1px solid var(--button-border);
+    border-radius: 6px;
     text-decoration: none;
-    color: inherit;
-    margin-bottom: 25px;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
 }
 
-.pedidos-grid .pedido-card-link:last-child {
-    margin-bottom: 0;
+.admin-button:hover {
+    background-color: var(--primary-lighter);
+    color: var(--primary-dark);
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
 }
 
-.pedido-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: #fff;
+.admin-button i {
+    font-size: 1.1rem;
+    color: var(--primary-color);
 }
 
-.pedido-card-link:hover .pedido-card {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* --- Card Headers (reused for details page) --- */
-.card-header-expanded {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top-left-radius: 0.5rem; /* Match card-body border-radius */
-    border-top-right-radius: 0.5rem;
-}
-
-/* --- Status Badges --- */
-.status-badges .badge { /* For list view */
-    padding: 0.6em 0.8em;
-    font-size: 0.85em;
-    font-weight: 600;
-    border-radius: 0.375rem;
-    vertical-align: middle;
-}
-
-.status-badge-lg { /* For detail view */
-    font-size: 1.1em;
-    padding: 0.5em 1em;
-    border-radius: 0.5rem;
-}
-
-/* --- Info Blocks (e.g., Address, Payment) --- */
-.info-block {
-    background-color: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid #e9ecef;
-}
-
-.info-block h6 {
-    color: #495057;
-    margin-bottom: 1rem;
-}
-
-.info-block p {
-    margin-bottom: 0.5rem;
-    color: #555; /* Slightly darker text for readability */
-}
-
-/* --- Item Details Card (for products within a single order) --- */
-.item-detail-card {
+.menu-button {
+    color: #555;
+    padding: 10px 15px;
+    margin: 4px 10px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    border-radius: 0.5rem;
-    background-color: #fff;
-    margin-bottom: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow for item cards */
+    gap: 10px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    border: 1px solid var(--button-border);
+    background-color: white;
+    text-decoration: none;
 }
 
-.item-detail-card img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 0.25rem;
-    flex-shrink: 0; /* Prevent image from shrinking */
-}
-
-.item-detail-card .item-info {
-    flex-grow: 1;
-}
-
-.item-detail-card .item-name {
-    font-weight: bold;
-    color: #343a40;
-    margin-bottom: 0.25rem; /* Space between name and qty/price */
-}
-
-.item-detail-card .item-qty-price {
-    font-size: 0.9em;
-    color: #6c757d;
-}
-
-.item-detail-card .item-total {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #333;
-    flex-shrink: 0; /* Prevent total from shrinking */
-    margin-left: auto; /* Push to the right */
-}
-
-/* --- Forms within sections (e.g., Status and Tracking) --- */
-.form-status-rastreio {
-    padding: 20px;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    background-color: #fff;
-}
-
-.form-status-rastreio h5 {
-    margin-bottom: 15px;
-    color: #343a40;
-    font-weight: 600;
-}
-
-.form-status-rastreio .form-group { /* Better to use mb-3/mb-4 from Bootstrap directly on divs */
-    margin-bottom: 15px;
-}
-
-/* --- Empty State --- */
-.empty-state {
-    color: #6c757d;
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    padding: 50px 20px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+.menu-button i {
+    width: 20px;
     text-align: center;
+    font-size: 1.1rem;
 }
 
-.empty-state i {
-    color: #9b2a2a;
-    font-size: 3rem; /* Make icon larger */
-    margin-bottom: 15px;
+.menu-button:hover {
+    background-color: var(--primary-lighter);
+    color: var(--primary-dark);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Pagination (Standard Bootstrap styling with color override) --- */
-.pagination {
-    margin-top: 30px;
+.menu-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    border-color: var(--primary-dark);
 }
 
-.page-item .page-link {
-    color: #9b2a2a; /* Deep Red */
-    border-color: #9b2a2a;
-}
-
-.page-item.active .page-link {
-    background-color: #9b2a2a;
-    border-color: #9b2a2a;
+.menu-button.active i {
     color: white;
 }
 
-.page-item.disabled .page-link {
-    color: #6c757d;
-    border-color: #dee2e6;
+.logout-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    color: #dc3545;
+    background-color: white;
+    border: 1px solid #f1aeb5;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin: 10px;
+    font-size: 0.9rem;
 }
 
-/* --- Responsive Adjustments --- */
+.logout-button:hover {
+    background-color: #f8d7da;
+    color: #b02a37;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    min-height: calc(100vh - 56px);
+}
+
+/* Estilos específicos para a tela de detalhes */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+.product-image-container {
+    position: relative;
+}
+
+.image-preview {
+    width: 100%;
+    height: 350px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-name {
+    color: var(--primary-darker);
+    margin-bottom: 5px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control-static {
+    padding: 8px 0;
+    margin-bottom: 15px;
+    display: block;
+    border-bottom: 1px solid #eee;
+}
+
+.avaliacao-item {
+    padding: 10px 0;
+}
+
+.avaliacao-item:last-child {
+    padding-bottom: 0;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-darker);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.table th {
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+
+/* Responsividade */
 @media (max-width: 992px) {
     .sidebar {
         width: 220px;
-        padding: 15px;
     }
 
-    .menu-btn {
-        padding: 12px 15px;
-        font-size: 0.95rem; /* Slightly smaller font */
-    }
-
-    .content-area {
-        padding: 20px;
-    }
-
-    .section-title {
-        font-size: 1.6rem;
+    .main-content {
+        margin-left: 220px;
     }
 }
 
 @media (max-width: 768px) {
-    .admin-wrapper {
-        flex-direction: column; /* Stack sidebar and content */
+    .main-header {
+        padding: 8px 0;
+    }
+
+    .store-title {
+        font-size: 1.2rem;
+        padding-left: 15px;
     }
 
     .sidebar {
         width: 100%;
+        height: auto;
+        position: relative;
+        top: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
         padding: 15px;
-        flex-direction: row; /* Make sidebar horizontal */
-        flex-wrap: wrap;
-        justify-content: center;
-        border-bottom: 1px solid #e0e0e0;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
 
-    .user-info {
-        display: none; /* Hide user info on small screens for compactness */
+    .image-preview {
+        height: 250px;
     }
 
-    .menu {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px; /* Space between menu items */
-        margin-bottom: 15px;
-        flex-grow: unset; /* Remove flex-grow when horizontal */
-    }
-
-    .menu-btn {
-        width: auto; /* Let buttons size to content */
-        margin-bottom: 0;
-        font-size: 0.9rem;
-        padding: 10px 15px;
-    }
-
-    .logout-form {
+    .col-md-4,
+    .col-md-8 {
         width: 100%;
-        text-align: center;
-        margin-top: 15px;
-        padding-top: 15px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    .logout-btn {
-        width: auto;
-        padding: 10px 20px;
-        font-size: 1rem;
-    }
-
-    .content-area {
-        padding: 15px;
-    }
-
-    .pedidos-section {
-        padding: 20px;
-    }
-
-    .item-detail-card {
-        flex-direction: column; /* Stack item details vertically */
-        align-items: flex-start;
-    }
-
-    .item-detail-card .item-total {
-        margin-left: 0; /* Remove auto margin */
-        width: 100%; /* Take full width */
-        text-align: right; /* Align total to right */
-        margin-top: 0.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .main-header {
-        padding: 10px 15px;
-    }
-
-    .header-brand {
-        font-size: 1.5rem;
-    }
-
-    .section-title {
-        font-size: 1.4rem;
-        text-align: left; /* Align title left on very small screens */
-    }
-
-    .pedido-card .card-header h5 {
-        font-size: 1.1rem;
-    }
-
-    .pedido-card .status-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        margin-top: 5px;
-    }
-
-    .card-header-expanded {
+    .d-flex.justify-content-between.align-items-center.mb-4 {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 15px;
     }
-    
+
+    .d-flex.justify-content-between.align-items-center.mb-4>div {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
 }

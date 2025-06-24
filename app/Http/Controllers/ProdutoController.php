@@ -137,6 +137,9 @@ class ProdutoController extends Controller
         $cores = Cor::all();
         $tamanhos = Tamanho::all();
 
+        $produto->load(['imagens', 'variacoes.cor', 'variacoes.tamanho', 'categorias', 'avaliacao.usuario']);
+
+
         return view('adm.edit', compact('produto', 'categorias', 'cores', 'tamanhos'));
     }
 

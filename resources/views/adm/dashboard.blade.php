@@ -97,7 +97,8 @@
                             <div class="card-body text-center">
                                 <h5 class="card-title">VALOR RECEBIDO</h5>
                                 <p class="card-value" id="valor-recebido">R$
-                                    {{ number_format($valorRecebido ?? 0, 2, ',', '.') }}</p>
+                                    {{ number_format($valorRecebido ?? 0, 2, ',', '.') }}
+                                </p>
                                 <p class="card-subtext">hoje</p>
                             </div>
                         </div>
@@ -122,17 +123,49 @@
                             </div>
                             <div class="card-body">
                                 <div class="list-group">
-                                    <!-- Aqui você pode adicionar a lista dinâmica de últimos pedidos se quiser -->
-                                    <a href="{{ route('adm.pedidos') }}" class="list-group-item list-group-item-action">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1">Ver todos os pedidos</h6>
+                                    @if(isset($ultimosPedidos) && $ultimosPedidos->count() > 0)
+                                        @foreach($ultimosPedidos as $pedido)
+                                                                    <a href="{{ route('adm.pedidos.detalhes', $pedido->id_pedido) }}"
+                                                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                                        <div>
+                                                                            <h6 class="mb-1">Pedido #{{ $pedido->id_pedido }}</h6>
+                                                                            <p class="mb-1 text-muted">
+                                                                                Cliente: {{ $pedido->usuario->name ?? 'N/A' }}
+                                                                            </p>
+                                                                            <p class="mb-1">
+                                                                                Total: R$ {{ number_format($pedido->total, 2, ',', '.') }}
+                                                                            </p>
+                                                                        </div>
+                                                                        <small class="text-end">
+                                                                            {{ $pedido->created_at->diffForHumans() }} <br>
+                                                                            <span class="badge {{
+                                            $pedido->status == 'pago' ? 'bg-success' :
+                                            ($pedido->status == 'processando' ? 'bg-info' :
+                                                ($pedido->status == 'enviado' ? 'bg-primary' :
+                                                    ($pedido->status == 'entregue' ? 'bg-secondary' :
+                                                        ($pedido->status == 'cancelado' ? 'bg-danger' : 'bg-warning'))))
+                                                                }}">
+                                                                                {{ ucfirst(str_replace('_', ' ', $pedido->status)) }}
+                                                                            </span>
+                                                                        </small>
+                                                                    </a>
+                                        @endforeach
+                                    @else
+                                        <div class="list-group-item list-group-item-action">
+                                            <p class="mb-1 text-center">Nenhum pedido recente.</p>
+                                        </div>
+                                    @endif
+                                    <a href="{{ route('adm.pedidos') }}"
+                                        class="list-group-item list-group-item-action mt-2">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <h6 class="mb-0">Ver todos os pedidos</h6>
                                             <i class="fas fa-arrow-right"></i>
                                         </div>
                                     </a>
                                 </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                     <div class="col-md-6">
                         <div class="card">
