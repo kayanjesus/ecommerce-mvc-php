@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Avaliacao;
 
 class Produto extends Model
 {
@@ -27,6 +28,31 @@ class Produto extends Model
     public $timestamps = true;
 
     // Muitos para muitos: Produto-Categoria
+
+    // App/Models/Produto.php
+    public function avaliacoes()
+    {
+        // 'id_produto' é a FK em 'avaliacoes', 'id_produto' é a PK em 'produtos'
+        return $this->hasMany(Avaliacao::class, 'id_produto', 'id_produto');
+    }
+    public function getMediaAvaliacaoAttribute(): float
+    {
+        // Usa o relacionamento "avaliacoes" para calcular a média APENAS para este produto.
+        // Se não houver avaliações, retorna 0.
+        return round($this->avaliacoes()->avg('nota') ?? 0, 1);
+    }
+
+    /**
+     * Retorna o número total de avaliações do produto.
+     * Accessor: $produto->total_avaliacoes
+     * @return int
+     */
+    public function getTotalAvaliacoesAttribute(): int
+    {
+        // Usa o relacionamento "avaliacoes" para contar APENAS as avaliações deste produto.
+        return $this->avaliacoes()->count();
+    }
+
     public function categorias()
     {
         return $this->belongsToMany(Categoria::class, 'categoria_produto', 'id_produto', 'id_categoria');

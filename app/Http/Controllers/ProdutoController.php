@@ -127,8 +127,27 @@ class ProdutoController extends Controller
     }
 
     // Métodos placeholders caso precise no futuro
-    public function show(string $id)
+    public function show($id_produto)
     {
+        $produto = Produto::with(['avaliacoes.usuario'])->findOrFail($id_produto);
+
+        // PASSO DE DEBUG 1: CONFIRMAR O ID DO PRODUTO ATUAL
+        \Log::info("ID do Produto Visualizado: " . $produto->id_produto);
+
+        // PASSO DE DEBUG 2: VERIFICAR AS AVALIAÇÕES CARREGADAS (SE HOUVER)
+        if ($produto->avaliacoes->isEmpty()) {
+            \Log::warning("Nenhuma avaliação encontrada para o produto ID: " . $produto->id_produto);
+        } else {
+            \Log::info("Avaliações encontradas: " . $produto->avaliacoes->count());
+            // Se este log retornar um número > 0, o problema está na sua view details.blade.php.
+        }
+
+        // DESCOMENTE ESTA LINHA E RECARREGUE A PÁGINA:
+        // dd($produto->avaliacoes->toArray()); 
+
+        return view('home.details', [
+            'produto' => $produto,
+        ]);
     }
     public function edit($id)
     {

@@ -13,7 +13,9 @@
 <body>
     <header class="topo">
         <div class="logo">
-            <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Cantinho da Isa" />
+            <a href="{{ route('home.index') }}">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
+            </a>
         </div>
         <div class="barra-progresso">
             <div class="etapa">
@@ -94,6 +96,12 @@
     </main>
 
     <footer>
+        <section class="top-footer">
+            <h3>Cantinho da Isa</h3>
+            <p>Crianças crescem rápido, não é mesmo? Em pouco tempo, as roupinhas vão ficando mais curtas, e é preciso
+                renovar os guarda-roupas. Aqui no Cantinho da Isa, temos o melhor vestuário para os pequenos, e com os
+                menores preços. Venha conferir. </p>
+        </section>
         <div class="footer-container">
             <div class="footer-column">
                 <h3>Institucional</h3>
@@ -113,9 +121,21 @@
             </div>
             <div class="footer-column">
                 <h3>Compre Seguro</h3>
+                <p>Suas compras são processadas com segurança através do <strong>PagSeguro</strong>, garantindo proteção
+                    total de seus dados e tranquilidade nas transações.</p>
+                <ul class="payment-methods">
+                    <li><img src="{{ asset('img/pagseguro.png') }}" alt="PagSeguro"></li>
+                    <li><img src="{{ asset('img/mastercard.png') }}" alt="Mastercard"></li>
+                    <li><img src="{{ asset('img/pix.png') }}" alt="Pix"></li>
+                </ul>
             </div>
+
+
         </div>
     </footer>
+
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

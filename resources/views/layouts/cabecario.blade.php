@@ -15,7 +15,8 @@
     <header>
         <div class="header-top">
             <div class="social-links">
-                <a href="https://www.instagram.com/cantinho_das_isas_?igsh=MXVjbDF6cDBpMjR4cw=="><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="https://www.instagram.com/cantinho_das_isas_?igsh=MXVjbDF6cDBpMjR4cw=="><i
+                        class="fab fa-instagram fa-lg"></i></a>
                 <a href="https://wa.me/5511999999999"><i class="fab fa-whatsapp fa-lg"></i></a>
             </div>
             <nav class="user-nav">
@@ -93,7 +94,16 @@
             </div>
             <div class="footer-column">
                 <h3>Compre Seguro</h3>
+                <p>Suas compras são processadas com segurança através do <strong>PagSeguro</strong>, garantindo proteção
+                    total de seus dados e tranquilidade nas transações.</p>
+                <ul class="payment-methods">
+                    <li><img src="{{ asset('img/pagseguro.png') }}" alt="PagSeguro"></li>
+                    <li><img src="{{ asset('img/mastercard.png') }}" alt="Mastercard"></li>
+                    <li><img src="{{ asset('img/pix.png') }}" alt="Pix"></li>
+                </ul>
             </div>
+
+
         </div>
     </footer>
     <script src="{{ asset("js/carrosel.js") }}"></script>

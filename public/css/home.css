@@ -537,7 +537,7 @@ button {
 
 
 button:hover {
-    background-color: #d62839;
+   background-color: #7b1d1d;
 }
 
 .season-container {
@@ -582,6 +582,34 @@ button:hover {
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
 }
 
+
+/* Estilo para os métodos de pagamento */
+.payment-methods {
+    display: flex;
+    gap: 10px;
+    /* espaço entre as imagens */
+    margin-top: 10px;
+}
+
+.payment-methods li {
+    list-style: none;
+}
+
+.payment-methods img {
+    width: 80px;
+    /* tamanho fixo */
+    height: auto;
+    /* mantém proporção */
+    filter: grayscale(20%);
+    /* opcional: deixa mais neutro */
+    transition: transform 0.2s ease-in-out;
+}
+
+.payment-methods img:hover {
+    transform: scale(1.2);
+    /* zoom suave no hover */
+}
+
 .footer {
     padding: 30px;
     background-color: #9b2a2a;
@@ -617,6 +645,7 @@ button:hover {
 .footer-column ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .footer-column ul li {
@@ -635,6 +664,9 @@ button:hover {
 .footer-column p {
     color: gray;
 }
+
+
+
 
 .customer-reviews {
     background-color: #f9f9f9;
@@ -910,20 +942,3 @@ input[type="text"]:focus {
     border-color: #ccc !important;
     /* ou a cor padrão da sua borda */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

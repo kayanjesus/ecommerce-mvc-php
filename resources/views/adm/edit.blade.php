@@ -136,6 +136,7 @@
                                                     <span>Nenhuma imagem</span>
                                                 </div>
                                             @endif
+                                            
                                         </div>
                                         
                                         <div class="mt-3 d-flex justify-content-between">
@@ -151,23 +152,7 @@
                                         <input type="hidden" name="removed_images" id="removedImages">
                                         <input type="hidden" name="main_image_id" id="mainImageId" value="{{ $mainImage->id ?? '' }}">
                                         
-                                        <!-- Miniaturas para navegação -->
-                                        <div class="thumbnail-container mt-3">
-                                            @foreach($produto->imagens as $imagem)
-                                                <div class="thumbnail-wrapper">
-                                                    <img src="{{ asset($imagem->caminho) }}" 
-                                                         class="thumbnail {{ $imagem->principal ? 'active' : '' }}" 
-                                                         onclick="changeMainImage(this, {{ $imagem->id }})"
-                                                         data-image-id="{{ $imagem->id }}" />
-                                                    <div class="thumbnail-actions">
-                                                        <button type="button" onclick="removeImage(this, {{ $imagem->id }})">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                            <div id="newThumbnailsContainer"></div>
-                                        </div>
+                                        
                                     </div>
                                     
                                     <div class="card mb-3">

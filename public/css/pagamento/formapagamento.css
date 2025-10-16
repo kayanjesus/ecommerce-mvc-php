@@ -143,10 +143,24 @@ body {
     cursor: pointer;
     font-size: 16px;
   }
+
+  .concluir:hover {
+    background-color: #7a2020;
+  }
   
-  .footer {
-    padding: 20px;
-    background-color: #9b2a2a;    
+/* Footer */
+.footer {
+    padding: 30px;
+    background-color: #9b2a2a;
+}
+
+.top-footer {
+    text-align: center;
+    padding: 30px;
+    background-color: #9b2a2a;
+    border-top: 2px solid #fff;
+    color: #fff;
+    font-weight: bold;
 }
 
 .footer-container {
@@ -164,12 +178,13 @@ body {
 .footer-column h3 {
     font-size: 16px;
     color: black;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .footer-column ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .footer-column ul li {
@@ -187,4 +202,32 @@ body {
 
 .footer-column p {
     color: gray;
+}
+
+
+/* Estilo para os métodos de pagamento */
+.payment-methods {
+    display: flex;
+    gap: 10px;
+    /* espaço entre as imagens */
+    margin-top: 10px;
+}
+
+.payment-methods li {
+    list-style: none;
+}
+
+.payment-methods img {
+    width: 80px;
+    /* tamanho fixo */
+    height: auto;
+    /* mantém proporção */
+    filter: grayscale(20%);
+    /* opcional: deixa mais neutro */
+    transition: transform 0.2s ease-in-out;
+}
+
+.payment-methods img:hover {
+    transform: scale(1.2);
+    /* zoom suave no hover */
 }

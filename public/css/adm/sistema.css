@@ -144,7 +144,7 @@ body {
 .main-content {
     margin-left: 250px;
     padding: 15px 20px;
-    background-color: #faf5f5;
+    
     min-height: calc(100vh - 56px);
     margin-top: 56px;
 }
@@ -266,4 +266,7 @@ body {
     .card {
         margin-bottom: 12px;
     }
+    
+
+
 }

@@ -26,7 +26,7 @@ class NotificacaoController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('admin.pedidos', compact('pedidos'));
+        return view('adm.pedidos', compact('pedidos'));
     }
 
     /**
@@ -207,10 +207,28 @@ class NotificacaoController extends Controller
         return response()->json(['success' => true]);
     }
 
+
     // Se houver um método 'marcarTodasComoLidas' em suas rotas e você quer que ele seja aqui:
     // public function marcarTodasComoLidas()
     // {
     //     auth()->user()->unreadNotifications->markAsRead();
     //     return response()->json(['success' => true]);
     // }
+
+
+public function metricas()
+{
+    // 💡 IMPORTANTE: Substitua os valores abaixo pela sua lógica correta de banco de dados
+    
+    // Se o seu DashboardController já tem esses valores, você pode usá-los aqui.
+    // Exemplo: $vendasHoje = Pedido::whereDate('created_at', today())->where('status', 'pago')->count();
+
+    $data = [
+        'vendasHoje' => 0, // Inicie com zero ou a contagem real
+        'valorRecebido' => 0.00, // Inicie com zero ou o valor real
+        'avaliacoes' => 0, // Inicie com zero ou a contagem real
+    ];
+
+    return response()->json($data);
+}
 }

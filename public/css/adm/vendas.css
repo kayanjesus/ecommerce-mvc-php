@@ -32,7 +32,7 @@
 body {
     padding-top: 56px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f9f9f9;
+    background-color: #faf5f5;
 }
 
 .sidebar {
@@ -140,7 +140,7 @@ body {
 .main-content {
     margin-left: 250px;
     padding: 15px 20px;
-    background-color: #f9f9f9;
+    
     min-height: calc(100vh - 56px);
     margin-top: 56px;
 }

@@ -204,15 +204,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
 
     <script>
-        function atualizarMetricas() {
-            $.get('{{ route("adm.metricas") }}', function (data) {
-                $('#vendas-hoje').text(data.vendasHoje);
-                $('#valor-recebido').text('R$ ' + data.valorRecebido.toLocaleString('pt-BR', {
-                    minimumFractionDigits: 2
-                }));
-                $('#avaliacoes').text(data.avaliacoes);
-            });
-        }
+        
 
         function carregarNotificacoes() {
             $.get('{{ route("adm.notificacoes") }}', function (data) {

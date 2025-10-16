@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        ---
+
         <main class="blocos">
             <a href="{{ route('home.categoria', ['id_categoria' => 4, 'genero' => 'Masculino']) }}">
                 <section class="bloco menino">
@@ -58,7 +58,7 @@
                 </section>
             </a>
         </main>
-        ---
+
 
         <section class="categorias">
             <h2 class="titulo-categorias">Navegue pelas Categorias</h2>
@@ -76,7 +76,7 @@
             </div>
         </section>
 
-        <section class="categorias">F
+        <section class="categorias">
             <h2 class="titulo-categorias">Produtos</h2>
             <div class="faixa"></div>
             <div class="item"></div>
@@ -135,30 +135,31 @@
         </div>
     </main>
 
-   <section class="customer-reviews">
-    <h2 class="titulo-avaliacoes">Avaliações dos Clientes</h2>
-    <div class="faixa"></div>
-    <div class="reviews-container">
-        @forelse($avaliacoes as $avaliacao)
-            <div class="review">
-                <p class="review-texto">"{{ $avaliacao->comentario }}"</p>
-                <div class="review-rating">
-                    @for ($i = 1; $i <= 5; $i++)
-                        @if ($i <= $avaliacao->nota)
-                            <i class="fas fa-star"></i> {{-- Estrela cheia --}}
-                        @else
-                            <i class="far fa-star"></i> {{-- Estrela vazia (contorno) --}}
-                        @endif
-                    @endfor
+    <section class="customer-reviews">
+        <h2 class="titulo-avaliacoes">Avaliações dos Clientes</h2>
+        <div class="faixa"></div>
+        <div class="reviews-container">
+            @forelse($avaliacoes as $avaliacao)
+                <div class="review">
+                    <p class="review-texto">"{{ $avaliacao->comentario }}"</p>
+                    <div class="review-rating">
+                        @for ($i = 1; $i <= 5; $i++)
+                            @if ($i <= $avaliacao->nota)
+                                <i class="fas fa-star"></i> {{-- Estrela cheia --}}
+                            @else
+                                <i class="far fa-star"></i> {{-- Estrela vazia (contorno) --}}
+                            @endif
+                        @endfor
+                    </div>
+                    <span class="review-author">- {{ $avaliacao->usuario->name ?? 'Anônimo' }}</span>
                 </div>
-                <span class="review-author">- {{ $avaliacao->usuario->name ?? 'Anônimo' }}</span>
-            </div>
-        @empty
-            <div class="text-center py-8">
-                <p class="text-gray-600 text-lg">Ainda não há avaliações de clientes para exibir. Seja o primeiro a avaliar!</p>
-            </div>
-        @endforelse
-    </div>
-</section>
+            @empty
+                <div class="text-center py-8">
+                    <p class="text-gray-600 text-lg">Ainda não há avaliações de clientes para exibir. Seja o primeiro a avaliar!
+                    </p>
+                </div>
+            @endforelse
+        </div>
+    </section>
 
 @endsection {{-- FIM DO CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}

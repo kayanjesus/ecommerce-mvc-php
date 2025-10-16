@@ -1,6 +1,6 @@
 LINK SITE-->https://ethereal.email/login
-EMAIL-> arvilla20@ethereal.email
-SENHA-> rf1aYprb4P9aVwgqqq
+EMAIL-> london.graham@ethereal.email
+SENHA-> ApmuzwM13EWtRuF7R2
 
 
 .ENV COPIAR E COLAR

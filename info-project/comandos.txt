@@ -12,7 +12,7 @@ Rodar Projeto -> php artisan serve
 Rodar Projeto -> npm run dev
 Criar Banco   -> php artisan migrate
 Imgs Aparecer -> php artisan storage:link
-Tunel Net     -> ngrok http 8000 (linkar com a sua conta ngrok)
+Tunel Net     -> ngrok http 8000 (linkar com a sua conta ngrok) ->mudar o link no ngrok e no pagamentocontroler
 Notificações  -> php artisan queue:work (Desnecessario)
 
 --------------------------------------------------------------

@@ -1,97 +1,97 @@
 body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #fff9f9;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff9f9;
 }
 
 .topo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 40px;
-  border-bottom: 30px solid #932929;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    border-bottom: 30px solid #932929;
 }
 
 .logo img {
-  height: 120px;
+    height: 120px;
 }
 
 .barra-progresso {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 1000px;
-  margin-left: auto;
-  margin-right: 30px;
-  padding-top: 10px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1000px;
+    margin-left: auto;
+    margin-right: 30px;
+    padding-top: 10px;
 }
 
 .barra-progresso::before {
-  content: '';
-  position: absolute;
-  top: 41px;
-  left: 20px;
-  right: 0px;
-  height: 5px;
-  background-color: #ddd;
-  z-index: 0;
-  width: 94%;
+    content: '';
+    position: absolute;
+    top: 41px;
+    left: 20px;
+    right: 0px;
+    height: 5px;
+    background-color: #ddd;
+    z-index: 0;
+    width: 94%;
 }
 
 .etapa {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 .texto-etapa {
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #aaa;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #aaa;
 }
 
 .bolinha {
-  width: 16px;
-  height: 16px;
-  background-color: #aaa;
-  border-radius: 50%;
-  z-index: 1;
+    width: 16px;
+    height: 16px;
+    background-color: #aaa;
+    border-radius: 50%;
+    z-index: 1;
 }
 
 .etapa.ativo .bolinha {
-  background-color: #932929;
+    background-color: #932929;
 }
 
 .etapa.ativo .texto-etapa {
-  color: #932929;
-  font-weight: bold;
+    color: #932929;
+    font-weight: bold;
 }
-  
-  .confirmacao-container {
+
+.confirmacao-container {
     display: flex;
     justify-content: center;
     padding: 60px 20px;
-  }
-  
-  .confirmacao-box {
+}
+
+.confirmacao-box {
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 10px;
     padding: 70px;
     text-align: center;
     width: 700px;
-  }
-  
-  .mensagem {
+}
+
+.mensagem {
     font-size: 18px;
     margin-bottom: 20px;
-  }
-  
-  .botao-voltar {
+}
+
+.botao-voltar {
     display: inline-block;
     margin-top: 20px;
     padding: 10px 20px;
@@ -100,15 +100,25 @@ body {
     text-decoration: none;
     border-radius: 6px;
     font-size: 17px;
-  }
-  
-  .botao-voltar:hover {
+}
+
+.botao-voltar:hover {
     background-color: #6e1f1f;
-  }
-  
-  .footer {
-    padding: 20px;
-    background-color: #9b2a2a;    
+}
+
+/* Footer */
+.footer {
+    padding: 30px;
+    background-color: #9b2a2a;
+}
+
+.top-footer {
+    text-align: center;
+    padding: 30px;
+    background-color: #9b2a2a;
+    border-top: 2px solid #fff;
+    color: #fff;
+    font-weight: bold;
 }
 
 .footer-container {
@@ -126,12 +136,13 @@ body {
 .footer-column h3 {
     font-size: 16px;
     color: black;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .footer-column ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .footer-column ul li {
@@ -149,6 +160,34 @@ body {
 
 .footer-column p {
     color: gray;
+}
+
+
+/* Estilo para os métodos de pagamento */
+.payment-methods {
+    display: flex;
+    gap: 10px;
+    /* espaço entre as imagens */
+    margin-top: 10px;
+}
+
+.payment-methods li {
+    list-style: none;
+}
+
+.payment-methods img {
+    width: 80px;
+    /* tamanho fixo */
+    height: auto;
+    /* mantém proporção */
+    filter: grayscale(20%);
+    /* opcional: deixa mais neutro */
+    transition: transform 0.2s ease-in-out;
+}
+
+.payment-methods img:hover {
+    transform: scale(1.2);
+    /* zoom suave no hover */
 }
 
 
@@ -223,7 +262,7 @@ body {
     padding: 20px;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .qr-code-titulo {
@@ -255,8 +294,8 @@ body {
 .pix-key-container {
     display: flex;
     margin-bottom: 8px;
-     width: 300px;
-  margin: 0 auto;
+    width: 300px;
+    margin: 0 auto;
 
 }
 
@@ -330,12 +369,12 @@ body {
     border-radius: 6px;
     font-size: 16px;
     transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .botao-voltar:hover {
     background-color: #6e1f1f;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     color: white;
 }

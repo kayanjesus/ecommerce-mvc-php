@@ -67,13 +67,59 @@ class SiteController extends Controller
         return view('home.categoria', compact('produtos', 'categoriasTopo', 'categoriasMenu', 'todasCategorias', 'cores', 'marcas', 'tamanhos', 'generos', 'categoriaSelecionada'));
     }
 
+
+    public function show($slug)
+    {
+        $produto = Produto::where('slug', $slug)
+            ->with(['imagens', 'variacoes.tamanho', 'variacoes.cor'])
+            // Adicione avaliacoes e o usuário que fez a avaliação (se necessário)
+            ->with([
+                'avaliacoes' => function ($query) {
+                    $query->with('usuario')->latest(); // Ordena pelas mais recentes
+                }
+            ])
+            ->firstOrFail();
+
+        return view('home.details', compact('produto'));
+    }
+    public function produtoDetalhes(Produto $produto)
+    {
+        // Otimização: Carregue as avaliações e o usuário que as fez junto com o produto
+        // Isso é mais eficiente do que carregar na view.
+        $produto->load('avaliacoes.usuario');
+
+        // NENHUMA BUSCA GLOBAL DE AVALIAÇÕES É NECESSÁRIA AQUI.
+        // $avaliacoes = Avaliacao::all(); // ISSO SERIA ERRADO
+
+        return view('details.blade.php', compact('produto'));
+        // Agora o $produto já tem os dados de avaliações para uso na view.
+    }
     public function details($slug)
     {
-        $produto = Produto::with(['imagens', 'variacoes.cor', 'variacoes.tamanho'])->where('slug', $slug)->firstOrFail();
-        $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
-        $produtos = Produto::where('id_produto', '!=', $produto->id_produto)->take(3)->get();
+        $produto = Produto::where('slug', $slug)
+            ->with([
+                'variacoes.cor',
+                'variacoes.tamanho',
+                'imagens',
+                // 1. Carrega todas as avaliações e o usuário que as fez
+                'avaliacoes.usuario',
+            ])
+            // 2. Calcula a média das notas e o total de avaliações.
+            // As propriedades 'avaliacoes_avg_nota' e 'avaliacoes_count' serão adicionadas ao objeto $produto
+            ->withAvg('avaliacoes', 'nota') // Adiciona $produto->avaliacoes_avg_nota
+            ->withCount('avaliacoes')     // Adiciona $produto->avaliacoes_count
+            ->firstOrFail();
 
-        return view('home.details', compact('produto', 'categoriasTopo', 'produtos'));
+        // Lógica para produtos relacionados
+        $produtos = Produto::where('id_produto', '!=', $produto->id_produto)
+            ->where('estacao', $produto->estacao)
+            ->limit(4)
+            ->get();
+
+        $categoriasMenu = Categoria::all();
+
+        // 3. Passe tudo para a view
+        return view('home.details', compact('produto', 'produtos', 'categoriasMenu'));
     }
 
     public function categoria($id_categoria, Request $request)

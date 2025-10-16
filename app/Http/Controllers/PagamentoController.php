@@ -567,7 +567,8 @@ class PagamentoController extends Controller
 
             if ($formaPagamento === 'pix') {
                 $endpoint = 'https://sandbox.api.pagseguro.com/orders';
-                $token = env('PAGSEGURO_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE');
+                $token = env('PAGSEGURO_BEARER_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE'); // MUDANÇA AQUI!
+
 
                 $shippingAddress = [
                     "street" => $endereco['rua'] ?? '',
@@ -617,7 +618,7 @@ class PagamentoController extends Controller
                         "address" => $shippingAddress
                     ],
                     "notification_urls" => [
-                        "https://eea2-45-164-145-73.ngrok-free.app/webhooks/pagseguro" // Placeholder! MUDAR ISSO!
+                        "https://717b14697647.ngrok-free.app/webhooks/pagseguro" // Placeholder! MUDAR ISSO!
                     ]
                 ];
 

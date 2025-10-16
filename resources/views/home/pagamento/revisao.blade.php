@@ -303,9 +303,9 @@
                 btn.prop('disabled', true).addClass('d-flex align-items-center justify-content-center');
                 spinner.removeClass('d-none');
                 btn.contents().filter(function () {
-                    return this.nodeType === 3;
+                    return this.nodeType === 1;
                 }).each(function () {
-                    this.textContent = 'Processando...';
+                    this.textContent = '';
                 });
 
                 const formData = $(this).serialize();
@@ -343,9 +343,9 @@
                         btn.prop('disabled', false).removeClass('d-flex align-items-center justify-content-center');
                         spinner.addClass('d-none');
                         btn.contents().filter(function () {
-                            return this.nodeType === 3;
+                            return this.nodeType === 1;
                         }).each(function () {
-                            this.textContent = 'Confirmar Pedido';
+                            this.textContent = '';
                         });
                     }
                 });

@@ -6,76 +6,26 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #fff;
+    background-color: #f7f7f7;
+    /* Cor de fundo mais suave */
+    color: #333;
+    /* Cor de texto padrão */
     margin: 0;
     padding: 0;
 }
 
-header {
-    background-color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #c01f1f;
-    padding: 0px;
-    position: relative;
-    width: 100%;
-    margin: 0%;
-    margin-top: -0%;
+/* Títulos */
+h2 {
+    color: #333;
+    margin-bottom: 10px;
 }
 
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-    }
-
-    .search-bar {
-        width: 100%;
-    }
+.h3-sicroniza-cor {
+    color: #444;
+    margin-bottom: 8px;
 }
 
-.header-line {
-    height: 2px;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    margin-top: 0px;
-    background-color: #9b2a2a;
-    padding: 20px;
-}
-
-.social-icons {
-    height: 2px;
-    width: 67%;
-    margin-top: -0.5%;
-}
-
-.top-nav {
-    height: 2px;
-    width: 30%;
-    margin-top: -0.5%;
-}
-
-.logo {
-    flex-grow: 1;
-    flex: 1;
-    text-align: center;
-    padding: 50px;
-    margin-top: -0.2%;
-    margin-right: 400px;
-}
-
-.logo-medium {
-    width: 200px;
-    height: auto;
-}
-
-.logo-img {
-    max-width: 100%;
-    height: auto;
-    max-height: 8;
-}
-
+/* Login */
 .login-container {
     display: flex;
     align-items: center;
@@ -88,146 +38,73 @@ header {
     color: #9b2a2a;
 }
 
-.search-bar {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 350px;
-    border: 2px solid #9b2a2a;
-    border-radius: 50px;
-    overflow: hidden;
-}
-
-.search-bar input {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    outline: none;
-}
-
-.search-bar button {
-    background-color: #9b2a2a;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.search-bar button:hover {
-    background-color: #7b1a1a;
-}
-
-.login-link {
-    margin-right: 0%;
-    float: right;
-    display: flex;
-    align-items: flex-start;
-    padding-top: 0px;
-}
-
-.login-link a {
-    text-decoration: none;
-    color: #9b2a2a;
-    font-weight: bold;
-    text-shadow: 4px 8px 9px rgba(0, 0, 0, 0.5);
-    margin-top: -111px;
-    margin-left: 100%;
-    display: flex;
-}
-
-.login-link a:hover {
-    color: #0056b3;
-    text-decoration: underline;
-}
-
-.login-link i {
-    margin-left: 80%;
-    margin-right: 0%;
-    padding-top: -100%;
-    color: #9b2a2a;
-}
-
-nav {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    margin-top: 20px;
-    z-index: 1;
-}
-
-nav a {
-    margin: 0 15px;
-    text-decoration: none;
-    color: #fff;
-    font-weight: bold;
-}
-
-nav a i {
-    margin-right: 5px;
-}
-
-.generes {
-    margin: 5px 0;
-    display: flex;
-    justify-content: center;
-    background-color: #FDE6E6;
-    width: 100%;
-    padding: 3px;
-    position: absolute;
-    right: 0.1%;
-    gap: 10px;
-}
-
-.generes-button {
-    background-color: white;
-    color: #9b2a2a;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    margin: 0 10px;
-    cursor: pointer;
-}
-
-.generes-button:hover {
-    background-color: #9b2a2a;
-    color: white;
-}
-
+/* ==================================== */
+/* 1. LAYOUT PRINCIPAL E INFORMAÇÕES GERAIS */
+/* ==================================== */
 
 .shipping-info {
-    background-color: #278741;
+    background-color: #008060;
     padding: 5px;
     text-align: center;
     margin: 15px 0;
-    font-size: 15px;
+    font-size: 14px;
     color: #e1e1e1;
+    font-weight: bold;
 }
 
 .product-detail {
     display: flex;
     padding: 20px;
-    gap: 30px;
+    gap: 40px;
+    /* Aumenta o espaçamento */
+    background-color: #fff;
+    margin: 0 auto;
+    max-width: 1400px;
+    /* Limite de largura para a seção principal */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
 }
 
-/* Container principal da galeria */
 .product-gallery {
-    position: relative;
+    width: 40%;
     max-width: 500px;
-    /* Ajuste conforme necessário */
+    position: relative;
     margin: 0 auto 30px;
 }
 
-/* Tamanho reduzido da imagem principal */
+.product-info {
+    width: 60%;
+    padding-left: 20px;
+}
+
+/* Modelo e Avaliação */
+.model {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.rating {
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.star {
+    color: #ffd700;
+    font-size: 20px;
+}
+
+/* ==================================== */
+/* 2. GALERIA DE PRODUTO (Carrossel e Thumbnails) */
+/* ==================================== */
 .product-image {
     width: 100%;
     height: auto;
     max-height: 400px;
-    /* Ajuste este valor para diminuir o tamanho */
     object-fit: contain;
     border-radius: 8px;
+    border: 1px solid #eee;
 }
 
-/* Estilos do carrossel */
 .carousel-container {
     overflow: hidden;
     position: relative;
@@ -243,19 +120,22 @@ nav a i {
     min-width: 100%;
 }
 
-/* Botões de navegação */
 .carousel-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.5);
+    /* Fundo escuro semi-transparente */
+    color: white;
     border: none;
-    width: 40px;
-    height: 40px;
     border-radius: 50%;
-    font-size: 18px;
+    /* Redondo */
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
     cursor: pointer;
     z-index: 10;
+    transition: background-color 0.2s;
 }
 
 .carousel-button.prev {
@@ -267,7 +147,8 @@ nav a i {
 }
 
 .carousel-button:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: #9b2a2a;
+    /* Cor do tema no hover */
 }
 
 /* Miniaturas */
@@ -284,28 +165,23 @@ nav a i {
     object-fit: cover;
     border-radius: 4px;
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s;
+    opacity: 0.8;
+    transition: all 0.3s;
     border: 2px solid transparent;
 }
 
 .carousel-thumbnails .thumbnail:hover {
-    opacity: 0.8;
+    opacity: 1;
+    border-color: #9b2a2a;
+    /* Destaca no hover */
 }
 
 .carousel-thumbnails .thumbnail.active {
     opacity: 1;
-    border-color: #e63946;
+    border-color: #9b2a2a;
 }
 
-
-/* Página de detalhes */
-.main-image img {
-    max-width: 500px;
-    height: auto;
-    border: 1px solid #ddd;
-}
-
+/* Outras miniaturas */
 .thumbnail-container {
     display: flex;
     gap: 10px;
@@ -339,40 +215,37 @@ nav a i {
     border-radius: 4px;
 }
 
-/*fim*/
 
-.product-info {
-    width: 60%;
-}
-
-.model {
-    color: #777;
-    font-size: 14px;
-}
-
+/* ==================================== */
+/* 3. PREÇOS E DESCONTOS */
+/* ==================================== */
 .pricing {
-    margin: 20px 0;
+    margin: 25px 0;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
 }
 
 .payment-option {
     display: inline-block;
-    margin-right: 20px;
+    margin-right: 30px;
+    vertical-align: top;
+    /* Alinha no topo */
 }
 
-.payment-option h3 {
-    margin: 0;
-    font-size: 16px;
-    color: #278741;
-}
-
+.payment-option h3,
 .payment-option h2 {
-    margin: 0;
-    font-size: 16px;
-    color: #000;
+    font-size: 18px;
+    /* Aumenta um pouco o título */
+    font-weight: normal;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
 }
 
 .pix-icon {
-    color: #63E6BE;
+    color: #00BF63;
+    /* Tom de verde PIX */
+    font-size: 22px;
     margin-right: 8px;
     display: inline-block;
     width: 20px;
@@ -380,7 +253,8 @@ nav a i {
 }
 
 .card-icon {
-    color: #000;
+    color: #333;
+    font-size: 20px;
     margin-right: 8px;
     display: inline-block;
     width: 20px;
@@ -388,125 +262,177 @@ nav a i {
 }
 
 .price {
-    font-size: 15px;
+    font-size: 24px;
+    /* Preço principal maior */
     font-weight: bold;
     color: #278741;
-    margin: 5px 33px;
+    margin: 5px 33px 0;
 }
 
 .price2 {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
     color: #000;
-    margin: 5px 33px;
-
+    margin: 5px 33px 0;
 }
 
+/* Botão de Desconto */
 .discounts {
     display: inline-block;
-    margin-right: 20px;
+    vertical-align: top;
+    margin-top: 25px;
+    /* Alinha com o preço */
 }
 
 .discounts a {
     display: inline-block;
-    margin-right: -1px;
-    padding: 3px 15px;
-    background-color: #9b2a29;
-    border-radius: 10000px;
+    padding: 5px 15px;
+    background-color: #9b2a2a;
+    border-radius: 4px;
     text-decoration: none;
-    color: #f8f8f8;
-    font-size: 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background-color 0.2s;
 }
 
-.size-selector {
-    margin: 20px 0;
+.discounts a:hover {
+    background-color: #7b1d1d;
+    /* Hover mais escuro */
 }
 
+/* ==================================== */
+/* 4. SELETORES (TAMANHO/COR) */
+/* ==================================== */
+.size-selector,
+.color-selector {
+    margin-bottom: 25px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.sizes button,
+.color-btn {
+    /* Base */
+    width: 45px;
+    /* Levemente maior */
+    height: 45px;
+    /* Levemente maior */
+    transition: all 0.2s;
+}
+
+/* Seletor de Tamanho (Quadrado) */
 .sizes button {
-    padding: 8px 15px;
+    color: #000;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-right: 10px;
     background-color: white;
-    border: 1px solid #ddd;
+    border: 2px solid #ccc;
+    /* Borda mais clara */
     border-radius: 4px;
     cursor: pointer;
 }
 
 .sizes button:hover {
-    background-color: #9b2a29;
+    background-color: #f0f0f0;
+    color: #9b2a2a;
+    border-color: #9b2a2a;
 }
 
+.tamanho-btn.selected {
+    background-color: #9b2a2a;
+    color: white;
+    border-color: #9b2a2a;
+    box-shadow: 0 0 5px rgba(155, 42, 41, 0.5);
+}
 
+/* Seletor de Cor (Redondo) */
+.color-btn {
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.color-btn.selected {
+    border: 3px solid #9b2a2a;
+    transform: scale(1.05);
+    /* Efeito de destaque */
+    box-shadow: 0 0 5px rgba(155, 42, 41, 0.5);
+}
+
+.color-btn[style*="#FFFFFF"],
+.color-btn[style*="#fff"],
+.color-btn[style*="white"] {
+    border: 1px solid #ccc !important;
+}
+
+/* ==================================== */
+/* 5. AÇÕES (QUANTIDADE E BOTÕES) */
+/* ==================================== */
 .action-container {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    /* Alinha pela parte inferior */
     gap: 15px;
     margin: 15px 0;
 }
 
-
 .quantity-container {
-    display: inline-block;
-    width: 80px;
+    width: 90px;
+    /* Largura ajustada */
 }
 
-
-.add-to-cart {
-    padding: 10px 20px;
-    background-color: #e63946;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    height: 60px;
-}
-
-
-/* Estilo para a caixa de quantidade */
 .quantity-box {
-    border: 1px solid #d1d1d1;
+    border: 1px solid #9b2a2a;
+    /* Borda em destaque */
     border-radius: 4px;
-    height: 62px;
+    height: 50px;
+    /* Altura para alinhar com o botão de carrinho */
+    padding: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
-    padding: 5px;
-    width: 80px;
+    width: 90px;
 }
 
 .quantity-label {
-    text-align: center;
-    font-size: 12px;
-    color: #555;
+    display: none;
+    /* Remove a label "Quantidade" para um design mais compacto */
 }
 
 .quantity-input-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100%;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .quantity-input {
     width: 100%;
     border: none;
     text-align: center;
-    font-size: 16px;
+    font-size: 18px;
+    /* Tamanho da fonte maior */
     font-weight: bold;
     outline: none;
-    padding: 5px;
-}
-
-
-.quantity-controls {
-    display: flex;
-    height: 40px;
+    padding: 0;
+    height: 100%;
 }
 
 .quantity-arrows {
     display: flex;
     flex-direction: column;
     width: 25px;
+    height: 100%;
+    border-left: 1px solid #ddd;
 }
 
 .qty-arrow-up,
@@ -515,82 +441,32 @@ nav a i {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
+    color: #555;
 }
 
 .qty-arrow-up:hover,
 .qty-arrow-down:hover {
-    background-color: #eaeaea;
+    background-color: #f0f0f0;
+    color: #9b2a2a;
 }
-
 
 .actions {
     margin: 20px 0;
 }
 
-.add-to-cart {
-    padding: 12px 100px;
-    background-color: #9b2a29;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-right: 15px;
-}
-
-.rating {
-    display: inline-block;
-}
-
-.star {
-    color: #ffd700;
-    font-size: 20px;
-}
-
-/* Estilo para o botão de favoritos */
-.add-to-favorites {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px;
-    background-color: white;
-    border: 1px solid #9b2a2a;
-    border-radius: 4px;
-    color: #9b2a2a;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.add-to-favorites i {
-    color: #9b2a2a;
-}
-
-.add-to-favorites:hover {
-    background-color: #f9f9f9;
-}
-
-/* Ajuste para o container dos botões */
 .action-buttons {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
-.action-container {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
+/* Botão Adicionar ao Carrinho */
 .add-to-cart {
     flex: 1;
     padding: 12px;
@@ -598,161 +474,62 @@ nav a i {
     color: white;
     border: none;
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 18px;
+    /* Texto maior e mais chamativo */
+    font-weight: bold;
     cursor: pointer;
-    height: 62px;
+    height: 50px;
+    /* Altura para alinhar com a caixa de quantidade */
+    transition: background-color 0.2s, transform 0.1s;
 }
 
-/* ... (mantenha todo o CSS anterior até .add-to-cart:disabled) ... */
+.add-to-cart:hover {
+    background-color: #7b1d1d;
+    /* Hover mais escuro */
+    transform: translateY(-1px);
+}
 
 .add-to-cart:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    transform: none;
 }
 
-/* Faltava esta chave de fechamento */
+/* Botão Adicionar aos Favoritos */
+.add-to-favorites {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background-color: #fff;
+    border: 1px solid #9b2a2a;
+    border-radius: 4px;
+    color: #9b2a2a;
+    font-size: 15px;
+    cursor: pointer;
+    height: 40px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
 
+.add-to-favorites:hover {
+    background-color: #fcebeb;
+    /* Fundo levemente vermelho no hover */
+    box-shadow: 0 0 5px rgba(155, 42, 41, 0.3);
+}
+
+/* ==================================== */
+/* 6. DESCRIÇÃO E CARACTERÍSTICAS (ABAS) */
+/* ==================================== */
 .product-description {
     padding: 20px;
-    border-top: 1px solid #e1e1e1;
-    margin-top: 20px;
-}
-
-.related-products {
-    padding: 20px;
-    border-top: 1px solid #e1e1e1;
-}
-
-.imagem-best-seller {
-    width: 180px;
-    height: 240px;
-    border-radius: 5%;
-    object-fit: cover;
-    margin-bottom: 5px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    border: 2px solid #9b2a2a;
+    margin: 20px auto 0;
+    max-width: 1400px;
     background-color: #fff;
-    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
 }
 
-.comprar-link {
-    background-color: #9b2a2a;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
-}
-
-.products-grid {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.product-card {
-    width: 33.33%;
-    border: 1px solid #e1e1e1;
-    border-radius: 4px;
-    padding: 15px;
-    text-align: center;
-}
-
-.product-card img {
-    width: 100%;
-    height: auto;
-    margin-bottom: 10px;
-}
-
-.buy-button {
-    padding: 8px 20px;
-    background-color: #9b2a29;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-/* Avaliações */
-.reviews {
-    padding: 20px;
-    border-top: 1px solid #e1e1e1;
-}
-
-.review {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #f1f1f1;
-}
-
-.review-date {
-    color: #777;
-    font-size: 14px;
-    margin: 5px 0;
-}
-
-.review-text {
-    margin-top: 10px;
-}
-
-.see-more {
-    padding: 8px 20px;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.see-more:hover {
-    background-color: #f9f9f9;
-}
-
-/* CSS para estilizar os botões selecionados */
-.tamanho-btn {
-    padding: 8px 15px;
-    margin-right: 10px;
-    border: 1px solid #ddd;
-    background-color: white;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.tamanho-btn.selected {
-    background-color: #9b2a2a;
-    color: white;
-    border-color: #9b2a2a;
-}
-
-.color-btn {
-    border: 2px solid transparent;
-    cursor: pointer;
-}
-
-.color-btn.selected {
-    border: 2px solid #9b2a2a;
-    transform: scale(1.1);
-}
-
-/* Garantindo que o branco seja visível */
-.color-btn[style*="#FFFFFF"],
-.color-btn[style*="#fff"],
-.color-btn[style*="white"] {
-    border: 1px solid #ccc !important;
-}
-
-#add-to-cart-btn:disabled {
-    background-color: #af2f2f;
-    cursor: not-allowed;
-}
-
-
-/* Estilos para o sistema de abas */
 .tabs {
     display: flex;
     border-bottom: 1px solid #ddd;
@@ -760,18 +537,29 @@ nav a i {
 }
 
 .tab-button {
-    padding: 10px 20px;
+    padding: 10px 25px;
     background: none;
     border: none;
     cursor: pointer;
     font-size: 16px;
     color: #555;
     position: relative;
+    transition: color 0.2s;
 }
+
+/* O HOVER VERMELHO FOI REMOVIDO DAQUI */
 
 .tab-button.active {
     color: #9b2a2a;
     font-weight: bold;
+}
+
+.tab-button:hover {
+    background: none;
+    /* Garante que o fundo não seja vermelho */
+    color: #9b2a2a;
+    /* Mantenha a cor do texto vermelha (a cor do seu tema) */
+    opacity: 1;
 }
 
 .tab-button.active::after {
@@ -782,6 +570,7 @@ nav a i {
     width: 100%;
     height: 2px;
     background-color: #9b2a2a;
+
 }
 
 .tab-pane {
@@ -795,12 +584,14 @@ nav a i {
 
 .specs-list {
     list-style-type: none;
+    padding-left: 20px;
 }
 
 .specs-list li {
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px dashed #eee;
+    font-size: 15px;
 }
 
 .color-chip {
@@ -811,4 +602,143 @@ nav a i {
     margin-right: 5px;
     border: 1px solid #ddd;
     vertical-align: middle;
+}
+
+/* ==================================== */
+/* 7. PRODUTOS RELACIONADOS */
+/* ==================================== */
+.related-products {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 1400px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border-top: 1px solid #e1e1e1;
+}
+
+.products-grid {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.product-card {
+    /* Estrutura para alinhar o botão no rodapé */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 220px;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.product-card:hover {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    /* Sombra mais destacada */
+    transform: translateY(-5px);
+}
+
+.imagem-best-seller {
+    width: 100%;
+    height: 240px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    /* Borda mais sutil */
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.comprar-link {
+    background-color: #9b2a2a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: auto;
+    /* Empurra o botão para o final do card */
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.comprar-link:hover {
+    background-color: #7b1d1d;
+}
+
+/* ==================================== */
+/* 8. AVALIAÇÕES DO PRODUTO */
+/* ==================================== */
+.reviews {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 1400px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.review {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9e9e9;
+    /* Linha de separação mais suave */
+}
+
+.review h4 {
+    font-size: 16px;
+    color: #333;
+}
+
+.review-date {
+    color: #999;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+.review-text {
+    margin-top: 8px;
+    font-style: italic;
+    color: #555;
+}
+
+.see-more {
+    display: block;
+    width: 250px;
+    margin: 20px auto 0;
+    padding: 8px 20px;
+    background-color: #fff;
+    border: 2px solid #9b2a2a;
+    /* Borda mais grossa */
+    border-radius: 4px;
+    cursor: pointer;
+    color: #9b2a2a;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.see-more:hover {
+    background-color: #9b2a2a;
+    color: white;
+    /* Inverte as cores no hover */
 }

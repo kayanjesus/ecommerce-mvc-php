@@ -1,0 +1,391 @@
+:root {
+    --primary-color: #9b2a2a;
+    --primary-light: #f3d8d8;
+    --primary-lighter: #f9ebeb;
+    --primary-dark: #7a2121;
+    --primary-darker: #5c1919;
+    --sidebar-bg: #f5f5f5;
+    --button-border: #ddd;
+}
+
+/* Cabeçalho Principal */
+.main-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 0;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.store-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+    text-transform: uppercase;
+    color: white;
+}
+
+/* Layout Principal */
+body {
+    padding-top: 56px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #faf5f5;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    height: calc(100vh - 56px);
+    position: fixed;
+    width: 250px;
+    top: 56px;
+    padding: 0;
+    border-right: 1px solid #e0e0e0;
+}
+
+.admin-container {
+    padding: 8px 5px;
+}
+
+.admin-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: #555;
+    background-color: white;
+    border: 1px solid var(--button-border);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.admin-button:hover {
+    background-color: var(--primary-lighter);
+    color: var(--primary-dark);
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.admin-button i {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.menu-button {
+    color: #555;
+    padding: 10px 15px;
+    margin: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    border: 1px solid var(--button-border);
+    background-color: white;
+    text-decoration: none;
+}
+
+.menu-button i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.menu-button:hover {
+    background-color: var(--primary-lighter);
+    color: var(--primary-dark);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    border-color: var(--primary-dark);
+}
+
+.menu-button.active i {
+    color: white;
+}
+
+.logout-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    color: #dc3545;
+    background-color: white;
+    border: 1px solid #f1aeb5;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin: 10px;
+    font-size: 0.9rem;
+}
+
+.logout-button:hover {
+    background-color: #f8d7da;
+    color: #b02a37;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+
+    min-height: calc(100vh - 56px);
+}
+
+/* Estilos específicos para o formulário */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.image-preview {
+    width: 100%;
+    height: 250px;
+    background-color: #f9f9f9;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    margin-bottom: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-preview:hover {
+    border-color: var(--primary-color);
+    background-color: #f5f5f5;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.image-preview span {
+    font-size: 14px;
+    text-align: center;
+}
+
+/* --- ESTILOS DE MINIATURAS (GALERIA) AGORA NO ESCOPO PRINCIPAL --- */
+
+/* Contêiner das Miniaturas: Garante que as miniaturas fiquem em linha */
+.thumbnail-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que as miniaturas quebrem a linha se necessário */
+    gap: 10px;
+    /* Espaço entre as miniaturas */
+    padding: 5px 0;
+    justify-content: flex-start;
+    /* Alinha as miniaturas à esquerda */
+    align-items: center;
+}
+
+/* Contêiner para miniaturas recém-adicionadas (importante para o JS) */
+#newThumbnailsContainer {
+    display: flex;
+    /* Garante que as miniaturas novas continuem na mesma linha */
+    gap: 10px;
+}
+
+/* Wrapper de cada miniatura: Garante que o botão de exclusão fique posicionado corretamente */
+.thumbnail-wrapper {
+    position: relative;
+    width: 60px;
+    /* LARGURA FIXA PARA MINIATURA */
+    height: 60px;
+    /* ALTURA FIXA PARA MINIATURA */
+    border: 2px solid transparent;
+    /* Borda transparente inicial */
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    /* Impede que o wrapper seja espremido */
+}
+
+/* Estilo da imagem dentro do wrapper */
+.thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Recorta a imagem para preencher o quadrado */
+    display: block;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Indicador de imagem principal */
+.thumbnail.active {
+    border: 2px solid var(--primary-color);
+    /* Borda de destaque */
+    outline: 2px solid var(--primary-color);
+    /* Pequeno outline para destaque extra */
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+/* Efeito de hover no wrapper */
+.thumbnail-wrapper:hover {
+    border-color: var(--primary-light);
+}
+
+/* Botão de Exclusão da Miniatura */
+.thumbnail-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    /* Esconde por padrão */
+    transition: opacity 0.2s ease;
+}
+
+.thumbnail-wrapper:hover .thumbnail-actions {
+    opacity: 1;
+    /* Mostra ao passar o mouse */
+}
+
+.thumbnail-actions button {
+    background: rgba(var(--primary-dark), 0.8);
+    color: white;
+    border: none;
+    padding: 2px 5px;
+    font-size: 10px;
+    line-height: 1;
+    border-bottom-left-radius: 6px;
+    cursor: pointer;
+}
+
+.thumbnail-actions button:hover {
+    background: var(--primary-darker);
+}
+
+/* Estilo para a imagem principal no preview, caso seja um placeholder vazio */
+.image-preview .empty-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* ... (Estilos de Formulário, Botões e Responsividade) ... */
+
+@media (max-width: 768px) {
+    /* ... (outros estilos responsivos) ... */
+
+    /* Apenas se necessário, você pode ajustar o tamanho da miniatura na responsividade */
+    /*
+    .thumbnail-wrapper {
+        width: 50px;
+        height: 50px;
+    }
+    */
+}
+
+.form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(155, 42, 42, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-dark);
+    padding: 10px 20px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-darker);
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main-content {
+        margin-left: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        padding: 8px 0;
+    }
+
+    .store-title {
+        font-size: 1.2rem;
+        padding-left: 15px;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .image-preview {
+        height: 200px;
+    }
+
+    .col-md-4,
+    .col-md-8 {
+        width: 100%;
+    }
+}
