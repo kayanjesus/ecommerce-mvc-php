@@ -51,7 +51,8 @@ class SiteController extends Controller
             $produtosQuery->where('modelo', request('modelo'));
         }
 
-        $produtos = $produtosQuery->with(['imagens', 'variacoes.cor', 'variacoes.tamanho'])->get();
+        // CORREÇÃO: Usar paginate para suportar o links() e appends() na view
+        $produtos = $produtosQuery->with(['imagens', 'variacoes.cor', 'variacoes.tamanho'])->paginate(12);
 
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::all();
@@ -64,7 +65,10 @@ class SiteController extends Controller
 
         $categoriaSelecionada = (object) ['id_categoria' => 0, 'nome_categoria' => 'Coleção ' . ucfirst($temporada)];
 
-        return view('home.categoria', compact('produtos', 'categoriasTopo', 'categoriasMenu', 'todasCategorias', 'cores', 'marcas', 'tamanhos', 'generos', 'categoriaSelecionada'));
+        // Definindo $search para evitar o erro original
+        $search = request('search');
+
+        return view('home.categoria', compact('produtos', 'categoriasTopo', 'categoriasMenu', 'todasCategorias', 'cores', 'marcas', 'tamanhos', 'generos', 'categoriaSelecionada', 'search'));
     }
 
 

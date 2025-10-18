@@ -17,59 +17,9 @@ body {
     height: 120px;
 }
 
-.barra-progresso {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 1000px;
-    margin-left: auto;
-    margin-right: 30px;
-    padding-top: 10px;
-}
 
-.barra-progresso::before {
-    content: '';
-    position: absolute;
-    top: 41px;
-    left: 20px;
-    right: 0px;
-    height: 5px;
-    background-color: #ddd;
-    z-index: 0;
-    width: 94%;
-}
 
-.etapa {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-}
 
-.texto-etapa {
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #aaa;
-}
-
-.bolinha {
-    width: 16px;
-    height: 16px;
-    background-color: #aaa;
-    border-radius: 50%;
-    z-index: 1;
-}
-
-.etapa.ativo .bolinha {
-    background-color: #932929;
-}
-
-.etapa.ativo .texto-etapa {
-    color: #932929;
-    font-weight: bold;
-}
 
 .confirmacao-container {
     display: flex;
@@ -378,3 +328,92 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     color: white;
 }
+
+
+/* pagamento-confirmacao.css */
+
+
+.barra-progresso {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1000px;
+    max-width: 90%; /* Mantido para responsividade */
+    margin-left: auto;
+    margin-right: 50px; /* Ajuste a margem se necessário, usei o 50px do seu outro arquivo */
+    padding-top: 28px; /* AUMENTADO O PADDING-TOP AQUI */
+    padding-bottom: 10px;
+}
+
+.barra-progresso::before {
+    /* Linha base (inativa) */
+    content: '';
+    position: absolute;
+    top: 58px; /* NOVO AJUSTE: Move a linha para baixo para centralizar verticalmente */
+    left: 22px;
+    right: 0px;
+    height: 5px;
+    background-color: #ddd;
+    /* Linha de fundo cinza */
+    z-index: 0;
+    width: 94%;
+}
+
+/* LINHA DE PROGRESSO ATIVA (Novo elemento) */
+.progress-line {
+    content: '';
+    position: absolute;
+    top: 58px; /* NOVO AJUSTE: Mantém a linha ativa na mesma altura da inativa */
+    left: 22px;
+    height: 5px;
+    background-color: #9b2a2a;
+    /* Cor primária do site */
+    z-index: 1;
+    width: 0;
+    /* Começa em 0, será ajustado via JS */
+    transition: width 0.5s ease-in-out;
+    /* Transição suave */
+}
+
+.etapa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2; /* Garante que as bolinhas fiquem acima das linhas */
+}
+
+.texto-etapa {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #aaa;
+    text-align: center; /* Garantir que o texto longo não cause problemas */
+}
+
+.bolinha {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #fff; /* Fundo branco para que a linha não a "atravesse" visualmente */
+    border: 3px solid #aaa;
+    /* Borda inativa */
+    transition: all 0.5s ease;
+}
+
+/* Estilos de Etapa Ativa */
+.etapa.ativo .texto-etapa {
+    color: #333;
+    font-weight: bold;
+}
+
+.etapa.ativo .bolinha {
+    border-color: #9b2a2a;
+    /* Cor primária (ativa) */
+    background-color: #9b2a2a;
+    /* Bolinha preenchida */
+}
+
+/* --- O restante do pagamento-confirmacao.css (pix, timer, etc.) permanece inalterado --- */
+/* Certifique-se de que .etapa, .texto-etapa e .bolinha estão definidos UMA ÚNICA VEZ neste arquivo */
+/* e que o restante do CSS original não está em conflito. */

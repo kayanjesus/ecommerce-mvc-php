@@ -23,16 +23,14 @@
             </a>
         </div>
         <div class="barra-progresso">
-            <div class="etapa completo">
-                <span class="texto-etapa">Carrinho</span>
+            <div class="progress-line"></div>
+            <div class="etapa ativo" data-step="1"> <span class="texto-etapa">Carrinho</span>
                 <div class="bolinha"></div>
             </div>
-            <div class="etapa completo">
-                <span class="texto-etapa">Pagamento</span>
+            <div class="etapa ativo" data-step="2"> <span class="texto-etapa">Pagamento</span>
                 <div class="bolinha"></div>
             </div>
-            <div class="etapa ativo">
-                <span class="texto-etapa">Confirmação</span>
+            <div class="etapa ativo" data-step="3"> <span class="texto-etapa">Confirmação</span>
                 <div class="bolinha"></div>
             </div>
         </div>
@@ -217,6 +215,25 @@
         // Iniciar contador quando a página carregar
         $(document).ready(function () {
             startCountdown();
+        });
+
+
+        // Iniciar contador e barra de progresso quando a página carregar
+        $(document).ready(function () {
+            startCountdown();
+
+            // LÓGICA DA BARRA DE PROGRESSO
+            const totalSteps = 3;
+            const currentStep = 3; // ETAPA FINAL DE CONFIRMAÇÃO
+            const progressBar = document.querySelector('.progress-line');
+
+            // Calcula a largura: (3 - 1) / (3 - 1) * 100 = 100% de progresso
+            const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+
+            // Define a largura da linha de progresso (94% para alinhar com a bolinha)
+            const lineWidth = (progress / 100) * 94;
+
+            progressBar.style.width = lineWidth + '%';
         });
     </script>
 

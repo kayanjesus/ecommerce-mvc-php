@@ -20,25 +20,41 @@
     justify-content: space-between;
     align-items: center;
     width: 1000px;
-    /* Largura da barra de progresso */
+    max-width: 90%;
+    /* Adicionado max-width para melhor responsividade */
     margin-left: auto;
-    margin-right: 30px;
-    padding-top: 10px;
+    margin-right: 50px;
+    padding-top: 6px;
 }
 
 .barra-progresso::before {
+    /* Linha base (inativa) */
     content: '';
     position: absolute;
     top: 41px;
-    /* Ajuste para alinhar a linha */
-    left: 20px;
+    left: 22px;
     right: 0px;
     height: 5px;
     background-color: #ddd;
-    /* Cor da linha de progresso inativa */
+    /* Linha de fundo cinza */
     z-index: 0;
     width: 94%;
-    /* Largura da linha */
+}
+
+/* LINHA DE PROGRESSO ATIVA (Novo elemento) */
+.progress-line {
+    content: '';
+    position: absolute;
+    top: 41px;
+    left: 22px;
+    height: 5px;
+    background-color: #9b2a2a;
+    /* Cor primária do site */
+    z-index: 1;
+    width: 0;
+    /* Começa em 0, será ajustado via JS */
+    transition: width 0.5s ease-in-out;
+    /* Transição suave */
 }
 
 .etapa {
@@ -46,39 +62,43 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    /* Garante que as bolinhas fiquem acima das linhas */
 }
 
 .texto-etapa {
     margin-bottom: 8px;
     font-size: 14px;
     color: #aaa;
-    /* Cor do texto da etapa inativa */
 }
 
 .bolinha {
     width: 16px;
     height: 16px;
-    background-color: #aaa;
-    /* Cor da bolinha da etapa inativa */
     border-radius: 50%;
-    z-index: 1;
+    background-color: #fff;
+    border: 3px solid #aaa;
+    /* Borda inativa */
+    transition: all 0.5s ease;
 }
 
-.etapa.ativo .bolinha {
-    background-color: #9b2a2a;
-    /* Nova cor para a bolinha da etapa ativa */
-}
-
+/* Estilos de Etapa Ativa */
 .etapa.ativo .texto-etapa {
-    color: #9b2a2a;
-    /* Nova cor para o texto da etapa ativa */
+    color: #333;
+    /* Cor do texto ativo */
     font-weight: bold;
 }
 
+.etapa.ativo .bolinha {
+    border-color: #9b2a2a;
+    /* Cor primária (ativa) */
+    background-color: #9b2a2a;
+    /* Bolinha preenchida */
+}
+
 .linha-branca {
-    height: 30px;
-    background-color: white;
+    height: 15px;
+    background-color: #FDE6E6;
 }
 
 .frete-banner {
@@ -159,6 +179,7 @@ body {
 .text-primary {
     color: #7a2222 !important;
 }
+
 .btn-primary {
     color: #ffffff !important;
     /* Força a cor para elementos Bootstrap que usam text-primary */

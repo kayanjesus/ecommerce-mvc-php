@@ -18,16 +18,14 @@
             </a>
         </div>
         <div class="barra-progresso">
-            <div class="etapa">
-                <span class="texto-etapa">Carrinho</span>
+            <div class="progress-line"></div>
+            <div class="etapa ativo" data-step="1"> <span class="texto-etapa">Carrinho</span>
                 <div class="bolinha"></div>
             </div>
-            <div class="etapa ativo">
-                <span class="texto-etapa">Pagamento</span>
+            <div class="etapa ativo" data-step="2"> <span class="texto-etapa">Pagamento</span>
                 <div class="bolinha"></div>
             </div>
-            <div class="etapa">
-                <span class="texto-etapa">Confirmação</span>
+            <div class="etapa" data-step="3"> <span class="texto-etapa">Confirmação</span>
                 <div class="bolinha"></div>
             </div>
         </div>
@@ -135,9 +133,25 @@
     </footer>
 
 
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // LÓGICA DA BARRA DE PROGRESSO
+            const totalSteps = 3;
+            const currentStep = 2; // ETAPA ATUAL
+            const progressBar = document.querySelector('.progress-line');
+
+            // Calcula a largura: (2 - 1) / (3 - 1) * 100 = 50%
+            const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+
+            // Ajuste o tamanho da linha para 94% para alinhar com as bolinhas
+            const lineWidth = (progress / 100) * 94;
+
+            progressBar.style.width = lineWidth + '%';
+        });
+    </script>
+
 </body>
 
 </html>

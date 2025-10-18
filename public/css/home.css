@@ -1,6 +1,5 @@
 :root {
     --primary-color: #9b2a2a;
-    --secondary-color: #FDE6E6;
     --text-color: #333;
     --light-text: #fff;
     --border-radius: 8px;
@@ -131,7 +130,7 @@ header {
 .category-nav {
     display: flex;
     justify-content: center;
-    background-color: var(--secondary-color);
+    background-color: #FDE6E6;
     padding: 10px 0;
     margin-bottom: 20px;
 }
@@ -152,30 +151,154 @@ header {
     color: var(--light-text);
 }
 
+/* ================================== */
+/* RESPONSIVIDADE            */
+/* ================================== */
+
+/* --- Tablet (Telas até 1024px) --- */
+@media (max-width: 1024px) {
+    .header-main {
+        grid-template-columns: auto 1fr;
+        /* Coloca busca abaixo/próximo ao logo */
+        grid-template-areas:
+            "logo auth"
+            "search search";
+        padding: 15px 3%;
+    }
+
+    .logo-img-container {
+        grid-area: logo;
+    }
+
+    .search-container {
+        grid-area: search;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .auth-links {
+        grid-area: auth;
+    }
+
+    .header-nav ul li a {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .retangulos-best-seller {
+        grid-template-columns: repeat(3, 1fr);
+        /* 3 produtos por linha */
+    }
+}
+
+/* --- Smartphone (Telas até 768px) --- */
 @media (max-width: 768px) {
+
+    /* HEADER */
+    .header-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        padding: 10px 5%;
+    }
+
     .header-main {
         grid-template-columns: 1fr;
-        text-align: center;
+        /* Tudo em uma coluna */
+        grid-template-areas:
+            "logo"
+            "auth"
+            "search";
+        padding: 10px 5%;
     }
 
-    .search-container,
+    .logo-img {
+        height: 80px;
+    }
+
     .auth-links {
-        justify-self: center;
-        margin: 10px 0;
+        justify-content: center;
+        margin-top: 10px;
     }
 
-    .search-container form {
+    .header-nav ul {
+        flex-wrap: wrap;
+        /* Quebra as categorias do menu */
+        padding: 10px 0;
+    }
+
+    .header-nav ul li a {
+        padding: 10px 10px;
+        font-size: 0.9rem;
+    }
+
+    /* MAIN CONTENT */
+    main {
+        padding: 10px 3%;
+    }
+
+    .banner img {
+        max-height: 300px;
+    }
+
+    /* BANNER INFO */
+    .banner-info {
         flex-direction: column;
+        /* Empilha as imagens de Verão/Inverno */
+        gap: 10px;
     }
 
-    .search-container input {
-        width: 100%;
-        margin-bottom: 10px;
+    /* PRODUTOS */
+    .retangulos-best-seller {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 produtos por linha */
+        gap: 15px;
     }
 
-    .search-container button {
-        position: static;
-        transform: none;
+    .imagem-best-seller {
+        height: 180px;
+    }
+
+    .titulo-best-seller,
+    .titulo-avaliacoes {
+        font-size: 1.8rem;
+    }
+}
+
+/* --- Smartphone Pequeno (Telas até 480px) --- */
+@media (max-width: 480px) {
+
+    /* HEADER */
+    .search-input {
+        padding: 10px 15px;
+        font-size: 16px;
+    }
+
+    .search-icon {
+        padding: 10px 12px;
+    }
+
+    .auth-links a {
+        font-size: 1rem;
+    }
+
+    /* PRODUTOS */
+    .retangulos-best-seller {
+        gap: 10px;
+    }
+
+    .imagem-best-seller {
+        height: 150px;
+    }
+
+    .Precinho {
+        font-size: 1.1rem;
+    }
+
+    /* AVALIAÇÕES */
+    .reviews-container {
+        grid-template-columns: 1fr;
+        /* 1 avaliação por linha */
     }
 }
 
@@ -537,7 +660,7 @@ button {
 
 
 button:hover {
-   background-color: #7b1d1d;
+    background-color: #7b1d1d;
 }
 
 .season-container {

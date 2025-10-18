@@ -23,21 +23,41 @@ body {
   justify-content: space-between;
   align-items: center;
   width: 1000px;
+  max-width: 90%;
+  /* Adicionado max-width para melhor responsividade */
   margin-left: auto;
-  margin-right: 30px;
-  padding-top: 10px;
+  margin-right: 50px;
+  padding-top: 6px;
 }
 
 .barra-progresso::before {
+  /* Linha base (inativa) */
   content: '';
   position: absolute;
   top: 41px;
-  left: 20px;
+  left: 22px;
   right: 0px;
   height: 5px;
   background-color: #ddd;
+  /* Linha de fundo cinza */
   z-index: 0;
   width: 94%;
+}
+
+/* LINHA DE PROGRESSO ATIVA (Novo elemento) */
+.progress-line {
+  content: '';
+  position: absolute;
+  top: 41px;
+  left: 22px;
+  height: 5px;
+  background-color: #9b2a2a;
+  /* Cor primária do site */
+  z-index: 1;
+  width: 0;
+  /* Começa em 0, será ajustado via JS */
+  transition: width 0.5s ease-in-out;
+  /* Transição suave */
 }
 
 .etapa {
@@ -45,7 +65,8 @@ body {
   flex-direction: column;
   align-items: center;
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  /* Garante que as bolinhas fiquem acima das linhas */
 }
 
 .texto-etapa {
@@ -57,22 +78,30 @@ body {
 .bolinha {
   width: 16px;
   height: 16px;
-  background-color: #aaa;
   border-radius: 50%;
-  z-index: 1;
+  background-color: #fff;
+  border: 3px solid #aaa;
+  /* Borda inativa */
+  transition: all 0.5s ease;
+}
+
+/* Estilos de Etapa Ativa */
+.etapa.ativo .texto-etapa {
+  color: #333;
+  /* Cor do texto ativo */
+  font-weight: bold;
 }
 
 .etapa.ativo .bolinha {
-  background-color: #932929;
+  border-color: #9b2a2a;
+  /* Cor primária (ativa) */
+  background-color: #9b2a2a;
+  /* Bolinha preenchida */
 }
 
-.etapa.ativo .texto-etapa {
-  color: #932929;
-  font-weight: bold;
-}
 .linha-branca {
-  height: 30px;
-  background-color: white;
+  height: 15px;
+  background-color: #FDE6E6;
 }
 
 
@@ -83,151 +112,151 @@ body {
   padding: 8px;
   font-size: 14px;
 }
-  
-  .pagamento-container {
-    display: flex;
-    justify-content: center;
-    padding: 30px;
-  }
-  
-  .pagamento-box {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 30px;
-    width: 1000px;
-  }
-  
-  .pagamento-box h3 {
-    margin-bottom: 20px;
-  }
-  
-  .opcao {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: 1px solid black;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    background-color: #fff;
-  }
-  
-  .opcao i {
-    font-size: 18px;
-  }
-  
-  .opcao span {
-    flex-grow: 1;
-    margin-left: 12px;
-  }
-  
-  .seta {
-    color: #000;
-  }
-  
-  .total {
-    margin-top: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .concluir {
-    background-color: #932929;
-    color: white;
-    border: none;
-    padding: 10px 50px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-  }
 
-  .concluir:hover {
-    background-color: #7a2020;
-  }
-  
+.pagamento-container {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+.pagamento-box {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 30px;
+  width: 1000px;
+}
+
+.pagamento-box h3 {
+  margin-bottom: 20px;
+}
+
+.opcao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid black;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.opcao i {
+  font-size: 18px;
+}
+
+.opcao span {
+  flex-grow: 1;
+  margin-left: 12px;
+}
+
+.seta {
+  color: #000;
+}
+
+.total {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.concluir {
+  background-color: #932929;
+  color: white;
+  border: none;
+  padding: 10px 50px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.concluir:hover {
+  background-color: #7a2020;
+}
+
 /* Footer */
 .footer {
-    padding: 30px;
-    background-color: #9b2a2a;
+  padding: 30px;
+  background-color: #9b2a2a;
 }
 
 .top-footer {
-    text-align: center;
-    padding: 30px;
-    background-color: #9b2a2a;
-    border-top: 2px solid #fff;
-    color: #fff;
-    font-weight: bold;
+  text-align: center;
+  padding: 30px;
+  background-color: #9b2a2a;
+  border-top: 2px solid #fff;
+  color: #fff;
+  font-weight: bold;
 }
 
 .footer-container {
-    display: flex;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .footer-column {
-    width: 30%;
-    padding: 10px;
+  width: 30%;
+  padding: 10px;
 }
 
 .footer-column h3 {
-    font-size: 16px;
-    color: black;
-    margin-bottom: 20px;
+  font-size: 16px;
+  color: black;
+  margin-bottom: 20px;
 }
 
 .footer-column ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .footer-column ul li {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .footer-column ul li a {
-    text-decoration: none;
-    color: gray;
+  text-decoration: none;
+  color: gray;
 }
 
 .footer-column ul li a:hover {
-    color: black;
+  color: black;
 }
 
 .footer-column p {
-    color: gray;
+  color: gray;
 }
 
 
 /* Estilo para os métodos de pagamento */
 .payment-methods {
-    display: flex;
-    gap: 10px;
-    /* espaço entre as imagens */
-    margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  /* espaço entre as imagens */
+  margin-top: 10px;
 }
 
 .payment-methods li {
-    list-style: none;
+  list-style: none;
 }
 
 .payment-methods img {
-    width: 80px;
-    /* tamanho fixo */
-    height: auto;
-    /* mantém proporção */
-    filter: grayscale(20%);
-    /* opcional: deixa mais neutro */
-    transition: transform 0.2s ease-in-out;
+  width: 80px;
+  /* tamanho fixo */
+  height: auto;
+  /* mantém proporção */
+  filter: grayscale(20%);
+  /* opcional: deixa mais neutro */
+  transition: transform 0.2s ease-in-out;
 }
 
 .payment-methods img:hover {
-    transform: scale(1.2);
-    /* zoom suave no hover */
+  transform: scale(1.2);
+  /* zoom suave no hover */
 }
