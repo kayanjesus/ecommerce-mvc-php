@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     {{-- Seu CSS específico da tela 2 --}}
     <link rel="stylesheet" href="{{ asset('css/adm/vendas.css') }}">
-    {{-- Adicionado Font Awesome, pois a TELA 1 usava e alguns ícones podem não ter correspondente direto no Bootstrap Icons --}}
+    {{-- Adicionado Font Awesome, pois a TELA 1 usava e alguns ícones podem não ter correspondente direto no Bootstrap
+    Icons --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     {{-- Chart.js para os gráficos --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,7 +22,8 @@
             <div class="row">
                 <div class="col ps-4">
                     {{-- Link para a home, como na TELA 1 --}}
-                    <h1 class="store-title"><a href="{{ route('home.index') }}" class="text-decoration-none text-white">CANTINHO DA ISA</a></h1>
+                    <h1 class="store-title"><a href="{{ route('home.index') }}"
+                            class="text-decoration-none text-white">CANTINHO DA ISA</a></h1>
                 </div>
             </div>
         </div>
@@ -88,6 +90,7 @@
                     <h3>Painel de Vendas</h3>
                 </div>
 
+
                 <div class="row mb-3">
                     {{-- Loop para os últimos 3 meses, dados do Laravel --}}
                     @foreach($mesesData as $mes)
@@ -107,20 +110,33 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="month-stats mb-3">
-                            <h5 class="mb-3">Recebimento Mensal</h5>
-                            <div class="list-group">
-                                {{-- Este loop era um exemplo de dados estáticos na TELA 2.
-                                     Como a TELA 1 não tinha essa seção específica com dados dinâmicos mensais detalhados (apenas o resumo dos 3 meses),
-                                     manterei os exemplos da TELA 2, mas você pode adaptar para usar $mesesData novamente se quiser exibir aqui. --}}
-                                @foreach($mesesData as $mes)
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>{{ $mes['nome'] }}</span>
-                                    <span class="badge rounded-pill bg-primary">R$ {{ number_format($mes['total_recebido'], 2, ',', '.') }}</span>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Recebimento Mensal - {{ $anoSelecionado }}</h5>
+
+                                <div class="d-flex align-items-center">
+                                    <label for="anoFiltro" class="me-2 mb-0">Filtrar por ano:</label>
+                                    <select id="anoFiltro" class="form-select form-select-sm" style="width: auto;">
+                                        @foreach($anosDisponiveis as $ano)
+                                            <option value="{{ $ano }}" {{ $ano == $anoSelecionado ? 'selected' : '' }}>
+                                                {{ $ano }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
+
+                            </div>
+                            <div class="list-group">
+                                @foreach($recebimentoMensal as $mes)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ $mes['nome'] }}</span>
+                                        <span class="badge rounded-pill bg-primary">R$
+                                            {{ number_format($mes['total_recebido'], 2, ',', '.') }}</span>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
                     </div>
+
 
                     <div class="col-md-6">
                         <div class="month-stats">
@@ -128,13 +144,13 @@
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="sales-tab" data-bs-toggle="tab"
-                                        data-bs-target="#sales" type="button" role="tab"
-                                        aria-controls="sales" aria-selected="true">Vendas por Mês</button>
+                                        data-bs-target="#sales" type="button" role="tab" aria-controls="sales"
+                                        aria-selected="true">Vendas por Mês</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="revenue-tab" data-bs-toggle="tab"
-                                        data-bs-target="#revenue" type="button" role="tab"
-                                        aria-controls="revenue" aria-selected="false">Faturamento</button>
+                                        data-bs-target="#revenue" type="button" role="tab" aria-controls="revenue"
+                                        aria-selected="false">Faturamento</button>
                                 </li>
                             </ul>
                             <div class="tab-content p-3 border border-top-0 rounded-bottom">
@@ -160,6 +176,17 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.getElementById('anoFiltro').addEventListener('change', function () {
+            const ano = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('ano', ano);
+            window.location.href = url.toString();
+        });
+    </script>
+
+
     {{-- O script de Chart.js foi movido para cá, contendo os dados do Laravel --}}
     <script>
         const ctx1 = document.getElementById('grafico-vendas').getContext('2d');

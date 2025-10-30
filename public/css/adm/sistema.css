@@ -105,7 +105,7 @@ body {
     color: var(--primary-dark);
     border-color: var(--primary-light);
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .menu-button.active {
@@ -138,13 +138,13 @@ body {
     background-color: #f8d7da;
     color: #b02a37;
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .main-content {
     margin-left: 250px;
     padding: 15px 20px;
-    
+
     min-height: calc(100vh - 56px);
     margin-top: 56px;
 }
@@ -231,10 +231,39 @@ body {
     font-size: 0.8rem;
 }
 
+
+/* Scrollbar para o container de notificações */
+#notificacoes-container {
+    max-height: 364px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) var(--primary-lightest);
+}
+
+/* Personalização do scrollbar para Webkit (Chrome, Safari, Edge) */
+#notificacoes-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#notificacoes-container::-webkit-scrollbar-track {
+    background: var(--primary-lightest);
+    border-radius: 3px;
+}
+
+#notificacoes-container::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 3px;
+}
+
+#notificacoes-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
 @media (max-width: 992px) {
     .sidebar {
         width: 220px;
     }
+
     .main-content {
         margin-left: 220px;
     }
@@ -244,29 +273,34 @@ body {
     .main-header {
         padding: 8px 0;
     }
+
     .store-title {
         font-size: 1.2rem;
         padding-left: 15px;
     }
+
     .sidebar {
         width: 100%;
         height: auto;
         position: relative;
         top: auto;
     }
+
     .main-content {
         margin-left: 0;
         padding: 12px;
         margin-top: 0;
     }
+
     .menu-button {
         padding: 8px 12px;
         font-size: 0.9rem;
     }
+
     .card {
         margin-bottom: 12px;
     }
-    
+
 
 
 }

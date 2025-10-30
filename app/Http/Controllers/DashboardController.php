@@ -322,7 +322,7 @@ class DashboardController extends Controller
             // E o produto realmente tem variações associadas (para não listar produtos sem variações como 'sem estoque').
             $produtosQuery->whereDoesntHave('variacoes', function ($query) {
                 $query->where('estoque', '>', 0);
-            })->whereHas('variacoes'); 
+            })->whereHas('variacoes');
         }
         // Se $stockFilter for 'todos', nenhuma condição de estoque é adicionada,
         // exibindo todos os produtos (com e sem estoque).
@@ -392,9 +392,18 @@ class DashboardController extends Controller
     }
 
 
-    public function vendas()
+    public function vendas(Request $request)
     {
-        // Calcular dados dos últimos 3 meses para os cards
+        // Filtro por ano - padrão é o ano atual
+        $anoSelecionado = $request->get('ano', date('Y'));
+
+        // Validar se o ano é válido (entre 2020 e ano atual + 1)
+        $anoAtual = date('Y');
+        if (!is_numeric($anoSelecionado) || $anoSelecionado < 2020 || $anoSelecionado > $anoAtual + 1) {
+            $anoSelecionado = $anoAtual;
+        }
+
+        // Calcular dados dos últimos 3 meses para os cards (mantém essa funcionalidade)
         $mesesData = [];
         for ($i = 0; $i < 3; $i++) {
             $mes = Carbon::now()->subMonths($i);
@@ -420,7 +429,31 @@ class DashboardController extends Controller
         }
         $mesesData = array_reverse($mesesData); // Para exibir do mais antigo para o mais recente
 
-        // Dados para os gráficos (últimos 5 meses)
+        // Dados para o Recebimento Mensal - TODOS OS MESES DO ANO SELECIONADO
+        $recebimentoMensal = [];
+        for ($mes = 1; $mes <= 12; $mes++) {
+            $dataMes = Carbon::createFromDate($anoSelecionado, $mes, 1);
+            $nomeMes = $dataMes->translatedFormat('F');
+
+            $totalVendasMes = Pedido::whereMonth('created_at', $mes)
+                ->whereYear('created_at', $anoSelecionado)
+                ->count();
+
+            $faturamentoMes = Pedido::whereMonth('created_at', $mes)
+                ->whereYear('created_at', $anoSelecionado)
+                ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
+                ->sum('total');
+
+            $recebimentoMensal[] = [
+                'nome' => ucfirst($nomeMes),
+                'ano' => $anoSelecionado,
+                'mes_numero' => $mes,
+                'total_recebido' => $faturamentoMes,
+                'total_vendas' => $totalVendasMes,
+            ];
+        }
+
+        // Dados para os gráficos (últimos 5 meses) - mantém essa funcionalidade
         $labelsGraficos = [];
         $dataVendas = [];
         $dataFaturamento = [];
@@ -433,7 +466,6 @@ class DashboardController extends Controller
                 ->whereYear('created_at', $mes->year)
                 ->count();
 
-            // Considera todos os status que implicam recebimento
             $faturamento = Pedido::whereMonth('created_at', $mes->month)
                 ->whereYear('created_at', $mes->year)
                 ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
@@ -443,6 +475,20 @@ class DashboardController extends Controller
             $dataFaturamento[] = $faturamento;
         }
 
-        return view('adm.vendas', compact('mesesData', 'labelsGraficos', 'dataVendas', 'dataFaturamento'));
+        // Lista de anos disponíveis para o filtro
+        $primeiroAno = Pedido::min('created_at')
+            ? Carbon::parse(Pedido::min('created_at'))->year
+            : $anoAtual;
+        $anosDisponiveis = range($primeiroAno, $anoAtual + 1);
+
+        return view('adm.vendas', compact(
+            'mesesData',
+            'recebimentoMensal',
+            'labelsGraficos',
+            'dataVendas',
+            'dataFaturamento',
+            'anoSelecionado',
+            'anosDisponiveis'
+        ));
     }
 }

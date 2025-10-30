@@ -101,7 +101,7 @@ body {
     color: var(--primary-dark);
     border-color: var(--primary-light);
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .menu-button.active {
@@ -134,13 +134,13 @@ body {
     background-color: #f8d7da;
     color: #b02a37;
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .main-content {
     margin-left: 250px;
     padding: 15px 20px;
-    
+
     min-height: calc(100vh - 56px);
     margin-top: 56px;
 }
@@ -261,10 +261,126 @@ body {
     position: relative;
 }
 
+
+/* Scrollbar para a lista de Recebimento Mensal */
+.month-stats .list-group {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) var(--primary-lighter);
+}
+
+/* Personalização do scrollbar para Webkit (Chrome, Safari, Edge) */
+.month-stats .list-group::-webkit-scrollbar {
+    width: 6px;
+}
+
+.month-stats .list-group::-webkit-scrollbar-track {
+    background: var(--primary-lighter);
+    border-radius: 3px;
+    margin: 5px 0;
+}
+
+.month-stats .list-group::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 3px;
+}
+
+.month-stats .list-group::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Ajustar a altura da seção month-stats para melhor visualização */
+.col-md-6 .month-stats {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.col-md-6 .month-stats h5 {
+    flex-shrink: 0;
+}
+
+.col-md-6 .month-stats .list-group {
+    flex: 1;
+    min-height: 0;
+    /* Importante para o flex funcionar com scroll */
+}
+
+
+/* Painel de vendas */
+/* Estilos para o filtro dentro do card de Recebimento Mensal */
+.month-stats .d-flex.justify-content-between.align-items-center {
+    padding: 0 5px;
+}
+
+.month-stats .form-select-sm {
+    border: 1px solid var(--primary-light);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+    background-color: white;
+    color: var(--primary-darker);
+    transition: all 0.2s ease;
+}
+
+.month-stats .form-select-sm:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(155, 42, 42, 0.1);
+    outline: none;
+}
+
+.month-stats label {
+    font-size: 0.85rem;
+    color: var(--primary-darker);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Ajuste para o título do card */
+.month-stats h5.mb-0 {
+    color: var(--primary-darker);
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+/* Melhorar o espaçamento do header interno */
+.month-stats .d-flex.justify-content-between {
+    margin-bottom: 15px !important;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--primary-lightest);
+}
+
+/* Ajuste responsivo para telas menores */
+@media (max-width: 768px) {
+    .month-stats .d-flex.justify-content-between.align-items-center {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+
+    .month-stats .d-flex.align-items-center {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .month-stats .form-select-sm {
+        width: 120px !important;
+    }
+}
+
+/* Garantir que o select tenha largura adequada */
+.month-stats .form-select-sm {
+    width: 100px;
+}
+
+
 @media (max-width: 992px) {
     .sidebar {
         width: 220px;
     }
+
     .main-content {
         margin-left: 220px;
     }
@@ -274,25 +390,30 @@ body {
     .main-header {
         padding: 8px 0;
     }
+
     .store-title {
         font-size: 1.2rem;
         padding-left: 15px;
     }
+
     .sidebar {
         width: 100%;
         height: auto;
         position: relative;
         top: auto;
     }
+
     .main-content {
         margin-left: 0;
         padding: 12px;
         margin-top: 0;
     }
+
     .menu-button {
         padding: 8px 12px;
         font-size: 0.9rem;
     }
+
     .card {
         margin-bottom: 12px;
     }

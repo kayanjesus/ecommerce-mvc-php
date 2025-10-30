@@ -98,13 +98,10 @@
                                     <i class="bi bi-search"></i>
                                 </button>
                             </div>
-                            {{-- Os botões de filtro "Todos", "Ativos", "Inativos" foram removidos conforme solicitado
-                            --}}
-                            <div class="btn-group" style="display: none;"></div> {{-- Mantido para manter a estrutura,
-                            mas oculto --}}
                         </div>
 
-                        <div class="table-responsive">
+                        {{-- Container da tabela com scroll --}}
+                        <div class="table-responsive" style="max-height: 500px;">
                             <table class="table table-hover" id="tabelaUsuarios">
                                 <thead>
                                     <tr>
@@ -112,34 +109,29 @@
                                         <th>E-mail</th>
                                         <th>Perfil</th>
                                         <th>Cadastro</th>
-                                        {{-- As colunas "Status" e "Ações" foram removidas conforme solicitado --}}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- Loop para exibir os usuários do Laravel --}}
                                     @foreach ($users as $user)
                                         <tr>
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
-                                            <td>{{ $user->access_level }}</td> {{-- Assumindo que 'access_level' é o campo
-                                            de perfil --}}
-                                            <td>{{ $user->created_at->format('d/m/Y H:i') }}</td> {{-- Formata a data de
-                                            cadastro --}}
+                                            <td>{{ $user->access_level }}</td>
+                                            <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
 
-                        <nav aria-label="Navegação de páginas">
-                            <ul class="pagination justify-content-center mt-3" id="paginacao">
-                                {{-- Se você usa paginação do Laravel, descomente a linha abaixo: --}}
-                                {{-- {{ $users->links() }} --}}
-                                {{-- Caso contrário, esta parte também pode ser removida ou permanecer como um
-                                placeholder estático,
-                                mas sem JS para gerenciá-la, não terá funcionalidade. --}}
-                            </ul>
-                        </nav>
+                        {{-- Paginação (se houver) --}}
+                        @if($users->hasPages())
+                            <nav aria-label="Navegação de páginas" class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    {{ $users->links() }}
+                                </ul>
+                            </nav>
+                        @endif
                     </div>
                 </div>
             </main>

@@ -104,7 +104,7 @@ body {
     color: var(--primary-dark);
     border-color: var(--primary-light);
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .menu-button.active {
@@ -137,13 +137,13 @@ body {
     background-color: #f8d7da;
     color: #b02a37;
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .main-content {
     margin-left: 250px;
     padding: 15px 20px;
-    
+
     min-height: calc(100vh - 56px);
     margin-top: 56px;
 }
@@ -215,11 +215,73 @@ body {
     filter: invert(1);
 }
 
+/* Scrollbar para a tabela de usuários */
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) var(--primary-lighter);
+}
+
+/* Personalização do scrollbar para Webkit (Chrome, Safari, Edge) */
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--primary-lighter);
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 4px;
+    border: 2px solid var(--primary-lighter);
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Garantir que o cabeçalho da tabela fique fixo durante o scroll */
+.table-responsive {
+    position: relative;
+}
+
+.table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8f9fa;
+}
+
+/* Ajustar a altura do card para melhor visualização */
+.card {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 150px);
+    min-height: 600px;
+}
+
+.card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.table-responsive {
+    flex: 1;
+}
+
+
 /* Responsividade */
 @media (max-width: 992px) {
     .sidebar {
         width: 220px;
     }
+
     .main-content {
         margin-left: 220px;
     }
@@ -229,43 +291,47 @@ body {
     .main-header {
         padding: 8px 0;
     }
+
     .store-title {
         font-size: 1.2rem;
         padding-left: 15px;
     }
+
     .sidebar {
         width: 100%;
         height: auto;
         position: relative;
         top: auto;
     }
+
     .main-content {
         margin-left: 0;
         padding: 12px;
         margin-top: 0;
     }
+
     .menu-button {
         padding: 8px 12px;
         font-size: 0.9rem;
     }
-    
+
     .table-responsive {
         overflow-x: auto;
     }
-    
+
     .d-flex {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .input-group {
         max-width: 100% !important;
     }
-    
+
     .btn-group {
         width: 100%;
     }
-    
+
     .btn-group .btn {
         flex: 1;
     }
