@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revisão do Pedido - Cantinho da Isa</title>
+    <title>Revisão do Pedido - Moda Kids</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     {{-- Considere compilar seu CSS com Laravel Mix para melhor performance e cache busting --}}
     <link rel="stylesheet" href="{{ asset('css/revisao.css') }}"> {{-- Link para o CSS externo --}}
@@ -16,7 +16,7 @@
     <header class="topo">
         <div class="logo">
             <a class="navbar-brand" href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Cantinho da Isa" />
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Moda Kids" />
             </a>
         </div>
         <div class="barra-progresso">

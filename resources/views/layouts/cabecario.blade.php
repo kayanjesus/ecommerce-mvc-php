@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Cantinho da Isa</title>
+    <title>Moda Kids</title>
 </head>
 
 <body>
     <header>
         <div class="header-top">
             <div class="social-links">
-                <a href="https://www.instagram.com/cantinho_das_isas_?igsh=MXVjbDF6cDBpMjR4cw=="><i
+                <a href="https://www.instagram.com/orlandomendesdemoraes?igsh=NjhldTZkMjdmM2c4"><i
                         class="fab fa-instagram fa-lg"></i></a>
                 <a href="https://wa.me/5511999999999"><i class="fab fa-whatsapp fa-lg"></i></a>
             </div>
@@ -39,7 +39,7 @@
 
             <div class="logo-container">
                 <a href="{{ route('home.index') }}">
-                    <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
+                    <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo" class="logo-img">
                 </a>
             </div>
 
@@ -70,9 +70,9 @@
 
     <footer>
         <section class="top-footer">
-            <h3>Cantinho da Isa</h3>
+            <h3>    </h3>
             <p>Crianças crescem rápido, não é mesmo? Em pouco tempo, as roupinhas vão ficando mais curtas, e é preciso
-                renovar os guarda-roupas. Aqui no Cantinho da Isa, temos o melhor vestuário para os pequenos, e com os
+                renovar os guarda-roupas. Aqui no Moda Kids, temos o melhor vestuário para os pequenos, e com os
                 menores preços. Venha conferir. </p>
         </section>
         <div class="footer-container">

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cantinho da Isa - Painel de Vendas</title>
+    <title>Moda Kids - Painel de Vendas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     {{-- Seu CSS específico da tela 2 --}}
@@ -23,7 +23,7 @@
                 <div class="col ps-4">
                     {{-- Link para a home, como na TELA 1 --}}
                     <h1 class="store-title"><a href="{{ route('home.index') }}"
-                            class="text-decoration-none text-white">CANTINHO DA ISA</a></h1>
+                            class="text-decoration-none text-white">Moda Kids</a></h1>
                 </div>
             </div>
         </div>

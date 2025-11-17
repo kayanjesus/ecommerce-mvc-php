@@ -75,7 +75,7 @@
 
         <div class="logo">
             <a href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Moda Kids - Logo" class="logo-img">
             </a>
         </div>
 
