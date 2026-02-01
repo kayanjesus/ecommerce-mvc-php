@@ -166,7 +166,7 @@
                                                 @foreach($produto->variacoes->unique('cor_id') as $variacao)
                                                     <span
                                                         style="background-color: {{ $variacao->cor->codigo_hex ?? '#000' }}; 
-                                                                        display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle;"></span>
+                                                                                        display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle;"></span>
                                                     {{ $variacao->cor->nome ?? 'N/A' }}@if(!$loop->last), @endif
                                                 @endforeach
                                             </td>
@@ -232,64 +232,76 @@
     </div>
 
     <!-- Modal de Confirmação (Mantido como estava) -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Confirmar Exclusão</h3>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja excluir este produto?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel">Cancelar</button>
-                <button class="btn-confirm">Confirmar</button>
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-delete">Excluir</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Variável para armazenar o formulário que será submetido
+        /**
+         * Lógica para o Modal de Confirmação de Exclusão (Bootstrap 5)
+         *
+         * Observação: Este script espera que o Modal de Confirmação no HTML
+         * utilize a estrutura e IDs corretas do Bootstrap 5 conforme sugerido:
+         * - ID do modal: #confirmModal
+         * - ID do botão de confirmação: #btn-confirm-delete
+         */
+
+        // Variável para armazenar a referência do formulário de exclusão a ser submetido
         let formToSubmit = null;
 
-        // Função para mostrar o modal
-        function showConfirmModal(button) {
-            const modal = document.getElementById('confirmModal');
-            formToSubmit = button.closest('form');
-            modal.style.display = 'flex';
+        // Inicializa o objeto Modal do Bootstrap, garantindo que ele esteja pronto para ser manipulado.
+        const modalElement = document.getElementById('confirmModal');
+        if (modalElement) {
+            const confirmModal = new bootstrap.Modal(modalElement);
+            const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+            // 1. Função chamada pelo botão de Lixeira no corpo da tabela
+            window.showConfirmModal = function (button) {
+                // Encontra o formulário DELETE mais próximo (o do produto)
+                formToSubmit = button.closest('form');
+                // Exibe o modal usando a API do Bootstrap
+                confirmModal.show();
+            };
+
+            // 2. Listener para o botão de 'Excluir' dentro do modal
+            if (btnConfirmDelete) {
+                btnConfirmDelete.addEventListener('click', function () {
+                    if (formToSubmit) {
+                        // Se o formulário foi encontrado, submete ele
+                        formToSubmit.submit();
+                    }
+                    // Oculta o modal. O Bootstrap faz isso automaticamente,
+                    // mas é bom garantir antes do submit.
+                    confirmModal.hide();
+                });
+            }
+
+            // 3. Listener para limpar o formulário ao fechar o modal
+            // Isso é importante para evitar submissões acidentais futuras.
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                formToSubmit = null;
+            });
+
+        } else {
+            console.error("Erro: O elemento com ID 'confirmModal' não foi encontrado. O modal de exclusão pode não funcionar.");
         }
 
-        // Fechar modal quando clicar no X
-        document.querySelector('.close-modal').addEventListener('click', function () {
-            document.getElementById('confirmModal').style.display = 'none';
-        });
-
-        // Fechar modal quando clicar no Cancelar
-        document.querySelector('.btn-cancel').addEventListener('click', function () {
-            document.getElementById('confirmModal').style.display = 'none';
-        });
-
-        // Confirmar exclusão
-        document.querySelector('.btn-confirm').addEventListener('click', function () {
-            if (formToSubmit) {
-                formToSubmit.submit();
-            }
-            document.getElementById('confirmModal').style.display = 'none';
-        });
-
-        // Fechar modal quando clicar fora dele
-        window.addEventListener('click', function (event) {
-            const modal = document.getElementById('confirmModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-
-        // Com o formulário GET, o JavaScript para pesquisa e filtro é simplificado
-        // A lógica principal é tratada pelo servidor.
-        // O `value="{{ $searchQuery }}"` no input e a classe `{{ $stockFilter === 'todos' ? 'active' : '' }}`
-        // nos botões garantem que o estado seja persistido após o envio.
+        // A lógica de pesquisa/filtro é puramente do servidor (Laravel/Blade) e não precisa de JS.
     </script>
 </body>
 
