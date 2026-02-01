@@ -19,7 +19,7 @@
     <header class="topo">
         <div class="logo">
             <a href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Moda Kids - Logo" class="logo-img">
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
             </a>
         </div>
         <div class="barra-progresso">
@@ -113,9 +113,9 @@
     </main>
     <footer>
         <section class="top-footer">
-            <h3>Moda Kids</h3>
+            <h3>Cantinho da Isa</h3>
             <p>Crianças crescem rápido, não é mesmo? Em pouco tempo, as roupinhas vão ficando mais curtas, e é preciso
-                renovar os guarda-roupas. Aqui no Moda Kids, temos o melhor vestuário para os pequenos, e com os
+                renovar os guarda-roupas. Aqui no Cantinho da Isa, temos o melhor vestuário para os pequenos, e com os
                 menores preços. Venha conferir. </p>
         </section>
         <div class="footer-container">

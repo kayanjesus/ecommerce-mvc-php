@@ -1,1 +1,1 @@
-Erro 404 personalizado Moda Kids
+Erro 404 personalizado

@@ -118,7 +118,6 @@
                 @endforeach
             </div>
         </section>
-        
         <div class="season-container">
             <div class="season-block winter">
                 <a href="{{ route('temporada', ['temporada' => 'inverno']) }}">

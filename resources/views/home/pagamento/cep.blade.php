@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Moda Kids - Carrinho</title>
+    <title>Cantinho da Isa - Carrinho</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/pagamento.css') }}" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
@@ -15,7 +15,7 @@
     <header class="topo">
         <div class="logo">
             <a class="navbar-brand" href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Moda Kids" />
+                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Cantinho da Isa" />
             </a>
         </div>
         <div class="barra-progresso">
@@ -146,9 +146,9 @@
 
     <footer>
         <section class="top-footer">
-            <h3>Moda Kids</h3>
+            <h3>Cantinho da Isa</h3>
             <p>Crianças crescem rápido, não é mesmo? Em pouco tempo, as roupinhas vão ficando mais curtas, e é preciso
-                renovar os guarda-roupas. Aqui no Moda Kids, temos o melhor vestuário para os pequenos, e com os
+                renovar os guarda-roupas. Aqui no Cantinho da Isa, temos o melhor vestuário para os pequenos, e com os
                 menores preços. Venha conferir. </p>
         </section>
         <div class="footer-container">
