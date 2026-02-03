@@ -76,48 +76,73 @@
             </div>
         </section>
 
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
         <section class="categorias">
             <h2 class="titulo-categorias">Produtos</h2>
             <div class="faixa"></div>
-            <div class="item"></div>
-            <div class="retangulos-best-seller">
-                @foreach ($produtos as $produto)
-                    <div class="retangulo">
-                        <a href="{{ route('home.details', $produto->slug) }}">
-                            <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
-                                alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
-                        </a>
-                        <span class="Descricao">{{ $produto->nome_produto }}</span>
-                        <span class="Descricao">{{ Str::limit($produto->variacao, 25) }}</span>
-                        <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
-                        <button>
-                            <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-                        </button>
-                    </div>
-                @endforeach
+
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                    @foreach ($produtos as $produto)
+                        <div class="swiper-slide">
+                            <div class="retangulo">
+                                <a href="{{ route('home.details', $produto->slug) }}">
+                                    @php
+                                        $imagemExibicao = $produto->imagens ? ($produto->imagens->firstWhere('principal', true) ?? $produto->imagens->first()) : null;
+                                    @endphp
+                                    <img src="{{ $imagemExibicao ? asset($imagemExibicao->caminho) : asset('img/sem-foto.jpg') }}"
+                                        alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
+                                </a>
+                                <span class="Descricao">{{ $produto->nome_produto }}</span>
+                                <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
+                                <button>
+                                    <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <!-- <div class="swiper-pagination"></div> -->
             </div>
         </section>
+
+
 
         <section class="categorias">
             <h2 class="titulo-categorias">Novidades</h2>
             <div class="faixa"></div>
-            <div class="retangulos-best-seller">
-                @foreach($novidades as $produto)
-                    <div class="retangulo">
-                        <a href="{{ route('home.details', $produto->slug) }}">
-                            <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
-                                alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
-                        </a>
-                        <span class="Descricao">{{ $produto->nome_produto }}</span>
-                        <span class="Descricao">{{ Str::limit($produto->variacao, 25) }}</span>
-                        <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
-                        <button>
-                            <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-                        </button>
-                    </div>
-                @endforeach
+
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                    @foreach($novidades as $produto)
+                        <div class="swiper-slide">
+                            <div class="retangulo">
+                                <a href="{{ route('home.details', $produto->slug) }}">
+                                    <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                                        alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
+                                </a>
+                                <span class="Descricao">{{ $produto->nome_produto }}</span>
+                                <span class="Descricao">{{ Str::limit($produto->variacao, 25) }}</span>
+                                <span class="Precinho">R$ {{ number_format($produto->preco, 2, ',', '.') }}</span>
+                                <button>
+                                    <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+
             </div>
         </section>
+
+
         <div class="season-container">
             <div class="season-block winter">
                 <a href="{{ route('temporada', ['temporada' => 'inverno']) }}">
@@ -138,28 +163,75 @@
     <section class="customer-reviews">
         <h2 class="titulo-avaliacoes">Avaliações dos Clientes</h2>
         <div class="faixa"></div>
-        <div class="reviews-container">
-            @forelse($avaliacoes as $avaliacao)
-                <div class="review">
-                    <p class="review-texto">"{{ $avaliacao->comentario }}"</p>
-                    <div class="review-rating">
-                        @for ($i = 1; $i <= 5; $i++)
-                            @if ($i <= $avaliacao->nota)
-                                <i class="fas fa-star"></i> {{-- Estrela cheia --}}
-                            @else
-                                <i class="far fa-star"></i> {{-- Estrela vazia (contorno) --}}
-                            @endif
-                        @endfor
+
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                @forelse($avaliacoes as $avaliacao)
+                    <div class="swiper-slide"> {{-- CLASSE ESSENCIAL --}}
+                        <div class="review">
+                            <p class="review-texto">"{{ $avaliacao->comentario }}"</p>
+                            <div class="review-rating">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if ($i <= $avaliacao->nota)
+                                        <i class="fas fa-star"></i>
+                                    @else
+                                        <i class="far fa-star"></i>
+                                    @endif
+                                @endfor
+                            </div>
+                            <span class="review-author">- {{ $avaliacao->usuario->name ?? 'Anônimo' }}</span>
+                        </div>
                     </div>
-                    <span class="review-author">- {{ $avaliacao->usuario->name ?? 'Anônimo' }}</span>
-                </div>
-            @empty
-                <div class="text-center py-8">
-                    <p class="text-gray-600 text-lg">Ainda não há avaliações de clientes para exibir. Seja o primeiro a avaliar!
-                    </p>
-                </div>
-            @endforelse
+                @empty
+                    <div class="swiper-slide">
+                        <div class="text-center py-8">
+                            <p class="text-gray-600 text-lg">Ainda não há avaliações.</p>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+            <!-- Setas -->
+            <!-- <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div> -->
         </div>
     </section>
+
+    <!-- script dos 3 carrosseis -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const carrosseis = document.querySelectorAll('.mySwiper');
+
+            carrosseis.forEach((el) => {
+                const secaoTitulo = el.parentElement.querySelector('h2')?.innerText.toLowerCase();
+
+                let delayTime = 3700; // Padrão Produtos
+
+                if (secaoTitulo && secaoTitulo.includes('novidades')) {
+                    delayTime = 4000; // Novidades (meio segundo mais rápido)
+                } else if (secaoTitulo && secaoTitulo.includes('clientes')) {
+                    delayTime = 5000; // Avaliações (mais lento para leitura)
+                }
+
+                new Swiper(el, {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                    loop: true,
+                    autoplay: {
+                        delay: delayTime, // Aplica o tempo dinâmico aqui
+                        disableOnInteraction: false,
+                    },
+                    navigation: {
+                        nextEl: el.querySelector('.swiper-button-next'),
+                        prevEl: el.querySelector('.swiper-button-prev'),
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 },
+                        1400: { slidesPerView: 4 }
+                    },
+                });
+            });
+        });
+    </script>
 
 @endsection {{-- FIM DO CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}

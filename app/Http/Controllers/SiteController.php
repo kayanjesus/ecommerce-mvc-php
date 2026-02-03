@@ -19,25 +19,32 @@ class SiteController extends Controller
 
         $categoriasTopo = Categoria::whereIn('nome_categoria', ['Bebê', 'Menina', 'Menino'])->get();
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
-        $novidades = Produto::orderBy('created_at', 'desc')->take(4)->get();
+
+        // PEGUE MAIS PRODUTOS E USE .get() EM VEZ DE .paginate()
+        $produtos = Produto::with('imagens')->where('ativo', 'S')->take(12)->get();
+
+        // Pegamos os 10 mais recentes (pelo ID ou created_at)
+        $novidades = Produto::with('imagens')
+            ->where('ativo', 'S')
+            ->orderBy('id_produto', 'desc') // Mais recentes primeiro
+            ->take(10)              // Pegamos 10 para o carrossel rodar
+            ->get();
 
         $avaliacoes = Avaliacao::with('usuario')
             ->whereNotNull('comentario')
-            ->where('nota', '>=', 4)
-            ->latest()
-            ->take(6)
+            ->where('nota', '>=', 3) // apanas avaliaçoes >= 3 estrelas
+            ->orderBy('id_avaliacao', 'desc') // Mais recentes (ID maior) primeiro
+            ->take(10)
             ->get();
 
         if ($search) {
             return redirect()->route('home.categoria', ['id_categoria' => 0, 'search' => $search]);
         }
 
-        $produtos = Produto::paginate(4);
-
         return view('home.index', [
             'categoriasTopo' => $categoriasTopo,
             'categoriasMenu' => $categoriasMenu,
-            'produtos' => $produtos,
+            'produtos' => $produtos, // Agora contém a lista para o carrossel
             'novidades' => $novidades,
             'avaliacoes' => $avaliacoes,
         ]);
@@ -234,9 +241,9 @@ class SiteController extends Controller
         ));
     }
 
-    public function novidades()
-    {
-        $novidades = Produto::latest()->take(4)->get();
-        return view('sua-view', compact('novidades'));
-    }
+    //         public function novidades()
+//     {
+//         $novidades = Produto::latest()->take(10)->get();
+//         return view('sua-view', compact('novidades'));
+//     }
 }

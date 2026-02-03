@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<head>
+    <title>Cantinho da Isa</title>
+</head>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">

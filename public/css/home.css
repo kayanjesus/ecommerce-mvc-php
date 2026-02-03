@@ -1065,3 +1065,74 @@ input[type="text"]:focus {
     border-color: #ccc !important;
     /* ou a cor padrão da sua borda */
 }
+
+/* CARROSSEIS */
+/* GERAL/PRODUTOS */
+.mySwiper {
+    padding: 10px 10px 10px 10px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: #9b2a2a !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    /* Fundo mais opaco para ver a seta */
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+    z-index: 999 !important;
+    /* Valor bem alto */
+    display: flex !important;
+    /* Garante que o container da seta exista */
+    align-items: center;
+    justify-content: center;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+    font-size: 18px !important;
+    font-weight: bold;
+}
+
+
+/* NOVIDADES */
+/* No home.css */
+.categorias .swiper {
+    padding: 10px 15px 10px 15px !important;
+    /* Espaço para setas não ficarem em cima da imagem */
+    width: 100%;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: var(--primary-color) !important;
+    z-index: 100;
+}
+
+
+
+/* AVALIAÇOES */
+/* Garante que o card de review ocupe a largura correta no carrossel */
+.customer-reviews .swiper-slide {
+    display: flex;
+    justify-content: center;
+    height: auto;
+}
+
+.review {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    /* Ocupa o slide todo */
+    max-width: 300px;
+    /* Ou o tamanho que você preferir */
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

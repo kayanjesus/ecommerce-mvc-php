@@ -618,11 +618,7 @@ class PagamentoController extends Controller
                         "address" => $shippingAddress
                     ],
                     "notification_urls" => [
-<<<<<<< Updated upstream
-                        "https://74a9b59fd266.ngrok-free.app/webhooks/pagseguro" // Placeholder! MUDAR ISSO!
-=======
-                        "https://2afa823bb3e0.ngrok-free.app/webhooks/pagseguro" // Placeholder! MUDAR ISSO!
->>>>>>> Stashed changes
+                        "https://277268266789.ngrok-free.app/webhooks/pagseguro" // Placeholder! MUDAR ISSO!
                     ]
                 ];
 
