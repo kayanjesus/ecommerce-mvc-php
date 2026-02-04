@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ asset('css/descricao.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/details.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <title>Cantinho da Isa</title>
     </head>
@@ -19,8 +19,8 @@
         <main>
             <section class="product-detail">
                 <div class="product-gallery">
-                    <button class="carousel-button prev">&lt;</button>
-                    <button class="carousel-button next">&gt;</button>
+                    <!-- <button class="carousel-button prev">&lt;</button>
+                                    <button class="carousel-button next">&gt;</button> -->
                     <div class="carousel-container">
                         <div class="carousel-track">
                             <div class="main-image">
@@ -95,7 +95,7 @@
                                 <button type="button" class="color-btn" data-cor-id="{{ $variacao->cor->id_cor }}" {{-- Usar
                                     id_cor --}}
                                     style="background-color: {{ $variacao->cor->codigo_hex }};
-                                                                                                                                               border: 1px solid {{ $variacao->cor->codigo_hex == '#FFFFFF' ? '#ccc' : 'transparent' }};"
+                                                                                                                                                                                               border: 1px solid {{ $variacao->cor->codigo_hex == '#FFFFFF' ? '#ccc' : 'transparent' }};"
                                     title="{{ $variacao->cor->nome }}"></button>
                             @endforeach
                         </div>
@@ -157,83 +157,194 @@
                     </div>
 
                     <div id="caracteristicas" class="tab-pane">
-                        <h3 classe="h3-sicroniza-cor">Características Técnicas</h3>
+
                         <ul class="specs-list">
-                            <li><strong>Marca:</strong> {{ $produto->marca }}</li>
-                            <li><strong>Composição:</strong> {{ $produto->tecido }}</li>
-                            <li><strong>Cores disponíveis:</strong>
+                            <li class="marca"><strong>Marca:</strong> {{ $produto->marca }}</li>
+                            <li class="composicao"><strong>Composição:</strong> {{ $produto->tecido }}</li>
+                            <li class="cores"><strong>Cores disponíveis:</strong>
                                 @foreach($produto->variacoes->unique('cor_id') as $variacao)
                                     <span class="color-chip" style="background-color: {{ $variacao->cor->codigo_hex }}"></span>
                                     <span>{{ $variacao->cor->nome }}</span>
                                 @endforeach
                             </li>
-                            <li><strong>Modelo:</strong> {{ $produto->modelo }}</li>
-                            <li><strong>Estação:</strong> {{ $produto->estacao }}</li>
+                            <li class="modelo"><strong>Modelo:</strong> {{ $produto->modelo }}</li>
+                            <li class="estacao"><strong>Estação:</strong> {{ $produto->estacao }}</li>
                         </ul>
                     </div>
                 </div>
             </section>
 
             <!-- <section class="related-products">
-                <h2>Relacionados</h2>
-                <div class="products-grid">
-                    @foreach ($produtos as $produto)
-                        <div class="product-card">
-                            <a href="{{ route('home.details', $produto->slug) }}">
-                                <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
-                                    alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
-                            </a>
-                            <h3 classe="h3-sicroniza-cor">{{ $produto->nome_produto }}</h3>
-                            <p class="price">R$ {{ number_format($produto->preco, 2, ',', '.') }}</p>
-                            <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-                        </div>
-                    @endforeach
-                </div>
-            </section> -->
+                                        <h2>Relacionados</h2>
+                                        <div class="products-grid">
+                                            @foreach ($produtos as $produto)
+                                                <div class="product-card">
+                                                    <a href="{{ route('home.details', $produto->slug) }}">
+                                                        <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
+                                                            alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
+                                                    </a>
+                                                    <h3 classe="h3-sicroniza-cor">{{ $produto->nome_produto }}</h3>
+                                                    <p class="price">R$ {{ number_format($produto->preco, 2, ',', '.') }}</p>
+                                                    <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </section> -->
 
 
             {{-- Seção de Avaliações (Review Section) --}}
             <section class="reviews">
-                {{-- USAR O NOVO ACCESSOR: $produto->total_avaliacoes --}}
                 <h2>Avaliações de Clientes ({{ $produto->total_avaliacoes }})</h2>
 
-                {{-- Adicione/ajuste a exibição da média de avaliação --}}
                 @if ($produto->total_avaliacoes > 0)
-                    <p>Média de Avaliação:
-                        <strong>{{ $produto->media_avaliacao }}</strong> / 5
-                        ({{ $produto->total_avaliacoes }} avaliações)
-                    </p>
-
-                    {{-- Lógica para exibir as estrelas (usando a média, opcional) --}}
-                    {{-- Você pode adicionar aqui a lógica de estrelas para a média se quiser --}}
+                    <div class="reviews-summary">
+                        <p>Média de Avaliação:
+                            <strong>{{ $produto->media_avaliacao }}</strong> / 5
+                            <span class="star-rating" style="display: inline-block; margin-left: 10px;">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <i class="fa-star fa-{{ $i <= $produto->media_avaliacao ? 'solid' : 'regular' }} fa-star-size"
+                                        style="color: #ffc107;"></i>
+                                @endfor
+                            </span>
+                        </p>
+                    </div>
                 @else
                     <p>Este produto ainda não possui avaliações.</p>
                 @endif
 
-                <hr style="margin: 20px 0;">
-
-                {{-- EXIBIÇÃO DAS AVALIAÇÕES INDIVIDUAIS: USAR O RELACIONAMENTO DIRETO $produto->avaliacoes --}}
-                @forelse ($produto->avaliacoes as $avaliacao)
-                    <div class="review">
-                        <p><strong>{{ $avaliacao->usuario->name ?? 'Cliente Anônimo' }}</strong>
-                            {{ $avaliacao->created_at->format('d/m/Y') }}
-                        </p>
-                        <div class="star-rating">
-                            {{-- Lógica de exibição das estrelas (5 estrelas fixas) --}}
-                            @for ($i = 1; $i <= 5; $i++)
-                                <i class="fa-star fa-{{ $i <= $avaliacao->nota ? 'solid' : 'regular' }} fa-star-size"
-                                    style="color: #ffc107;"></i>
-                            @endfor
+                <div class="reviews-container">
+                    @forelse ($produto->avaliacoes as $avaliacao)
+                        <div class="review">
+                            <div class="review-header">
+                                <div class="review-user">
+                                    <strong>{{ $avaliacao->usuario->name ?? 'Cliente Anônimo' }}</strong>
+                                    <span class="review-date">{{ $avaliacao->created_at->format('d/m/Y') }}</span>
+                                </div>
+                                <div class="star-rating">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <i class="fa-star fa-{{ $i <= $avaliacao->nota ? 'solid' : 'regular' }} fa-star-size"
+                                            style="color: #ffc107;"></i>
+                                    @endfor
+                                </div>
+                            </div>
+                            <div class="review-text">
+                                {{ $avaliacao->comentario }}
+                            </div>
                         </div>
-                        <p>{{ $avaliacao->comentario }}</p>
-                    </div>
-                @empty
-                    <p>Seja o primeiro a avaliar este produto!</p>
-                @endforelse
+                    @empty
+                        <div class="no-reviews">
+                            <p>Seja o primeiro a avaliar este produto!</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- Botão para ver mais avaliações (se houver muitas) --}}
+                @if ($produto->total_avaliacoes > 3)
+                    <button class="see-more">Ver mais avaliações</button>
+                @endif
             </section>
 
         </main>
 
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Sistema de abas (mantido)
+                const tabButtons = document.querySelectorAll('.tab-button');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        document.querySelectorAll('.tab-button').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        document.querySelectorAll('.tab-pane').forEach(pane => {
+                            pane.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        const tabId = this.getAttribute('data-tab');
+                        document.getElementById(tabId).classList.add('active');
+                    });
+                });
+
+                // Função para trocar imagem principal
+                function changeMainImage(thumbnail) {
+                    const mainImage = document.getElementById('mainProductImage');
+                    if (mainImage && thumbnail) {
+                        mainImage.src = thumbnail.src;
+
+                        // Atualizar classes ativas
+                        document.querySelectorAll('.thumbnail').forEach(img => {
+                            img.classList.remove('active');
+                        });
+                        thumbnail.classList.add('active');
+
+                        // Adicionar efeito visual
+                        mainImage.style.opacity = '0.8';
+                        setTimeout(() => {
+                            mainImage.style.opacity = '1';
+                        }, 150);
+                    }
+                }
+
+                // Configurar eventos para miniaturas
+                document.querySelectorAll('.thumbnail').forEach(thumb => {
+                    thumb.addEventListener('click', function () {
+                        changeMainImage(this);
+                    });
+                });
+
+                // Sistema de seleção de tamanho e cor (mantido)
+                const tamanhoBtns = document.querySelectorAll('.tamanho-btn');
+                const colorBtns = document.querySelectorAll('.color-btn');
+                const addToCartBtn = document.getElementById('add-to-cart-btn');
+                const formTamanhoInput = document.querySelector('form[action="{{ route('home.addcarrinho') }}"] [name="tamanho_id"]');
+                const formCorInput = document.querySelector('form[action="{{ route('home.addcarrinho') }}"] [name="cor_id"]');
+
+                function checkSelection() {
+                    const tamanhoSelecionado = formTamanhoInput.value;
+                    const corSelecionada = formCorInput.value;
+                    addToCartBtn.disabled = !(tamanhoSelecionado && corSelecionada);
+                }
+
+                tamanhoBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        tamanhoBtns.forEach(b => b.classList.remove('selected'));
+                        this.classList.add('selected');
+                        formTamanhoInput.value = this.dataset.tamanhoId;
+                        checkSelection();
+                    });
+                });
+
+                colorBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        colorBtns.forEach(b => b.classList.remove('selected'));
+                        this.classList.add('selected');
+                        formCorInput.value = this.dataset.corId;
+                        checkSelection();
+
+                        // Ajustar borda para cores claras
+                        const bgColor = this.style.backgroundColor.toLowerCase();
+                        if (bgColor === '#ffffff' || bgColor === 'white' || bgColor === '#fff') {
+                            this.style.border = '2px solid #ccc';
+                        } else {
+                            this.style.border = '2px solid transparent';
+                        }
+                    });
+                });
+
+                // Inicializar estado do botão
+                checkSelection();
+
+                // Botão "Ver mais avaliações"
+                const seeMoreBtn = document.querySelector('.see-more');
+                if (seeMoreBtn) {
+                    seeMoreBtn.addEventListener('click', function () {
+                        // Implementar lógica para carregar mais avaliações via AJAX
+                        alert('Funcionalidade de carregar mais avaliações será implementada aqui.');
+                    });
+                }
+            });
+        </script>
 
 
         <script>
@@ -319,11 +430,29 @@
 
         <script>
             function changeMainImage(thumbnail) {
-                document.getElementById('mainProductImage').src = thumbnail.src;
-                document.querySelectorAll('.thumbnail').forEach(img => {
-                    img.classList.remove('active');
-                });
-                thumbnail.classList.add('active');
+                const mainImage = document.getElementById('mainProductImage');
+                if (mainImage && thumbnail) {
+                    // Efeito de transição suave
+                    mainImage.style.opacity = '0.7';
+                    mainImage.style.transform = 'scale(0.98)';
+
+                    setTimeout(() => {
+                        mainImage.src = thumbnail.src;
+                        mainImage.alt = thumbnail.alt || 'Imagem do produto';
+
+                        // Restaurar opacidade e escala
+                        setTimeout(() => {
+                            mainImage.style.opacity = '1';
+                            mainImage.style.transform = 'scale(1)';
+                        }, 50);
+                    }, 150);
+
+                    // Atualizar classes ativas
+                    document.querySelectorAll('.thumbnail').forEach(img => {
+                        img.classList.remove('active');
+                    });
+                    thumbnail.classList.add('active');
+                }
             }
         </script>
 
