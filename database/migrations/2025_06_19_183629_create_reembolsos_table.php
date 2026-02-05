@@ -5,9 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('reembolsos', function (Blueprint $table) {
@@ -16,6 +13,7 @@ return new class extends Migration {
             $table->decimal('valor_reembolso', 10, 2);
             $table->string('motivo')->nullable();
             $table->string('status')->default('solicitado')->comment('solicitado, aprovado, negado, processando, concluido');
+            $table->string('codigo_reembolso_pagseguro')->nullable(); // NOVA COLUNA
             $table->timestamp('data_solicitacao')->useCurrent();
             $table->timestamp('data_processamento')->nullable();
             $table->timestamp('data_conclusao')->nullable();
@@ -23,9 +21,6 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('reembolsos');

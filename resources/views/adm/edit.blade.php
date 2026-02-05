@@ -4,30 +4,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cantinho da Isa | Editar Produto</title>
+    <title>C - Editar Produto</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('css/adm/cadastro de produtos.css') }}" />
-    <style>
-        /* Seus estilos CSS existentes aqui */
-        .select2-container--default .select2-selection--multiple {
-            min-height: 40px;
-        }
+    <link rel="stylesheet" href="{{ asset('css/adm/edit.css') }}" />
 
-        .color-option {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            vertical-align: middle;
-            border-radius: 50%;
-            border: 1px solid #ccc;
-        }
-
-        /* Adicione outros estilos conforme necessário */
-    </style>
 </head>
 
 <body>
@@ -50,7 +33,7 @@
                             <i class="bi bi-person-circle"></i> {{ Auth::user()->email }}
                         </a>
                     </div>
-                    
+
                     <ul class="nav flex-column sidebar-menu flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link menu-button" href="{{ route('adm.vendas') }}">
@@ -83,7 +66,7 @@
                             </a>
                         </li>
                     </ul>
-                    
+
                     <div class="mt-auto p-3">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -94,7 +77,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="mb-0"><i class="bi bi-box-seam"></i> Editar Produto</h2>
@@ -103,197 +86,306 @@
                             <i class="bi bi-arrow-left"></i> Voltar
                         </a>
                         <button type="submit" form="editProductForm" class="btn btn-primary">
-                            <i class="bi bi-pencil"></i> Salvar Alterações
+                            <i class="bi bi-save"></i> Salvar Alterações
                         </button>
                     </div>
                 </div>
-                
+
+                @if($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if(session('success'))
                     <div class="alert alert-success">
                         {{ session('success') }}
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ route('produtos.update', $produto->id_produto) }}" enctype="multipart/form-data" id="editProductForm">
+                        <form method="POST" action="{{ route('produtos.update', $produto->id_produto) }}"
+                            enctype="multipart/form-data" id="editProductForm">
                             @csrf
                             @method('PUT')
-                            
+
                             <div class="row">
+                                <!-- Coluna da Imagem e Galeria -->
                                 <div class="col-md-4">
-                                    <div class="product-image-container mb-4">
+                                    <div class="mb-4">
+                                        <h5>Imagem Principal</h5>
+
                                         @php
                                             $mainImage = $produto->imagens->where('principal', true)->first() ?? $produto->imagens->first();
                                         @endphp
-                                        
-                                        <div class="image-preview" id="imagePreview">
+
+                                        <div id="mainImageContainer">
                                             @if($mainImage)
-                                                <img src="{{ asset($mainImage->caminho) }}" alt="{{ $produto->nome_produto }}" id="productImage">
+                                                <img src="{{ asset($mainImage->caminho) }}"
+                                                    alt="{{ $produto->nome_produto }}" class="product-main-image"
+                                                    id="productMainImage">
                                             @else
-                                                <div class="empty-preview">
+                                                <div class="empty-image">
                                                     <i class="fas fa-image fa-3x mb-2"></i>
-                                                    <span>Nenhuma imagem</span>
+                                                    <span>Nenhuma imagem principal</span>
                                                 </div>
                                             @endif
-                                            
                                         </div>
-                                        
-                                        <div class="mt-3 d-flex justify-content-between">
-                                            <button type="button" class="btn btn-outline-primary" id="alterarFotoBtn" onclick="document.getElementById('productImages').click()">
-                                                <i class="bi bi-image"></i> Alterar Foto
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" id="excluirFotoBtn" onclick="removeMainImage()">
-                                                <i class="bi bi-trash"></i> Excluir
-                                            </button>
+
+                                        <div class="mt-3">
+                                            <label class="d-block mb-2">Galeria de Imagens</label>
+                                            <div class="thumbnail-container" id="thumbnailsContainer">
+                                                @foreach($produto->imagens as $imagem)
+                                                    <div class="thumbnail-wrapper" data-image-id="{{ $imagem->id }}">
+                                                        <img src="{{ asset($imagem->caminho) }}"
+                                                            class="thumbnail {{ $imagem->principal ? 'active' : '' }}"
+                                                            data-image-id="{{ $imagem->id }}"
+                                                            onclick="setAsMainImage(this, {{ $imagem->id }})"
+                                                            alt="Imagem do produto">
+                                                        <div class="thumbnail-remove"
+                                                            onclick="removeImage(this, {{ $imagem->id }})">
+                                                            <i class="fas fa-times"></i>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
-                                        
-                                        <input type="file" id="productImages" name="imagens[]" accept="image/*" multiple style="display: none;" />
-                                        <input type="hidden" name="removed_images" id="removedImages">
-                                        <input type="hidden" name="main_image_id" id="mainImageId" value="{{ $mainImage->id ?? '' }}">
-                                        
-                                        
+
+                                        <!-- Área para upload de novas imagens -->
+                                        <div class="image-upload-area mt-3"
+                                            onclick="document.getElementById('newImagesInput').click()">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p class="mb-0">Clique para adicionar novas imagens</p>
+                                            <small class="text-muted">Arraste ou clique para fazer upload</small>
+                                        </div>
+
+                                        <input type="file" id="newImagesInput" name="imagens[]" accept="image/*"
+                                            multiple style="display: none;" onchange="previewNewImages(this)">
+
+                                        <!-- Campos hidden para controle -->
+                                        <input type="hidden" name="removed_images" id="removedImages" value="">
+                                        <input type="hidden" name="main_image_id" id="mainImageId"
+                                            value="{{ $mainImage->id ?? '' }}">
                                     </div>
-                                    
+
+                                    <!-- Avaliações -->
                                     <div class="card mb-3">
                                         <div class="card-header bg-primary text-white">
                                             <i class="bi bi-star"></i> Avaliações
                                         </div>
                                         <div class="card-body">
-                                            @foreach($produto->avaliacao as $avaliacao)
-                                                <div class="avaliacao-item">
-                                                    <div class="d-flex justify-content-between">
-                                                        <strong>{{ $avaliacao->usuario->name }}</strong>
+                                            @forelse($produto->avaliacao as $avaliacao)
+                                                <div class="avaliacao-item mb-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong>{{ $avaliacao->usuario->name ?? 'Usuário' }}</strong>
                                                         <div class="text-warning">
                                                             @for($i = 1; $i <= 5; $i++)
-                                                                <i class="bi bi-star{{ $i <= $avaliacao->nota ? '-fill' : '' }}"></i>
+                                                                <i
+                                                                    class="bi bi-star{{ $i <= $avaliacao->nota ? '-fill' : '' }}"></i>
                                                             @endfor
                                                         </div>
                                                     </div>
-                                                    <p class="mb-0 mt-2">{{ $avaliacao->comentario }}</p>
-                                                    <small class="text-muted">{{ $avaliacao->created_at->format('d/m/Y') }}</small>
+                                                    <p class="mb-2">{{ $avaliacao->comentario }}</p>
+                                                    <small class="text-muted">
+                                                        {{ \Carbon\Carbon::parse($avaliacao->created_at)->format('d/m/Y H:i') }}
+                                                    </small>
                                                 </div>
                                                 @if(!$loop->last)
-                                                    <hr>
+                                                    <hr class="my-2">
                                                 @endif
-                                            @endforeach
-                                            
-                                            @if($produto->avaliacao->isEmpty())
+                                            @empty
                                                 <p class="text-muted mb-0">Nenhuma avaliação ainda.</p>
-                                            @endif
+                                            @endforelse
                                         </div>
                                     </div>
                                 </div>
-                                
+
+                                <!-- Coluna do Formulário -->
                                 <div class="col-md-8">
                                     <div class="row g-3">
+                                        <!-- Nome do Produto -->
                                         <div class="col-md-12">
-                                            <h3 class="product-name">
-                                                <input type="text" class="form-control" name="nome" value="{{ old('nome', $produto->nome_produto) }}" required>
-                                            </h3>
+                                            <div class="mb-3">
+                                                <label for="nome" class="form-label">Nome do Produto</label>
+                                                <input type="text" class="form-control" id="nome" name="nome"
+                                                    value="{{ old('nome', $produto->nome_produto) }}" required>
+                                            </div>
                                             <p class="text-muted">Código: {{ $produto->codigo }}</p>
                                         </div>
-                                        
+
+                                        <!-- Categorias -->
                                         <div class="col-md-6">
-                                            <label class="form-label">Tipo do produto</label>
-                                            <select name="categorias[]" class="form-control categorias-select" multiple required>
-                                                @foreach ($categorias as $categoria)
-                                                    <option value="{{ $categoria->id_categoria }}"
-                                                        {{ $produto->categorias->contains('id_categoria', $categoria->id_categoria) ? 'selected' : '' }}>
-                                                        {{ $categoria->nome_categoria }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Variação</label>
-                                            <input type="text" class="form-control" name="variacao" value="{{ old('variacao', $produto->variacao) }}" required>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Cor</label>
-                                            <select name="cores[]" class="form-control cores-select" multiple required>
-                                                @foreach ($cores as $cor)
-                                                    <option value="{{ $cor->id_cor }}" data-hex="{{ $cor->codigo_hex }}"
-                                                        {{ $produto->variacoes->contains('cor_id', $cor->id_cor) ? 'selected' : '' }}>
-                                                        <span class="color-option" style="background-color: {{ $cor->codigo_hex }}"></span>
-                                                        {{ $cor->nome }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Marca</label>
-                                            <input type="text" class="form-control" name="marca" value="{{ old('marca', $produto->marca) }}" required>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Tamanho</label>
-                                            <select name="tamanhos[]" class="form-control tamanhos-select" multiple required>
-                                                @foreach ($tamanhos as $tamanho)
-                                                    <option value="{{ $tamanho->id_tamanho }}"
-                                                        {{ $produto->variacoes->contains('tamanho_id', $tamanho->id_tamanho) ? 'selected' : '' }}>
-                                                        {{ $tamanho->nome }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Tecido</label>
-                                            <input type="text" class="form-control" name="tecido" value="{{ old('tecido', $produto->tecido) }}" required>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Estação</label>
-                                            <select name="estacao" class="form-control" required>
-                                                <option value="Verão" {{ $produto->estacao == 'Verão' ? 'selected' : '' }}>Verão</option>
-                                                <option value="Inverno" {{ $produto->estacao == 'Inverno' ? 'selected' : '' }}>Inverno</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Valor</label>
-                                            <input type="number" step="0.01" class="form-control" name="valor" value="{{ old('valor', $produto->preco) }}" required>
-                                        </div>
-                                        
-                                        <div class="col-md-6">
-                                            <label class="form-label">Estoque Total</label>
-                                            <div class="d-flex align-items-center">
-                                                <input type="number" class="form-control me-2" name="estoque" value="{{ old('estoque', $produto->variacoes->sum('estoque')) }}" required>
+                                            <div class="mb-3">
+                                                <label class="form-label">Categorias</label>
+                                                <select name="categorias[]" class="form-control categorias-select"
+                                                    multiple required>
+                                                    @foreach ($categorias as $categoria)
+                                                        <option value="{{ $categoria->id_categoria }}" {{ in_array($categoria->id_categoria, old('categorias', $produto->categorias->pluck('id_categoria')->toArray())) ? 'selected' : '' }}>
+                                                            {{ $categoria->nome_categoria }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <small class="text-muted">Selecione uma ou mais categorias</small>
                                             </div>
                                         </div>
-                                        
+
+                                        <!-- Variação -->
                                         <div class="col-md-6">
-                                            <label class="form-label">Modelo</label>
-                                            <input type="text" class="form-control" name="modelo" value="{{ old('modelo', $produto->modelo) }}" required>
+                                            <div class="mb-3">
+                                                <label class="form-label">Variação</label>
+                                                <input type="text" class="form-control" name="variacao"
+                                                    value="{{ old('variacao', $produto->variacao) }}" required>
+                                            </div>
                                         </div>
-                                        
-                                        <div class="col-md-12 mt-4">
-                                            <label class="form-label">Descrição</label>
+
+                                        <!-- Cores -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Cores</label>
+                                                <select name="cores[]" class="form-control cores-select" multiple
+                                                    required>
+                                                    @foreach ($cores as $cor)
+                                                        <option value="{{ $cor->id_cor }}" data-hex="{{ $cor->codigo_hex }}"
+                                                            {{ in_array($cor->id_cor, old('cores', $produto->variacoes->pluck('cor_id')->toArray())) ? 'selected' : '' }}>
+                                                            <span class="color-option"
+                                                                style="background-color: {{ $cor->codigo_hex }}"></span>
+                                                            {{ $cor->nome }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Marca -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Marca</label>
+                                                <input type="text" class="form-control" name="marca"
+                                                    value="{{ old('marca', $produto->marca) }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tamanhos -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Tamanhos</label>
+                                                <select name="tamanhos[]" class="form-control tamanhos-select" multiple
+                                                    required>
+                                                    @foreach ($tamanhos as $tamanho)
+                                                        <option value="{{ $tamanho->id_tamanho }}" {{ in_array($tamanho->id_tamanho, old('tamanhos', $produto->variacoes->pluck('tamanho_id')->toArray())) ? 'selected' : '' }}>
+                                                            {{ $tamanho->nome }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tecido -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Tecido</label>
+                                                <input type="text" class="form-control" name="tecido"
+                                                    value="{{ old('tecido', $produto->tecido) }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Estação -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Estação</label>
+                                                <select name="estacao" class="form-control" required>
+                                                    <option value="Verão" {{ old('estacao', $produto->estacao) == 'Verão' ? 'selected' : '' }}>Verão</option>
+                                                    <option value="Inverno" {{ old('estacao', $produto->estacao) == 'Inverno' ? 'selected' : '' }}>Inverno
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Preço -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Preço (R$)</label>
+                                                <input type="number" step="0.01" class="form-control" name="valor"
+                                                    value="{{ old('valor', $produto->preco) }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Estoque -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Estoque Total</label>
+                                                <input type="number" class="form-control" name="estoque"
+                                                    value="{{ old('estoque', $produto->variacoes->sum('estoque')) }}"
+                                                    required>
+                                                <small class="text-muted">Quantidade total em estoque</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modelo -->
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Modelo</label>
+                                                <input type="text" class="form-control" name="modelo"
+                                                    value="{{ old('modelo', $produto->modelo) }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Descrição -->
+                                        <div class="col-12">
+                                            <div class="mb-3">
+                                                <label class="form-label">Descrição</label>
+                                                <textarea class="form-control" name="descricao"
+                                                    rows="4">{{ old('descricao', $produto->descricao) }}</textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Histórico de Movimentação -->
+                                        <div class="col-12">
                                             <div class="card">
-                                                <div class="card-body">
-                                                    <textarea class="form-control" name="descricao" rows="3">{{ old('descricao', $produto->descricao) }}</textarea>
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">Histórico de Movimentação</h6>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="col-md-12 mt-4">
-                                            <label class="form-label">Histórico de Movimentação</label>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Data</th>
-                                                            <th>Tipo</th>
-                                                            <th>Quantidade</th>
-                                                            <th>Responsável</th>
-                                                        </tr>
-                                                    </thead>
-                                                    
-                                                </table>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Data</th>
+                                                                    <th>Tipo</th>
+                                                                    <th>Quantidade</th>
+                                                                    <th>Responsável</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <!-- Exemplo de dados - você deve substituir pelos dados reais do seu sistema -->
+                                                                <tr class="history-row">
+                                                                    <td>10/03/2024</td>
+                                                                    <td><span class="badge bg-success">Entrada</span>
+                                                                    </td>
+                                                                    <td>50</td>
+                                                                    <td>Admin</td>
+                                                                </tr>
+                                                                <tr class="history-row">
+                                                                    <td>05/03/2024</td>
+                                                                    <td><span class="badge bg-danger">Saída</span></td>
+                                                                    <td>10</td>
+                                                                    <td>Sistema</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -306,39 +398,15 @@
         </div>
     </div>
 
-    <!-- Modal para Adicionar Estoque -->
-    <div class="modal fade" id="estoqueModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Adicionar ao Estoque</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formEstoque">
-                        <div class="mb-3">
-                            <label for="quantidade" class="form-label">Quantidade</label>
-                            <input type="number" class="form-control" id="quantidade" min="1" value="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="observacao" class="form-label">Observação</label>
-                            <textarea class="form-control" id="observacao" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmarEstoqueBtn">Confirmar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        // Inicialização do Select2 para os selects múltiplos
+        // Variáveis globais
+        let removedImages = [];
+        let newImages = [];
+
+        // Inicialização do Select2
         $(document).ready(function () {
             $('.categorias-select').select2({
                 placeholder: "Selecione as categorias",
@@ -349,7 +417,7 @@
             $('.cores-select').select2({
                 templateResult: formatColor,
                 templateSelection: formatColor,
-                escapeMarkup: function(m) { return m; },
+                escapeMarkup: function (m) { return m; },
                 placeholder: "Selecione as cores",
                 width: '100%'
             });
@@ -363,164 +431,198 @@
             function formatColor(option) {
                 if (!option.id) return option.text;
                 var hex = $(option.element).data('hex');
-                return $('<span><span class="color-option" style="background-color:'+hex+'"></span> ' + option.text + '</span>');
+                if (hex) {
+                    return $('<span><span class="color-option" style="background-color:' + hex + '"></span> ' + option.text + '</span>');
+                }
+                return option.text;
             }
         });
 
-        // Variáveis globais para controle de imagens
-        let removedImages = [];
-        let newImages = [];
-
-        // Função para trocar a imagem principal
-        function changeMainImage(thumbnail, imageId) {
-            const newSrc = thumbnail.src;
-            
-            // Atualiza a imagem principal
-            document.getElementById('productImage').src = newSrc;
-            
-            // Atualiza o campo hidden com o ID da imagem principal
-            document.getElementById('mainImageId').value = imageId;
-            
+        // Define uma imagem como principal
+        function setAsMainImage(element, imageId) {
             // Remove a classe 'active' de todas as miniaturas
             document.querySelectorAll('.thumbnail').forEach(thumb => {
                 thumb.classList.remove('active');
             });
-            
-            // Adiciona a classe 'active' apenas na miniatura clicada
-            thumbnail.classList.add('active');
+
+            // Adiciona a classe 'active' na miniatura clicada
+            element.classList.add('active');
+
+            // Atualiza a imagem principal
+            const mainImageContainer = document.getElementById('mainImageContainer');
+            mainImageContainer.innerHTML = `<img src="${element.src}" class="product-main-image" id="productMainImage">`;
+
+            // Atualiza o campo hidden com o ID da imagem principal
+            document.getElementById('mainImageId').value = imageId;
         }
 
-        // Função para remover imagem
-        function removeImage(button, imageId) {
-            const thumbnailWrapper = button.closest('.thumbnail-wrapper');
-            
-            // Se for a imagem principal, precisamos definir uma nova principal
-            if (thumbnailWrapper.querySelector('.thumbnail').classList.contains('active')) {
-                // Encontra a primeira miniatura que não está sendo removida
-                const nextThumbnail = document.querySelector('.thumbnail-wrapper:not(.removing) .thumbnail');
-                if (nextThumbnail) {
-                    changeMainImage(nextThumbnail, nextThumbnail.dataset.imageId);
-                } else {
-                    // Não há mais imagens
-                    document.getElementById('mainImageId').value = '';
-                    document.getElementById('productImage').src = '';
-                    document.getElementById('imagePreview').innerHTML = `
-                        <div class="empty-preview">
-                            <i class="fas fa-image fa-3x mb-2"></i>
-                            <span>Nenhuma imagem</span>
-                        </div>
-                    `;
-                }
-            }
-            
-            // Marca como removendo para evitar seleção durante a animação
-            thumbnailWrapper.classList.add('removing');
-            
-            // Animação de fade out
+        // Remove uma imagem
+        function removeImage(element, imageId) {
+            const thumbnailWrapper = element.closest('.thumbnail-wrapper');
+
+            // Verifica se é a imagem principal
+            const isMainImage = thumbnailWrapper.querySelector('.thumbnail').classList.contains('active');
+
+            // Remove a miniatura
             thumbnailWrapper.style.opacity = '0';
             setTimeout(() => {
                 thumbnailWrapper.remove();
-                
-                // Adiciona o ID da imagem removida ao array
-                if (!isNaN(imageId)) {
-                    removedImages.push(imageId);
-                    document.getElementById('removedImages').value = removedImages.join(',');
-                }
-            }, 300);
-        }
 
-        // Função para remover a imagem principal
-        function removeMainImage() {
-            const mainImage = document.getElementById('productImage');
-            const mainImageId = document.getElementById('mainImageId').value;
-            
-            if (mainImageId) {
-                removedImages.push(mainImageId);
+                // Adiciona ao array de imagens removidas
+                removedImages.push(imageId);
                 document.getElementById('removedImages').value = removedImages.join(',');
-            }
-            
-            document.getElementById('mainImageId').value = '';
-            document.getElementById('imagePreview').innerHTML = `
-                <div class="empty-preview">
-                    <i class="fas fa-image fa-3x mb-2"></i>
-                    <span>Nenhuma imagem</span>
-                </div>
-            `;
-            
-            // Remove a classe 'active' de todas as miniaturas
-            document.querySelectorAll('.thumbnail').forEach(thumb => {
-                thumb.classList.remove('active');
-            });
-        }
 
-        // Pré-visualização de novas imagens
-        document.getElementById('productImages').addEventListener('change', function(e) {
-            const thumbnailContainer = document.getElementById('newThumbnailsContainer');
-            
-            Array.from(this.files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const thumbnailWrapper = document.createElement('div');
-                    thumbnailWrapper.className = 'thumbnail-wrapper';
-                    thumbnailWrapper.innerHTML = `
-                        <img src="${e.target.result}"
-                             class="thumbnail"
-                             onclick="changeMainImage(this, 'new-${index}')"
-                             data-image-id="new-${index}" />
-                        <div class="thumbnail-actions">
-                            <button type="button" onclick="removeNewImage(this, 'new-${index}')"
-                                    title="Remover imagem">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    thumbnailContainer.appendChild(thumbnailWrapper);
-                    
-                    // Se esta for a primeira imagem adicionada e não houver imagem principal, define como principal
-                    if (index === 0 && !document.getElementById('mainImageId').value) {
-                        const imagePreview = document.getElementById('imagePreview');
-                        imagePreview.innerHTML = `<img src="${e.target.result}" id="productImage">`;
-                        document.getElementById('mainImageId').value = 'new-0';
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-
-        // Função para remover novas imagens (ainda não salvas)
-        function removeNewImage(button, imageId) {
-            const thumbnailWrapper = button.closest('.thumbnail-wrapper');
-            
-            // Se for a imagem principal, precisamos definir uma nova principal
-            if (thumbnailWrapper.querySelector('.thumbnail').classList.contains('active')) {
-                // Encontra a primeira miniatura que não está sendo removida
-                const nextThumbnail = document.querySelector('.thumbnail-wrapper:not(.removing) .thumbnail');
-                if (nextThumbnail) {
-                    changeMainImage(nextThumbnail, nextThumbnail.dataset.imageId);
-                } else {
-                    // Volta para a primeira imagem existente, se houver
-                    const existingThumbnail = document.querySelector('.thumbnail:not([data-image-id^="new-"])');
-                    if (existingThumbnail) {
-                        changeMainImage(existingThumbnail, existingThumbnail.dataset.imageId);
+                // Se era a imagem principal, define outra como principal
+                if (isMainImage) {
+                    const remainingThumbnails = document.querySelectorAll('.thumbnail');
+                    if (remainingThumbnails.length > 0) {
+                        const firstThumbnail = remainingThumbnails[0];
+                        const firstImageId = firstThumbnail.dataset.imageId;
+                        setAsMainImage(firstThumbnail, firstImageId);
                     } else {
                         // Não há mais imagens
                         document.getElementById('mainImageId').value = '';
-                        document.getElementById('imagePreview').innerHTML = `
-                            <div class="empty-preview">
+                        document.getElementById('mainImageContainer').innerHTML = `
+                            <div class="empty-image">
                                 <i class="fas fa-image fa-3x mb-2"></i>
-                                <span>Nenhuma imagem</span>
+                                <span>Nenhuma imagem principal</span>
                             </div>
                         `;
                     }
                 }
-            }
-            
-            thumbnailWrapper.classList.add('removing');
-            thumbnailWrapper.style.opacity = '0';
-            setTimeout(() => {
-                thumbnailWrapper.remove();
             }, 300);
         }
+
+        // Pré-visualização de novas imagens
+        function previewNewImages(input) {
+            if (input.files && input.files.length > 0) {
+                const container = document.getElementById('thumbnailsContainer');
+
+                Array.from(input.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'thumbnail-wrapper';
+                        wrapper.dataset.newIndex = index;
+
+                        const thumbnail = document.createElement('img');
+                        thumbnail.className = 'thumbnail';
+                        thumbnail.src = e.target.result;
+                        thumbnail.dataset.newIndex = index;
+                        thumbnail.onclick = function () {
+                            setNewImageAsMain(this, index);
+                        };
+
+                        const removeBtn = document.createElement('div');
+                        removeBtn.className = 'thumbnail-remove';
+                        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        removeBtn.onclick = function () {
+                            removeNewImage(this, index);
+                        };
+
+                        wrapper.appendChild(thumbnail);
+                        wrapper.appendChild(removeBtn);
+                        container.appendChild(wrapper);
+
+                        // Se esta for a primeira nova imagem e não houver imagem principal, define como principal
+                        if (index === 0 && !document.getElementById('mainImageId').value) {
+                            setNewImageAsMain(thumbnail, index);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        // Define uma nova imagem como principal
+        function setNewImageAsMain(element, newIndex) {
+            // Remove a classe 'active' de todas as miniaturas
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+
+            // Adiciona a classe 'active' na miniatura clicada
+            element.classList.add('active');
+
+            // Atualiza a imagem principal
+            const mainImageContainer = document.getElementById('mainImageContainer');
+            mainImageContainer.innerHTML = `<img src="${element.src}" class="product-main-image" id="productMainImage">`;
+
+            // Atualiza o campo hidden para indicar que é uma nova imagem
+            document.getElementById('mainImageId').value = 'new-' + newIndex;
+        }
+
+        // Remove uma nova imagem (ainda não salva)
+        function removeNewImage(element, newIndex) {
+            const wrapper = element.closest('.thumbnail-wrapper[data-new-index="' + newIndex + '"]');
+            const isMainImage = wrapper.querySelector('.thumbnail').classList.contains('active');
+
+            wrapper.style.opacity = '0';
+            setTimeout(() => {
+                wrapper.remove();
+
+                // Se era a imagem principal, define outra como principal
+                if (isMainImage) {
+                    const remainingThumbnails = document.querySelectorAll('.thumbnail');
+                    if (remainingThumbnails.length > 0) {
+                        const firstThumbnail = remainingThumbnails[0];
+                        if (firstThumbnail.dataset.imageId) {
+                            // É uma imagem existente
+                            setAsMainImage(firstThumbnail, firstThumbnail.dataset.imageId);
+                        } else if (firstThumbnail.dataset.newIndex) {
+                            // É uma nova imagem
+                            setNewImageAsMain(firstThumbnail, firstThumbnail.dataset.newIndex);
+                        }
+                    } else {
+                        document.getElementById('mainImageId').value = '';
+                        document.getElementById('mainImageContainer').innerHTML = `
+                            <div class="empty-image">
+                                <i class="fas fa-image fa-3x mb-2"></i>
+                                <span>Nenhuma imagem principal</span>
+                            </div>
+                        `;
+                    }
+                }
+            }, 300);
+        }
+
+        // Validação do formulário antes de enviar
+        document.getElementById('editProductForm').addEventListener('submit', function (e) {
+            const nome = document.getElementById('nome').value.trim();
+            const categorias = document.querySelector('.categorias-select').value;
+            const cores = document.querySelector('.cores-select').value;
+            const tamanhos = document.querySelector('.tamanhos-select').value;
+
+            if (!nome) {
+                e.preventDefault();
+                alert('Por favor, preencha o nome do produto');
+                return false;
+            }
+
+            if (!categorias || categorias.length === 0) {
+                e.preventDefault();
+                alert('Por favor, selecione pelo menos uma categoria');
+                return false;
+            }
+
+            if (!cores || cores.length === 0) {
+                e.preventDefault();
+                alert('Por favor, selecione pelo menos uma cor');
+                return false;
+            }
+
+            if (!tamanhos || tamanhos.length === 0) {
+                e.preventDefault();
+                alert('Por favor, selecione pelo menos um tamanho');
+                return false;
+            }
+
+            // Mostra loading
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+            submitBtn.disabled = true;
+        });
     </script>
 </body>
+
 </html>

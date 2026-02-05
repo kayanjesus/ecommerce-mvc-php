@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // Certifique-se que BelongsTo está importado
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProdutoVariacoes extends Model
 {
@@ -25,15 +25,36 @@ class ProdutoVariacoes extends Model
 
     public function cor(): BelongsTo
     {
-        // 'cor_id' é a chave estrangeira em produto_variacoes
-        // 'id_cor' é a chave primária na tabela cores
         return $this->belongsTo(Cor::class, 'cor_id', 'id_cor');
     }
 
     public function tamanho(): BelongsTo
     {
-        // 'tamanho_id' é a chave estrangeira em produto_variacoes
-        // 'id_tamanho' é a chave primária na tabela tamanhos
         return $this->belongsTo(Tamanho::class, 'tamanho_id', 'id_tamanho');
+    }
+
+    // NOVOS MÉTODOS PARA GERENCIAR ESTOQUE:
+    
+    /**
+     * Diminui o estoque da variação
+     */
+    public function diminuirEstoque(int $quantidade): bool
+    {
+        if ($this->estoque >= $quantidade) {
+            $this->estoque -= $quantidade;
+            $this->save();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Aumenta o estoque da variação
+     */
+    public function aumentarEstoque(int $quantidade): bool
+    {
+        $this->estoque += $quantidade;
+        $this->save();
+        return true;
     }
 }

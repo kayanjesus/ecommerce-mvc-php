@@ -26,6 +26,7 @@ class ProfileController extends Controller
 
         $data = [
             'user' => $user,
+            'currentView' => $show,
         ];
 
         if ($show === 'favoritos') {
@@ -38,7 +39,10 @@ class ProfileController extends Controller
 
             $data['favoritos'] = $itensFavoritos;
             $data['totalFavoritos'] = $totalFavoritos;
-            $data['currentView'] = 'favoritos'; // Para controlar na view qual seção está ativa
+
+            // Para a seção de pedidos, passa uma coleção vazia para evitar erros
+            $data['pedidos'] = collect(); // Coleção vazia
+
         } else {
             // Busca os pedidos do usuário logado, ordenados do mais novo para o mais antigo
             $pedidos = Pedido::where('id_usuario', $user->id)
@@ -47,10 +51,16 @@ class ProfileController extends Controller
                 ->get();
 
             $data['pedidos'] = $pedidos;
-            $data['currentView'] = 'pedidos'; // Para controlar na view qual seção está ativa
+
+            // Para a seção de favoritos, passa uma coleção vazia para evitar erros
+            // Sincroniza favoritos mesmo na view de pedidos para mostrar a contagem
+            $favoritosController = new FavoritosController();
+            $favoritosController->sincronizarFavoritos();
+            $itensFavoritos = Cart::session('favoritos_' . Auth::id())->getContent();
+            $data['favoritos'] = $itensFavoritos;
         }
 
-        return view('home.dashboard', $data); // Renomeei para dashboard se você quiser o mesmo arquivo
+        return view('home.dashboard', $data);
     }
 
 

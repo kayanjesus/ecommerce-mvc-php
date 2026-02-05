@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pedido;
 use App\Models\Entrega;
+use App\Models\Reembolso;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log; // Adicionado para Log
+use Illuminate\Support\Facades\Log;
 
 class PedidoController extends Controller
 {
+    /**
+     * Listar pedidos para administrador
+     */
     public function index()
     {
         $pedidos = Pedido::with(['usuario', 'itens.produto', 'pagamentoCheckout', 'reembolso'])
@@ -20,7 +24,9 @@ class PedidoController extends Controller
         return view('adm.pedidos', compact('pedidos'));
     }
 
-    // Este método é para alterar o status de um pedido pelo ADMIN
+    /**
+     * Este método é para alterar o status de um pedido pelo ADMIN
+     */
     public function alterarStatus(Request $request, Pedido $pedido)
     {
         // NOTA: 'entregue' foi REMOVIDO daqui. O admin não pode mais marcar como 'entregue'.
@@ -29,8 +35,28 @@ class PedidoController extends Controller
             'status' => 'required|in:pendente,pago,processando,enviado,em_transito,saiu_para_entrega,cancelado,reembolso_solicitado,reembolsado,reembolso_negado',
         ]);
 
+        // Verificar se o pedido está cancelado
+        if ($pedido->status == 'cancelado') {
+            return back()->with('error', 'Não é possível alterar o status de um pedido cancelado.');
+        }
+
         DB::beginTransaction();
         try {
+            // Se o status que o admin está definindo é "cancelado", criar reembolso automaticamente
+            if ($request->input('status') === 'cancelado') {
+                // Verificar se já existe um reembolso
+                if (!$pedido->reembolso) {
+                    // Criar registro de reembolso
+                    Reembolso::create([
+                        'id_pedido' => $pedido->id_pedido,
+                        'valor_reembolso' => $pedido->total,
+                        'motivo' => 'Cancelamento do pedido pelo administrador',
+                        'status' => 'aprovado',
+                        'data_processamento' => now(),
+                    ]);
+                }
+            }
+
             // Se o status que o admin está definindo é "reembolsado" ou "reembolso_negado",
             // tratamos o reembolso. Caso contrário, atualizamos apenas o status do pedido.
             if ($request->input('status') === 'reembolsado' || $request->input('status') === 'reembolso_negado') {
@@ -54,6 +80,16 @@ class PedidoController extends Controller
             Log::error("Erro ao alterar status do pedido #{$pedido->id_pedido} pelo admin: " . $e->getMessage());
             return back()->with('error', 'Erro ao atualizar status: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Mostrar detalhes do pedido
+     */
+    public function show(Pedido $pedido)
+    {
+        $pedido->load(['usuario', 'itens.produto', 'pagamentoCheckout', 'entrega.rastreio', 'reembolso']);
+
+        return view('adm.detalhe_pedido', compact('pedido'));
     }
 
     public function marcarComoLida(Request $request)
@@ -82,25 +118,9 @@ class PedidoController extends Controller
         ]);
     }
 
-    public function show(Pedido $pedido) // ou public function show($id) se não for usar Route Model Binding
-    {
-        // O Laravel automaticamente injeta o modelo Pedido com base no ID da rota
-        // se o nome do parâmetro na rota e no método forem os mesmos (ex: {pedido} e Pedido $pedido).
-        // Se o ID for '9' na URL, $pedido será a instância do Pedido com ID 9.
-
-        // Carrega os itens do pedido, se houver um relacionamento 'itens' no modelo Pedido
-        $pedido->load('itens'); // Supondo que você tem um relacionamento chamado 'itensDoPedido'
-
-        return view('adm.detalhe_pedido', compact('pedido'));
-        // OU
-        // return view('pedidos.detalhes', compact('pedido')); // Nome da sua view de detalhes
-    }
-
-
     public function detalhePedido($id_pedido)
     {
-        // ...
-        $pedido = Pedido::with(['usuario', 'itens.tamanho', 'pagamentoCheckout', 'entrega.rastreio'])
+        $pedido = Pedido::with(['usuario', 'itens.tamanho', 'pagamentoCheckout', 'entrega.rastreio', 'reembolso'])
             ->find($id_pedido);
 
         if (!$pedido) {
@@ -108,20 +128,22 @@ class PedidoController extends Controller
         }
 
         // Se o pedido não tem uma entrega associada, crie uma com status inicial
-        if (!$pedido->entrega) { // <--- AQUI ESTÁ O CHECK
-            // ... Lógica para criar a entrega ...
+        if (!$pedido->entrega) {
             try {
                 $entrega = Entrega::create([
                     'id_pedido' => $pedido->id_pedido,
-                    // ...
+                    'metodo_entrega' => 'padrao',
+                    'valor_entrega' => 0,
+                    'status' => 'pendente',
+                    'data_envio' => null,
+                    'data_entrega' => null,
                 ]);
-                // Recarrega o relacionamento para que o objeto $pedido agora tenha $pedido->entrega
-                $pedido->load('entrega'); // <--- AQUI VOCÊ RECARREGA A ENTREGA
-                // ...
+                $pedido->load('entrega');
             } catch (\Exception $e) {
-                // ...
+                Log::error("Erro ao criar entrega para pedido #{$pedido->id_pedido}: " . $e->getMessage());
             }
         }
-        // ...
+
+        return view('adm.detalhe_pedido', compact('pedido'));
     }
 }

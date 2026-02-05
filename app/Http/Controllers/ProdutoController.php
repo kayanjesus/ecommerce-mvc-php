@@ -12,6 +12,7 @@ use App\Models\Categoria;
 use App\Models\ProdutoVariacoes;
 use App\Models\ProdutoImagem;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\QueryException;
 
 class ProdutoController extends Controller
 {
@@ -48,45 +49,83 @@ class ProdutoController extends Controller
      */
     public function store(Request $request)
     {
-
         try {
             $request->validate([
                 'nome' => 'required|string|max:255',
-                'categorias' => 'required|array', // Alterado de 'tipo' para 'categorias'
+                'categorias' => 'required|array',
                 'categorias.*' => 'exists:categorias,id_categoria',
-                'descricao' => 'required|string|max:255', // Alterado de 'variacao' para 'descricao'
+                'descricao' => 'required|string|max:255',
                 'cores' => 'required|array',
-                'cores.*' => 'exists:cores,id_cor', // Mantido pois agora enviamos IDs
+                'cores.*' => 'exists:cores,id_cor',
                 'tamanhos' => 'required|array',
-                'tamanhos.*' => 'exists:tamanhos,id_tamanho', // Alterado para validar IDs
+                'tamanhos.*' => 'exists:tamanhos,id_tamanho',
                 'estacao' => 'required|in:Verão,Inverno',
                 'marca' => 'required|string|max:255',
-                'valor' => 'required|numeric',
+                'valor' => 'required|numeric|min:0',
                 'estoque' => 'required|integer|min:0',
                 'tecido' => 'required|string|max:255',
                 'modelo' => 'required|string|max:50',
                 'imagens' => 'required|array',
-                'imagens.*' => 'image|max:2048',
+                'imagens.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'main_image_id' => 'nullable|string'
             ]);
 
+            // Gera o slug baseado no nome do produto
+            $slugBase = Str::slug($request->nome);
+            $slug = $slugBase;
+            $counter = 1;
+
+            // Verifica se o slug já existe
+            while (Produto::where('slug', $slug)->exists()) {
+                $slug = $slugBase . '-' . $counter;
+                $counter++;
+            }
+
+            // Cria o produto
             $produto = Produto::create([
                 'nome_produto' => $request->nome,
-                'tipo' => implode(',', $request->categorias), // Converte array para string
-                'variacao' => $request->descricao, // Usa o campo descricao do form
+                'tipo' => implode(',', $request->categorias),
+                'variacao' => $request->descricao,
                 'marca' => $request->marca,
                 'preco' => $request->valor,
                 'tecido' => $request->tecido,
                 'estacao' => $request->estacao,
                 'modelo' => $request->modelo,
-                'slug' => Str::slug($request->nome)
+                'slug' => $slug // Usa o slug verificado/único
             ]);
 
+            // Associa categorias
+            $produto->categorias()->attach($request->categorias);
+
+            // Cria variações (cores e tamanhos)
+            foreach ($request->cores as $corId) {
+                foreach ($request->tamanhos as $tamanhoId) {
+                    ProdutoVariacoes::create([
+                        'produto_id' => $produto->id_produto,
+                        'cor_id' => $corId,
+                        'tamanho_id' => $tamanhoId,
+                        'estoque' => $request->estoque / (count($request->cores) * count($request->tamanhos)),
+                        'preco' => $request->valor,
+                    ]);
+                }
+            }
 
             // Upload e armazenamento das imagens
             if ($request->hasFile('imagens')) {
+                $mainImageId = $request->main_image_id;
+
                 foreach ($request->file('imagens') as $key => $imagem) {
                     $path = $imagem->store('produtos', 'public');
-                    $isPrincipal = ($key === 0); // Define a primeira imagem como principal
+
+                    // Verifica se esta é a imagem principal
+                    $isPrincipal = false;
+                    if ($mainImageId === 'new-' . $key) {
+                        $isPrincipal = true;
+                    }
+                    // Se não foi especificada uma imagem principal, a primeira será principal
+                    elseif ($key === 0 && empty($mainImageId)) {
+                        $isPrincipal = true;
+                    }
 
                     ProdutoImagem::create([
                         'produto_id' => $produto->id_produto,
@@ -96,33 +135,38 @@ class ProdutoController extends Controller
                 }
             }
 
-            // Associa as categorias
-            if ($request->has('categorias')) {
-                $produto->categorias()->attach($request->categorias);
-            }
+            return redirect()->route('adm.cdtproduto')
+                ->with('success', 'Produto cadastrado com sucesso!');
 
+        } catch (QueryException $e) {
+            // Captura erros de duplicação (código 1062)
+            if ($e->errorInfo[1] == 1062) {
+                \Log::warning('Tentativa de cadastrar produto com nome duplicado: ' . $request->nome);
 
-            // Relacionamento com cor e tamanho
-            $cores = Cor::whereIn('nome', $request->cores)->get();
-            $tamanhos = Tamanho::whereIn('nome', $request->tamanhos)->get();
-
-            // Relacionamento com cor e tamanho (usando IDs)
-            foreach ($request->cores as $corId) {
-                foreach ($request->tamanhos as $tamanhoId) {
-                    ProdutoVariacoes::create([
-                        'produto_id' => $produto->id_produto,
-                        'cor_id' => $corId,
-                        'tamanho_id' => $tamanhoId,
-                        'estoque' => $request->estoque,
-                        'preco' => $request->valor,
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'nome' => 'Já existe um produto com este nome. Por favor, escolha um nome diferente ou adicione uma descrição mais específica.',
+                        'duplicate_error' => 'nome' // Flag adicional para JavaScript
                     ]);
-                }
             }
 
+            // Outros erros do banco
+            \Log::error('Erro de banco de dados ao cadastrar produto: ' . $e->getMessage());
+            \Log::error('SQL: ' . $e->getSql());
+            \Log::error('Bindings: ' . json_encode($e->getBindings()));
 
-            return redirect()->route('adm.cdtproduto')->with('success', 'Produto cadastrado!');
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erro ao conectar com o banco de dados. Por favor, tente novamente.']);
+
         } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Erro ao cadastrar produto: ' . $e->getMessage()]);
+            \Log::error('Erro geral ao cadastrar produto: ' . $e->getMessage());
+            \Log::error('Trace: ' . $e->getTraceAsString());
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Ocorreu um erro inesperado. Por favor, tente novamente.']); // CORRIGIDO AQUI
         }
     }
 
@@ -171,33 +215,35 @@ class ProdutoController extends Controller
                 'nome' => 'required|string|max:255',
                 'categorias' => 'required|array',
                 'categorias.*' => 'exists:categorias,id_categoria',
-                'descricao' => 'required|string|max:255',
+                'variacao' => 'required|string|max:255', // Alterado de 'descricao' para 'variacao'
                 'cores' => 'required|array',
                 'cores.*' => 'exists:cores,id_cor',
                 'tamanhos' => 'required|array',
                 'tamanhos.*' => 'exists:tamanhos,id_tamanho',
                 'estacao' => 'required|in:Verão,Inverno',
                 'marca' => 'required|string|max:255',
-                'valor' => 'required|numeric',
+                'valor' => 'required|numeric|min:0',
                 'estoque' => 'required|integer|min:0',
                 'tecido' => 'required|string|max:255',
                 'modelo' => 'required|string|max:50',
-                'imagens' => 'sometimes|array',
-                'imagens.*' => 'image|max:2048',
-                'removed_images' => 'nullable|string', // Alterado para nullable
-                'main_image_id' => 'nullable|string'   // Alterado para nullable
+                'descricao' => 'nullable|string',
+                'imagens' => 'nullable|array',
+                'imagens.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'removed_images' => 'nullable|string',
+                'main_image_id' => 'nullable|string'
             ]);
 
             // Atualiza os dados básicos
             $produto->update([
                 'nome_produto' => $request->nome,
                 'tipo' => implode(',', $request->categorias),
-                'variacao' => $request->descricao,
+                'variacao' => $request->variacao,
                 'marca' => $request->marca,
                 'preco' => $request->valor,
                 'tecido' => $request->tecido,
                 'estacao' => $request->estacao,
                 'modelo' => $request->modelo,
+                'descricao' => $request->descricao,
             ]);
 
             // Atualiza categorias
@@ -211,7 +257,7 @@ class ProdutoController extends Controller
                         'produto_id' => $produto->id_produto,
                         'cor_id' => $corId,
                         'tamanho_id' => $tamanhoId,
-                        'estoque' => $request->estoque,
+                        'estoque' => $request->estoque / (count($request->cores) * count($request->tamanhos)), // Distribui o estoque
                         'preco' => $request->valor,
                     ]);
                 }
@@ -221,11 +267,14 @@ class ProdutoController extends Controller
             if ($request->filled('removed_images')) {
                 $removedIds = explode(',', $request->removed_images);
                 foreach ($removedIds as $id) {
-                    if (is_numeric($id)) { // Verifica se é um ID válido
+                    if (is_numeric($id)) {
                         $imagem = ProdutoImagem::find($id);
-                        if ($imagem) {
+                        if ($imagem && $imagem->produto_id == $produto->id_produto) {
                             // Remove o arquivo físico
-                            Storage::disk('public')->delete(str_replace('storage/', '', $imagem->caminho));
+                            $filePath = str_replace('storage/', '', $imagem->caminho);
+                            if (Storage::disk('public')->exists($filePath)) {
+                                Storage::disk('public')->delete($filePath);
+                            }
                             $imagem->delete();
                         }
                     }
@@ -234,25 +283,35 @@ class ProdutoController extends Controller
 
             // Atualiza imagem principal
             if ($request->filled('main_image_id')) {
-                // Remove a principal atual
+                // Primeiro, remove todas as flags de principal
                 ProdutoImagem::where('produto_id', $produto->id_produto)
                     ->update(['principal' => false]);
 
-                // Define a nova principal
                 $mainImageId = $request->main_image_id;
+
                 if (is_numeric($mainImageId)) {
                     // É uma imagem existente
                     ProdutoImagem::where('id', $mainImageId)
+                        ->where('produto_id', $produto->id_produto)
                         ->update(['principal' => true]);
                 }
-                // Para novas imagens, a principal será definida abaixo
             }
 
             // Adiciona novas imagens (se enviadas)
             if ($request->hasFile('imagens')) {
                 foreach ($request->file('imagens') as $key => $imagem) {
                     $path = $imagem->store('produtos', 'public');
-                    $isPrincipal = ($request->main_image_id === 'new-' . $key);
+
+                    // Verifica se esta é a nova imagem principal
+                    $isPrincipal = false;
+                    if ($request->filled('main_image_id') && $request->main_image_id === 'new-' . $key) {
+                        $isPrincipal = true;
+                    }
+
+                    // Se não houver imagem principal ainda, a primeira nova imagem será principal
+                    if ($key === 0 && !ProdutoImagem::where('produto_id', $produto->id_produto)->where('principal', true)->exists()) {
+                        $isPrincipal = true;
+                    }
 
                     ProdutoImagem::create([
                         'produto_id' => $produto->id_produto,
@@ -262,20 +321,45 @@ class ProdutoController extends Controller
                 }
             }
 
+            // Se ainda não houver imagem principal após todas as operações, define a primeira como principal
+            if (!ProdutoImagem::where('produto_id', $produto->id_produto)->where('principal', true)->exists()) {
+                $firstImage = ProdutoImagem::where('produto_id', $produto->id_produto)->first();
+                if ($firstImage) {
+                    $firstImage->update(['principal' => true]);
+                }
+            }
+
             return redirect()->route('adm.pdtestoque')
                 ->with('success', 'Produto atualizado com sucesso!');
         } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => 'Erro ao atualizar produto: ' . $e->getMessage()]);
+            \Log::error('Erro ao atualizar produto: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erro ao atualizar produto: ' . $e->getMessage()]);
         }
     }
 
-    public function destroy($id)
-    {
-        $produto = Produto::findOrFail($id);
-        $produto->delete();
+    // public function destroy($id)
+    // {
+    //     $produto = Produto::findOrFail($id);
 
-        return redirect()->route('adm.pdtestoque')
-            ->with('success', 'Produto excluído com sucesso');
-    }
+    //     Remove imagens associadas
+    //     foreach ($produto->imagens as $imagem) {
+    //         $filePath = str_replace('storage/', '', $imagem->caminho);
+    //         if (Storage::disk('public')->exists($filePath)) {
+    //             Storage::disk('public')->delete($filePath);
+    //         }
+    //         $imagem->delete();
+    //     }
 
+    //     Remove variações associadas
+    //     $produto->variacoes()->delete();
+
+    //     Finalmente, remove o produto
+    //     $produto->delete();
+
+    //     return redirect()->route('adm.pdtestoque')->with('success', 'Produto removido com sucesso!');
+    // }
 }

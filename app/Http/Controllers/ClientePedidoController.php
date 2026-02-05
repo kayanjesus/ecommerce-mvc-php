@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use Illuminate\Support\Facades\Http;
 use App\Models\Pedido;
 use App\Models\Entrega;
 use App\Models\Reembolso; // Importar o modelo Reembolso
@@ -13,9 +15,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException; // Para lançar exceções de validação
+use App\Services\PagSeguroService;
+use App\Services\ReembolsoService;
 
 class ClientePedidoController extends Controller
 {
+
+    protected $pagSeguroService;
+
+    public function __construct()
+    {
+        $this->pagSeguroService = new PagSeguroService();
+    }
     public function meusPedidos()
     {
         $pedidos = Pedido::where('id_usuario', Auth::id())
@@ -43,27 +54,117 @@ class ClientePedidoController extends Controller
     /**
      * Ação do cliente para cancelar um pedido.
      */
-    public function cancelarPedido(Pedido $pedido)
+    public function cancelarPedido(Request $request, $id)
     {
-        if ($pedido->id_usuario !== Auth::id()) {
-            return redirect()->back()->with('error', 'Você não tem permissão para cancelar este pedido.');
-        }
+        $pedido = Pedido::findOrFail($id);
 
         if (!$pedido->podeSerCanceladoPeloCliente()) {
-            return redirect()->back()->with('error', 'Não é possível cancelar este pedido. Ele já está em processamento ou em um status posterior.');
+            return back()->with('error', 'Este pedido não pode ser cancelado.');
         }
 
-        DB::beginTransaction();
+        if ($pedido->id_usuario != Auth::id()) {
+            return back()->with('error', 'Você não tem permissão para cancelar este pedido.');
+        }
+
+        $reembolsoService = new ReembolsoService(new PagSeguroService());
+        $resultado = $reembolsoService->processarCancelamentoComReembolso(
+            $pedido,
+            $request->input('motivo', 'Cancelamento solicitado pelo cliente')
+        );
+
+        if ($resultado['sucesso']) {
+            $tipo = isset($resultado['alerta']) ? 'warning' : 'success';
+            return back()->with($tipo, $resultado['mensagem']);
+        } else {
+            return back()->with('error', $resultado['mensagem']);
+        }
+    }
+
+
+    /**
+     * Processar reembolso no PagSeguro
+     */
+    private function processarReembolsoPagSeguro(Pedido $pedido, Reembolso $reembolso)
+    {
         try {
-            $pedido->status = 'cancelado';
-            $pedido->save();
-            DB::commit();
-            return redirect()->back()->with('success', 'Pedido #' . $pedido->id_pedido . ' cancelado com sucesso!');
+            // Obter credenciais do PagSeguro
+            $credentials = config('pagseguro.getCredentials')();
+
+            $email = $credentials['email'];
+            $token = $credentials['token'];
+            $baseUrl = $credentials['url'];
+
+            // Verificar código de transação
+            if (!$pedido->pagamentoCheckout || !$pedido->pagamentoCheckout->codigo_transacao) {
+                Log::warning("Pedido sem código de transação para reembolso");
+                return false;
+            }
+
+            $codigoTransacao = $pedido->pagamentoCheckout->codigo_transacao;
+            $url = "{$baseUrl}/v2/transactions/refunds";
+
+            // Preparar dados
+            $data = [
+                'email' => $email,
+                'token' => $token,
+                'transactionCode' => $codigoTransacao,
+                'refundValue' => number_format($reembolso->valor_reembolso, 2, '.', ''),
+            ];
+
+            Log::info("Solicitando reembolso PagSeguro", [
+                'url' => $url,
+                'transactionCode' => $codigoTransacao,
+                'value' => $reembolso->valor_reembolso,
+            ]);
+
+            // Fazer requisição
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/x-www-form-urlencoded; charset=ISO-8859-1'
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            Log::info("Resposta PagSeguro", [
+                'http_code' => $httpCode,
+                'response' => $response,
+            ]);
+
+            if ($httpCode === 200) {
+                $xml = simplexml_load_string($response);
+                if ($xml && isset($xml->result)) {
+                    $codigoReembolso = (string) $xml->result;
+                    $reembolso->codigo_reembolso_pagseguro = $codigoReembolso;
+                    $reembolso->save();
+
+                    Log::info("Reembolso criado com sucesso", [
+                        'codigo_reembolso' => $codigoReembolso,
+                    ]);
+
+                    return true;
+                }
+            } else {
+                Log::error("Erro no reembolso PagSeguro", [
+                    'http_code' => $httpCode,
+                    'response' => $response,
+                ]);
+            }
+
+            return false;
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Erro ao cancelar pedido #{$pedido->id_pedido} pelo cliente: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Ocorreu um erro ao cancelar o pedido. Por favor, tente novamente.');
+            Log::error("Exception no reembolso PagSeguro", [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return false;
         }
     }
 

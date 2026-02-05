@@ -11,12 +11,13 @@ use App\Models\Entrega;
 use App\Models\Rastreio;
 use App\Models\Avaliacao;
 use App\Models\Reembolso;
-use App\Models\User; // Certifique-se que o User model está importado
-use DB; // Certifique-se que DB está importado
+use App\Models\User;
+use DB;
 use Illuminate\Support\Facades\{Auth, Http, Log, };
 use Carbon\Carbon;
+use App\Http\Controllers\EstoqueController;
 
-use Illuminate\Http\Request; // Importe a classe Request
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -24,7 +25,7 @@ class DashboardController extends Controller
     {
         $vendasHoje = Pedido::whereDate('created_at', today())->count();
         $valorRecebido = Pedido::whereDate('created_at', today())->sum('total');
-        // $avaliacoes = 0; // Removido pois não está sendo usado no seu view index
+        // $avaliacoes = 0; // Removido pois não está sendo usado no view index
         $notificacoes = auth()->user()->unreadNotifications()->latest()->take(10)->get();
 
         return view('admin.sistema', compact('vendasHoje', 'valorRecebido', 'notificacoes'));
@@ -132,7 +133,7 @@ class DashboardController extends Controller
     public function detalhePedido($id_pedido)
     {
         // Eager loading para carregar os relacionamentos necessários de uma vez
-        $pedido = Pedido::with(['usuario', 'itens.tamanho', 'pagamentoCheckout', 'entrega.rastreio'])
+        $pedido = Pedido::with(['usuario', 'itens.tamanho', 'pagamentoCheckout', 'entrega.rastreio', 'reembolso'])
             ->find($id_pedido);
 
         if (!$pedido) {
@@ -177,6 +178,7 @@ class DashboardController extends Controller
     {
         $pedido = Pedido::findOrFail($id_pedido);
         $novoStatus = $request->input('status');
+        $statusAntigo = $pedido->status;
 
         if (!in_array($novoStatus, ['pago', 'processando', 'enviado', 'entregue', 'cancelado'])) {
             return back()->with('erro', 'Status inválido.');
@@ -185,6 +187,22 @@ class DashboardController extends Controller
         // Lógica para verificar o status de pagamento antes de processar/enviar
         if ($pedido->pagamento && $pedido->pagamento->status !== 'pago' && in_array($novoStatus, ['processando', 'enviado', 'entregue'])) {
             return back()->with('erro', 'Não é possível alterar o status do pedido antes do pagamento ser confirmado.');
+        }
+
+        // GERENCIAMENTO DE ESTOQUE:
+        // 1. Se mudar de status NÃO-PAGO para PAGO (pagamento manual) → Diminuir estoque
+        if ($statusAntigo !== 'pago' && $novoStatus === 'pago') {
+            EstoqueController::atualizarEstoquePedido($pedido->id_pedido);
+        }
+
+        // 2. Se mudar de status PAGO para CANCELADO → Restaurar estoque
+        if (in_array($statusAntigo, ['pago', 'processando', 'enviado']) && $novoStatus === 'cancelado') {
+            EstoqueController::restaurarEstoquePedido($pedido->id_pedido);
+        }
+
+        // 3. Se mudar de CANCELADO para PAGO → Diminuir estoque novamente
+        if ($statusAntigo === 'cancelado' && $novoStatus === 'pago') {
+            EstoqueController::atualizarEstoquePedido($pedido->id_pedido);
         }
 
         $pedido->status = $novoStatus;
@@ -196,21 +214,16 @@ class DashboardController extends Controller
 
     public function atualizarStatusEntrega(Request $request, $id_pedido)
     {
-        $request->validate([
-            'status_entrega' => [
-                'required',
-                'in:pendente,processando,enviado,em_transito,saiu_para_entrega,entregue'
-            ],
-        ]);
+        $pedido = Pedido::findOrFail($id_pedido);
 
-        $pedido = Pedido::with('entrega')->find($id_pedido);
-
-        if (!$pedido) {
-            return redirect()->back()->with('erro', 'Pedido não encontrado.');
+        // Verificar se o pedido está cancelado
+        if ($pedido->status == 'cancelado') {
+            return back()->with('erro', 'Não é possível alterar o status de um pedido cancelado.');
         }
 
-        if (!$pedido->entrega) {
-            return redirect()->back()->with('erro', 'Registro de entrega não encontrado para este pedido. Por favor, recarregue a página.');
+        // Verificar se o admin pode alterar
+        if (!$pedido->podeSerAlteradoPeloAdministrador()) {
+            return back()->with('erro', 'Este pedido não pode ter seu status alterado.');
         }
 
         DB::beginTransaction();

@@ -21,7 +21,9 @@ class PagamentoCheckout extends Model
         'codigo_transacao',   // Adicione se existir na tabela
         'status',
         'data_pagamento',
-        'detalhes'            // Adicione se for um campo JSON
+        'detalhes',            // Adicione se for um campo JSON
+        'estoque_atualizado_em',
+        'estoque_processado'
     ];
 
     protected $casts = [

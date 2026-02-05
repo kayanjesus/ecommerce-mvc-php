@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Notification; // Para enviar notificações
+use App\Http\Controllers\EstoqueController;
 
 class CheckoutController extends Controller
 {

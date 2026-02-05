@@ -135,6 +135,21 @@ Route::prefix('adm')->middleware(['auth', 'admin'])->group(function () {
         ->name('notificacoes.marcar-lida');
 });
 
+// Rotas para admin processar reembolsos
+Route::prefix('adm')->middleware(['auth', 'admin'])->group(function () {
+    // ...  ...
+
+    Route::post('/reembolsos/{id}/processar-manual', function ($id) {
+        $reembolsoService = new \App\Services\ReembolsoService(
+            new \App\Services\PagSeguroService()
+        );
+
+        $resultado = $reembolsoService->processarReembolsoManual($id);
+
+        return back()->with($resultado['sucesso'] ? 'success' : 'error', $resultado['mensagem']);
+    })->name('adm.reembolsos.processar-manual');
+});
+
 
 // Payment-related routes
 Route::prefix('pagamento')->middleware(['auth', 'checkout.session'])->group(function () {
