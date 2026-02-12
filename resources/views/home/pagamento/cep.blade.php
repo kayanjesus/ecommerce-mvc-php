@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/pagamento.css') }}" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -80,7 +81,7 @@
                             @csrf
                             <input type="hidden" name="id" value="{{ $item->id }}">
                             <button type="submit" class="remover">
-                                <i class="fa-solid fa-trash fa-beat" style="color: #5c0000;"></i>
+                                <i class="fa-solid fa-trash" style="color: #5c0000;"></i>
                             </button>
                         </form>
                     </div>

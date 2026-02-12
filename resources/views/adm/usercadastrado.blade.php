@@ -109,6 +109,7 @@
                                         <th>E-mail</th>
                                         <th>Perfil</th>
                                         <th>Cadastro</th>
+                                        <th>Telefone</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -118,6 +119,7 @@
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->access_level }}</td>
                                             <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                            <td>{{ $user->telefone}}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

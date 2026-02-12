@@ -37,44 +37,38 @@ class DashboardController extends Controller
             abort(403, 'Acesso não autorizado. Você não é um administrador.');
         }
 
-        // Definir os status que consideramos como "valor recebido" ou "venda efetivada"
-        $statusRecebidosOuConcluidos = [
-            'pago',
-            'processando',
-            'enviado',
-            'em_transito',
-            'saiu_para_entrega',
-            'entregue',
-            'reembolso_solicitado',
-            'reembolso_aprovado',
-            'reembolso_processando',
-            'reembolso_concluido'
-        ];
+        // Status que consideramos como vendas
+        $statusVendas = ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue'];
 
-        // Métrica: Vendas hoje (pedidos com status que indicam venda efetivada, criados hoje)
+        // Métrica: Vendas hoje (pedidos criados hoje com status de venda)
         $vendasHoje = Pedido::whereDate('created_at', today())
-            ->whereIn('status', $statusRecebidosOuConcluidos)
+            ->whereIn('status', $statusVendas)
             ->count();
 
-        // Métrica: Valor recebido hoje (pedidos com status de recebimento, criados hoje)
-        $valorRecebido = Pedido::whereDate('created_at', today())
-            ->whereIn('status', $statusRecebidosOuConcluidos)
+        // Métrica: Valor recebido HOJE (subtrair reembolsos concluídos do dia)
+        $valorBrutoHoje = Pedido::whereDate('created_at', today())
+            ->whereIn('status', $statusVendas)
             ->sum('total');
+
+        // Reembolsos concluídos HOJE
+        $reembolsosHoje = Reembolso::whereDate('data_conclusao', today())
+            ->where('status', 'concluido')
+            ->sum('valor_reembolso');
+
+        $valorRecebido = max(0, $valorBrutoHoje - $reembolsosHoje);
 
         // --- Consulta para os últimos pedidos ---
         $ultimosPedidos = Pedido::with('usuario')
             ->orderBy('created_at', 'desc')
             ->take(3)
             ->get();
-        // --- Fim da consulta de últimos pedidos ---
 
         // Métrica: Total de Avaliações
         $totalAvaliacoes = Avaliacao::count();
 
-        // Carrega todas as notificações não lidas para exibição inicial
+        // Carrega todas as notificações não lidas
         $notificacoes = Auth::user()->unreadNotifications()->get();
 
-        // --- UM ÚNICO RETURN VIEW PASSANDO TODAS AS VARIÁVEIS ---
         return view('adm.dashboard', compact('vendasHoje', 'valorRecebido', 'totalAvaliacoes', 'notificacoes', 'ultimosPedidos'));
     }
 
@@ -84,31 +78,26 @@ class DashboardController extends Controller
      */
     public function metricas()
     {
-        // Definir os status que consideramos como "valor recebido" ou "venda efetivada"
-        $statusRecebidosOuConcluidos = [
-            'pago',
-            'processando',
-            'enviado',
-            'em_transito',
-            'saiu_para_entrega',
-            'entregue',
-            'reembolso_solicitado',
-            'reembolso_aprovado',
-            'reembolso_processando',
-            'reembolso_concluido'
-        ];
+        $statusVendas = ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue'];
 
-        // Métrica: Vendas hoje (pedidos com status que indicam venda efetivada, criados hoje)
+        // Vendas hoje
         $vendasHoje = Pedido::whereDate('created_at', today())
-            ->whereIn('status', $statusRecebidosOuConcluidos)
+            ->whereIn('status', $statusVendas)
             ->count();
 
-        // Métrica: Valor recebido hoje (pedidos com status de recebimento, criados hoje)
-        $valorRecebido = Pedido::whereDate('created_at', today())
-            ->whereIn('status', $statusRecebidosOuConcluidos)
+        // Valor recebido HOJE (subtrair reembolsos)
+        $valorBrutoHoje = Pedido::whereDate('created_at', today())
+            ->whereIn('status', $statusVendas)
             ->sum('total');
 
-        // Métrica: Total de Avaliações
+        // Reembolsos concluídos HOJE
+        $reembolsosHoje = Reembolso::whereDate('data_conclusao', today())
+            ->where('status', 'concluido')
+            ->sum('valor_reembolso');
+
+        $valorRecebido = max(0, $valorBrutoHoje - $reembolsosHoje);
+
+        // Total de Avaliações
         $totalAvaliacoes = Avaliacao::count();
 
         return response()->json([
@@ -410,37 +399,49 @@ class DashboardController extends Controller
         // Filtro por ano - padrão é o ano atual
         $anoSelecionado = $request->get('ano', date('Y'));
 
-        // Validar se o ano é válido (entre 2020 e ano atual + 1)
+        // Validar se o ano é válido
         $anoAtual = date('Y');
         if (!is_numeric($anoSelecionado) || $anoSelecionado < 2020 || $anoSelecionado > $anoAtual + 1) {
             $anoSelecionado = $anoAtual;
         }
 
-        // Calcular dados dos últimos 3 meses para os cards (mantém essa funcionalidade)
+        // Status que consideramos como vendas (sem incluir status de reembolso aqui)
+        $statusVendas = ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue'];
+
+        // Calcular dados dos últimos 3 meses para os cards
         $mesesData = [];
         for ($i = 0; $i < 3; $i++) {
             $mes = Carbon::now()->subMonths($i);
-            $nomeMes = $mes->translatedFormat('F'); // Nome do mês em português
+            $nomeMes = $mes->translatedFormat('F');
             $ano = $mes->year;
 
             $totalVendasMes = Pedido::whereMonth('created_at', $mes->month)
                 ->whereYear('created_at', $ano)
+                ->whereIn('status', $statusVendas)
                 ->count();
 
-            // Considera todos os status que implicam recebimento
-            $faturamentoMes = Pedido::whereMonth('created_at', $mes->month)
+            // Valor bruto do mês
+            $faturamentoBrutoMes = Pedido::whereMonth('created_at', $mes->month)
                 ->whereYear('created_at', $ano)
-                ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
+                ->whereIn('status', $statusVendas)
                 ->sum('total');
+
+            // Reembolsos concluídos no mês
+            $reembolsosMes = Reembolso::whereMonth('data_conclusao', $mes->month)
+                ->whereYear('data_conclusao', $ano)
+                ->where('status', 'concluido')
+                ->sum('valor_reembolso');
+
+            $faturamentoLiquidoMes = max(0, $faturamentoBrutoMes - $reembolsosMes);
 
             $mesesData[] = [
                 'nome' => ucfirst($nomeMes),
                 'ano' => $ano,
-                'total_recebido' => $faturamentoMes,
+                'total_recebido' => $faturamentoLiquidoMes,
                 'total_vendas' => $totalVendasMes,
             ];
         }
-        $mesesData = array_reverse($mesesData); // Para exibir do mais antigo para o mais recente
+        $mesesData = array_reverse($mesesData);
 
         // Dados para o Recebimento Mensal - TODOS OS MESES DO ANO SELECIONADO
         $recebimentoMensal = [];
@@ -450,42 +451,61 @@ class DashboardController extends Controller
 
             $totalVendasMes = Pedido::whereMonth('created_at', $mes)
                 ->whereYear('created_at', $anoSelecionado)
+                ->whereIn('status', $statusVendas)
                 ->count();
 
-            $faturamentoMes = Pedido::whereMonth('created_at', $mes)
+            // Valor bruto
+            $faturamentoBrutoMes = Pedido::whereMonth('created_at', $mes)
                 ->whereYear('created_at', $anoSelecionado)
-                ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
+                ->whereIn('status', $statusVendas)
                 ->sum('total');
+
+            // Reembolsos do mês
+            $reembolsosMes = Reembolso::whereMonth('data_conclusao', $mes)
+                ->whereYear('data_conclusao', $anoSelecionado)
+                ->where('status', 'concluido')
+                ->sum('valor_reembolso');
+
+            $faturamentoLiquidoMes = max(0, $faturamentoBrutoMes - $reembolsosMes);
 
             $recebimentoMensal[] = [
                 'nome' => ucfirst($nomeMes),
                 'ano' => $anoSelecionado,
                 'mes_numero' => $mes,
-                'total_recebido' => $faturamentoMes,
+                'total_recebido' => $faturamentoLiquidoMes,
                 'total_vendas' => $totalVendasMes,
             ];
         }
 
-        // Dados para os gráficos (últimos 5 meses) - mantém essa funcionalidade
+        // Dados para os gráficos (últimos 5 meses)
         $labelsGraficos = [];
         $dataVendas = [];
         $dataFaturamento = [];
 
-        for ($i = 4; $i >= 0; $i--) { // De 4 meses atrás até o atual
+        for ($i = 4; $i >= 0; $i--) {
             $mes = Carbon::now()->subMonths($i);
             $labelsGraficos[] = ucfirst($mes->translatedFormat('F'));
 
             $vendas = Pedido::whereMonth('created_at', $mes->month)
                 ->whereYear('created_at', $mes->year)
+                ->whereIn('status', $statusVendas)
                 ->count();
 
-            $faturamento = Pedido::whereMonth('created_at', $mes->month)
+            // Faturamento líquido
+            $faturamentoBruto = Pedido::whereMonth('created_at', $mes->month)
                 ->whereYear('created_at', $mes->year)
-                ->whereIn('status', ['pago', 'processando', 'enviado', 'em_transito', 'saiu_para_entrega', 'entregue', 'reembolso_solicitado', 'reembolso_aprovado', 'reembolso_processando', 'reembolso_concluido'])
+                ->whereIn('status', $statusVendas)
                 ->sum('total');
 
+            $reembolsos = Reembolso::whereMonth('data_conclusao', $mes->month)
+                ->whereYear('data_conclusao', $mes->year)
+                ->where('status', 'concluido')
+                ->sum('valor_reembolso');
+
+            $faturamentoLiquido = max(0, $faturamentoBruto - $reembolsos);
+
             $dataVendas[] = $vendas;
-            $dataFaturamento[] = $faturamento;
+            $dataFaturamento[] = $faturamentoLiquido;
         }
 
         // Lista de anos disponíveis para o filtro

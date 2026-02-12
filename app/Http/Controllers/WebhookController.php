@@ -249,4 +249,23 @@ class WebhookController extends Controller
                 return 'pendente';
         }
     }
+
+
+        private function notificarAdministradores(Pedido $pedido)
+    {
+        try {
+            $administradores = User::where('access_level', 'admin')->get();
+
+            foreach ($administradores as $admin) {
+                try {
+                    $admin->notify(new NovoPedidoNotification($pedido));
+                    Log::info("Notificação de pagamento {$pedido->id_pedido} enviada ao admin {$admin->id}.");
+                } catch (\Exception $e) {
+                    Log::error("Falha ao notificar admin {$admin->id}: " . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Erro no processo de notificação: " . $e->getMessage());
+        }
+    }
 }

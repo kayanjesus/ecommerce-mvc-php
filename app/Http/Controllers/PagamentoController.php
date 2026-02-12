@@ -542,14 +542,43 @@ class PagamentoController extends Controller
             }
             \Log::info('CPF FINAL enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
 
-            // --- CORREÇÃO: Usar telefone placeholder se não houver um real ---
-            // Como o cliente não terá telefone no cadastro, usaremos um número genérico válido para o PagSeguro.
-            // O PagSeguro requer um número de 8 ou 9 dígitos para 'number' e 2 dígitos para 'area'.
-            $dddPagSeguro = '11'; // DDD de São Paulo como placeholder
-            $numeroPagSeguro = '999999999'; // Número de 9 dígitos (celular) como placeholder
 
-            \Log::info('Telefone PLACEHOLDER enviado para PagSeguro (usuário não possui telefone cadastrado):', ['ddd' => $dddPagSeguro, 'number' => $numeroPagSeguro]);
-            // --- FIM CORREÇÃO TELEFONE ---
+            
+            // --- CORREÇÃO: Obter telefone real do usuário ---
+            $telefoneUsuario = $usuario->telefone;
+
+            // Limpar qualquer formatação do telefone
+            $telefoneLimpo = preg_replace('/[^0-9]/', '', $telefoneUsuario);
+
+            // Verificar se temos um telefone válido (pelo menos 10 dígitos)
+            if (strlen($telefoneLimpo) >= 10) {
+                // Extrair DDD (2 primeiros dígitos)
+                $dddPagSeguro = substr($telefoneLimpo, 0, 2);
+                // Extrair número (o restante)
+                $numeroPagSeguro = substr($telefoneLimpo, 2);
+
+                // Garantir que o número tenha entre 8 e 9 dígitos (padrão brasileiro)
+                if (strlen($numeroPagSeguro) < 8) {
+                    // Adicionar zeros à esquerda se necessário
+                    $numeroPagSeguro = str_pad($numeroPagSeguro, 8, '0', STR_PAD_LEFT);
+                }
+
+                \Log::info('Telefone REAL enviado para PagSeguro:', [
+                    'telefone_original' => $telefoneUsuario,
+                    'telefone_limpo' => $telefoneLimpo,
+                    'ddd' => $dddPagSeguro,
+                    'number' => $numeroPagSeguro
+                ]);
+            } else {
+                // Se não houver telefone válido, usar placeholder como fallback
+                $dddPagSeguro = '11';
+                $numeroPagSeguro = '999999999';
+                \Log::warning('Usuário ' . $usuario->id . ' não possui telefone válido cadastrado. Usando placeholder.', [
+                    'telefone_cadastrado' => $telefoneUsuario
+                ]);
+            }
+
+
 
             $pedido = $this->criarPedido($itens, $endereco);
             $this->adicionarItensAoPedido($pedido, $itens);

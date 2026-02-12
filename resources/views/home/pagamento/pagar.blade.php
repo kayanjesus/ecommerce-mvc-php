@@ -37,76 +37,75 @@
     </header>
 
     <main class="confirmacao-container">
+        <!-- Substitua TODO o conteúdo dentro de confirmacao-box por este código: -->
+
         <div class="confirmacao-box">
+            <!-- COLUNA 1: Sucesso e ID do Pedido -->
             <div class="sucesso-header">
                 <i class="fas fa-check-circle sucesso-icon"></i>
-                <p class="mensagem">Sua compra foi realizada com sucesso!</p>
+                <p class="mensagem">Compra realizada!</p>
+                @if(isset($pedido))
+                    <div class="pedido-id-card">
+                        <span class="pedido-id-label">Pedido</span>
+                        <span class="pedido-id-valor">#{{ $pedido->id_pedido }}</span>
+                    </div>
+                @endif
             </div>
 
-            @if(isset($pedido))
-                <div class="pedido-detalhes">
-                    <h4 class="detalhe-pedido-titulo">Detalhes do Pedido</h4>
-                    <div class="detalhe-item">
-                        <span class="detalhe-label">Pedido ID:</span>
-                        <span class="detalhe-valor">#{{ $pedido->id_pedido }}</span>
-                    </div>
-
-                    {{-- QR Code section --}}
-                    @if(isset($qrCodeData))
-                        <div class="qr-code-wrapper">
-                            <h5 class="qr-code-titulo">Escaneie o QR Code</h5>
-                            @if($qrCodeData)
-                                <div class="qr-code-border">
-                                    <img src="{{ $qrCodeData }}" alt="QR Code PIX" class="img-fluid qr-code-img">
-                                </div>
-                                <p class="qr-code-instrucao">Abra o app do seu banco e escaneie o código acima</p>
-                            @else
-                                <div class="alert alert-danger">
-                                    Não foi possível gerar o QR Code. Por favor, tente novamente.
-                                </div>
-                            @endif
+            <!-- COLUNA 2: QR Code e PIX -->
+            <div class="qr-pix-container">
+                @if(isset($qrCodeData))
+                    <div class="qr-code-wrapper">
+                        <h5 class="qr-code-titulo">QR Code PIX</h5>
+                        <div class="qr-code-border">
+                            <img src="{{ $qrCodeData }}" alt="QR Code PIX" class="qr-code-img">
                         </div>
-                    @endif
-
-                    <div class="pix-section">
-                        <h5 class="pix-titulo">Ou copie o código PIX</h5>
-                        <div class="pix-key-container">
-                            <input type="text" id="pixKey" class="form-control pix-input"
-                                value="{{ $pixKey ?? 'Não disponível' }}" readonly>
-                            <button class="btn btn-pix-copy" onclick="copyPixKey()">
-                                <i class="fas fa-copy"></i> Copiar
-                            </button>
-                        </div>
-                        <small class="pix-ajuda">Cole este código no app do seu banco para pagar</small>
+                        <p class="qr-code-instrucao">Escaneie com o app do seu banco</p>
                     </div>
+                @endif
 
-                    <div class="timer-container">
-                        <i class="fas fa-clock timer-icon"></i>
-                        <span id="countdown" class="timer-text">Carregando tempo...</span>
+                <div class="pix-section">
+                    <h5 class="pix-titulo">Código PIX</h5>
+                    <div class="pix-key-container">
+                        <input type="text" id="pixKey" class="pix-input" value="{{ $pixKey ?? 'Não disponível' }}"
+                            readonly>
+                        <button class="btn-pix-copy" onclick="copyPixKey()">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
                     </div>
-
-                    <div class="detalhe-item">
-                        <span class="detalhe-label">Total:</span>
-                        <span class="detalhe-valor total">R$ {{ number_format($pedido->total, 2, ',', '.') }}</span>
-                    </div>
-
-                    <div class="detalhe-item status">
-                        <span class="detalhe-label">Status:</span>
-                        <span
-                            class="detalhe-valor status-badge">{{ ucfirst(str_replace('_', ' ', $pedido->status)) }}</span>
-                    </div>
-
-                    <p class="detalhe-info">Você receberá os detalhes da compra no seu e-mail.</p>
+                    <small class="pix-ajuda">Cole no app do banco</small>
                 </div>
-            @else
-                <p class="detalhe-info">Detalhes do pedido não disponíveis.</p>
-            @endif
+            </div>
 
-            <hr class="divisor-confirmacao" />
+            <!-- COLUNA 3: Status e Total -->
+            <div class="status-total-container">
+                <div class="timer-container">
+                    <i class="fas fa-clock timer-icon"></i>
+                    <span id="countdown" class="timer-text">30:00</span>
+                </div>
 
+                @if(isset($pedido))
+                    <div class="status-card">
+                        <div class="status-item">
+                            <span class="status-label">Status</span>
+                            <span class="status-badge">{{ ucfirst(str_replace('_', ' ', $pedido->status)) }}</span>
+                        </div>
+                        <div class="total-item">
+                            <span class="total-label">Total</span>
+                            <span class="total-valor">R$ {{ number_format($pedido->total, 2, ',', '.') }}</span>
+                        </div>
+                    </div>
+                    <p class="detalhe-info">
+                        <i class="fas fa-envelope me-1"></i>
+                        Detalhes enviados por e-mail
+                    </p>
+                @endif
+            </div>
+
+            <!-- BOTÃO VOLTAR - OCUPA AS 3 COLUNAS -->
             <div class="voltar-container">
                 <a href="{{ route('home.index') }}" class="botao-voltar">
-                    <i class="fas fa-arrow-left me-2"></i> Voltar à página inicial
+                    <i class="fas fa-arrow-left"></i> Voltar à página inicial
                 </a>
             </div>
         </div>

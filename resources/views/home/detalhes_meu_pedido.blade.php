@@ -529,7 +529,7 @@
                                             @endif
                                         @else
                                             @if($pedido->status === 'entregue' || $pedido->status === 'pago')
-                                                <a href="{{ route('cliente.pedidos.avaliar', $pedido->id_pedido) }}"
+                                                <a href="{{ route('cliente.pedidos.avaliar.view', $pedido->id_pedido) }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-star me-1"></i>
                                                     Avaliar
@@ -759,7 +759,7 @@
                     </a>
 
                     @if($pedido->status === 'entregue' && $pedido->confirmado_pelo_cliente && $pedido->itens->whereNull('avaliacao')->count() > 0)
-                        <a href="{{ route('cliente.pedidos.avaliar', $pedido->id_pedido) }}" class="btn btn-warning">
+                        <a href="{{ route('cliente.pedidos.avaliar.view', $pedido->id_pedido) }}" class="btn btn-warning">
                             <i class="fas fa-star me-2"></i>
                             Avaliar Produtos ({{ $pedido->itens->whereNull('avaliacao')->count() }})
                         </a>

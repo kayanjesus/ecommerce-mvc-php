@@ -214,7 +214,8 @@ class SiteController extends Controller
         // O ponto de depuração pode ser útil aqui se ainda houver problemas
         // dd($produtosQuery->toSql(), $produtosQuery->getBindings());
 
-        $produtos = $produtosQuery->paginate(12);
+        $perPage = $request->get('per_page', 12);
+        $produtos = $produtosQuery->paginate($perPage)->withQueryString();
 
         // Carregar todos os dados para os filtros na sidebar
         $todasCategorias = Categoria::all();

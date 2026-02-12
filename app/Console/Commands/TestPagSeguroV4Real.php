@@ -26,9 +26,9 @@ class TestPagSeguroV4Real extends Command
         $this->info("Status HTTP: " . ($conexao['status'] ?? 'N/A'));
 
         if ($conexao['success']) {
-            $this->info("✅ Conexão bem-sucedida!");
+            $this->info("Conexão bem-sucedida!");
         } else {
-            $this->error("❌ Falha: " . ($conexao['error'] ?? 'Desconhecido'));
+            $this->error("Falha: " . ($conexao['error'] ?? 'Desconhecido'));
         }
 
         // Verificar uma transação real
@@ -45,7 +45,7 @@ class TestPagSeguroV4Real extends Command
             $transacao = $service->verificarTransacao($pedido->pagamentoCheckout->codigo_transacao);
 
             if ($transacao) {
-                $this->info("✅ Transação encontrada na API V4!");
+                $this->info("Transação encontrada na API V4!");
                 $this->info("Status: " . ($transacao['status'] ?? 'N/A'));
                 $this->info("Valor: R$ " . (($transacao['amount']['value'] ?? 0) / 100));
 
@@ -61,11 +61,11 @@ class TestPagSeguroV4Real extends Command
                     $this->info("API: " . ($resultado['api'] ?? 'N/A'));
 
                     if ($resultado['success']) {
-                        $this->info("✅ Reembolso criado com sucesso!");
+                        $this->info("Reembolso criado com sucesso!");
                         $this->info("Código: " . ($resultado['codigo_reembolso'] ?? 'N/A'));
                         $this->info("Status: " . ($resultado['status'] ?? 'N/A'));
                     } else {
-                        $this->error("❌ Falha: " . ($resultado['erro'] ?? 'Desconhecido'));
+                        $this->error("Falha: " . ($resultado['erro'] ?? 'Desconhecido'));
 
                         // Mostrar detalhes se houver
                         if (isset($resultado['detalhes'])) {
@@ -74,7 +74,7 @@ class TestPagSeguroV4Real extends Command
                     }
                 }
             } else {
-                $this->warn("⚠️ Transação não encontrada ou erro na API");
+                $this->warn("Transação não encontrada ou erro na API");
             }
         } else {
             $this->warn("Nenhum pedido com código de transação encontrado.");

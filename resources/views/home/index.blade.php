@@ -4,11 +4,13 @@
 
     <main>
         <section class="banner">
-            <div class="banner-slide active"><img src="{{ asset("img/carossel/Blog1_destacada.jpg") }}" alt="Banner 1">
-            </div>
-            <div class="banner-slide"><img src="{{ asset("img/carossel/banner-roupas.jpg") }}" alt="Banner 2"></div>
-            <div class="banner-slide"><img src="{{ asset("img/carossel/banner-meninas.webp") }}" alt="Banner 3"></div>
-            <div class="banner-slide"><img src="{{ asset("img/carossel/banner-criança.jpg") }}" alt="Banner 4"></div>
+            <a href="{{ route('home.categoria', ['id_categoria' => 0]) }}">
+                <div class="banner-slide active"><img src="{{ asset("img/carossel/Blog1_destacada.jpg") }}" alt="Banner 1">
+                </div>
+                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-roupas.jpg") }}" alt="Banner 2"></div>
+                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-meninas.webp") }}" alt="Banner 3"></div>
+                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-criança.jpg") }}" alt="Banner 4"></div>
+            </a>
             <div class="banner-controls"><button class="prev" onclick="changeSlide(-1)">&#10094;</button>
                 <button class="next" onclick="changeSlide(1)">&#10095;</button>
             </div>
@@ -192,7 +194,7 @@
             </div>
             <!-- Setas -->
             <!-- <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div> -->
+                        <div class="swiper-button-prev"></div> -->
         </div>
     </section>
 

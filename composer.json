@@ -41,6 +41,9 @@
         "classmap": [
             "database/seeders",
             "database/factories"
+        ],
+        "files": [
+            "app/Helpers/ColorHelper.php"
         ]
     },
     "autoload-dev": {

@@ -1,0 +1,541 @@
+/* ===== editar-endereco.css ===== */
+/* Mantendo a identidade visual do sistema */
+
+:root {
+    --primary: #932929;
+    --primary-light: #b23b3b;
+    --primary-dark: #721e1e;
+    --secondary: #2aa389;
+    --secondary-light: #35c4a5;
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.03);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.05);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition: all 0.2s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #fef6f6;
+    color: var(--gray-800);
+    line-height: 1.5;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    background: white !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 4px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand img {
+    height: 90px;
+    transition: var(--transition);
+}
+
+.navbar-brand img:hover {
+    transform: scale(1.02);
+}
+
+/* ===== ETAPAS (PROGRESSO SIMPLIFICADO) ===== */
+.etapas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.etapa {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    transition: var(--transition);
+    position: relative;
+}
+
+.etapa::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: 50px;
+    height: 2px;
+    background: var(--gray-300);
+    transform: translateY(-50%);
+    display: none;
+}
+
+.etapa:not(:last-child)::before {
+    display: block;
+}
+
+.etapa-ativa {
+    background: var(--primary);
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px rgba(147, 41, 41, 0.1);
+}
+
+.etapa-ativa::before {
+    background: var(--primary);
+}
+
+/* ===== BARRA DE INFORMAÇÕES ===== */
+.barra-info {
+    background: linear-gradient(135deg, var(--secondary) 0%, #248f7a 100%);
+    color: white;
+    text-align: center;
+    padding: 0.875rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* ===== CONTAINER PRINCIPAL ===== */
+.container.py-4 {
+    max-width: 1300px;
+    margin: 2.5rem auto;
+    padding: 0 2rem !important;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 0 !important;
+}
+
+/* ===== PRODUTO CONTAINER (LADO ESQUERDO) ===== */
+.produto-container {
+    background: white;
+    padding: 2rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Itens do carrinho na edição */
+.produto-container .d-flex {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    margin-bottom: 0.5rem;
+    background: var(--gray-100);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.produto-container .d-flex:hover {
+    background: white;
+    border-color: var(--gray-200);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.produto-container img {
+    width: 90px !important;
+    height: 110px !important;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.produto-container .d-flex:hover img {
+    transform: scale(1.02);
+}
+
+.produto-info {
+    flex: 1;
+}
+
+.produto-info p {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--gray-700);
+}
+
+.produto-info strong {
+    color: var(--gray-800);
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.produto-info p:last-child {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+.total {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px dashed var(--gray-200);
+    text-align: right;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+.total span {
+    color: var(--primary);
+    margin-left: 0.5rem;
+}
+
+/* ===== FORMULÁRIO CONTAINER (LADO DIREITO) ===== */
+.form-container {
+    background: white;
+    padding: 2rem;
+    border: 1px solid var(--gray-200);
+    border-left: none;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    box-shadow: var(--shadow-lg);
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-title {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin-bottom: 1.75rem !important;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gray-100);
+    font-size: 1.35rem;
+    position: relative;
+}
+
+.form-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+.form-title i {
+    color: var(--primary);
+}
+
+/* ===== FORMULÁRIO ===== */
+.form-group {
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    letter-spacing: 0.3px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.875rem 1rem !important;
+    border: 2px solid var(--gray-200) !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 0.95rem !important;
+    transition: var(--transition) !important;
+    background: var(--gray-100) !important;
+    color: var(--gray-800) !important;
+}
+
+.form-control:hover {
+    background: white !important;
+    border-color: var(--gray-300) !important;
+}
+
+.form-control:focus {
+    outline: none !important;
+    border-color: var(--primary) !important;
+    background: white !important;
+    box-shadow: 0 0 0 3px rgba(147, 41, 41, 0.05) !important;
+}
+
+.form-control::placeholder {
+    color: var(--gray-500);
+    font-weight: 300;
+}
+
+/* Label dentro do grupo */
+.form-group .text-muted {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--gray-600) !important;
+}
+
+/* ===== ROW E COLUNAS ===== */
+.row {
+    display: flex !important;
+    flex-wrap: wrap;
+    margin-right: -0.5rem !important;
+    margin-left: -0.5rem !important;
+}
+
+.col-md-8,
+.col-md-4 {
+    position: relative;
+    width: 100%;
+    padding-right: 0.5rem !important;
+    padding-left: 0.5rem !important;
+}
+
+.col-md-8 {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+/* ===== FEEDBACK CEP ===== */
+.alert-cep {
+    font-size: 0.85rem;
+    margin-top: 0.35rem;
+    padding-left: 0.5rem;
+    display: none;
+}
+
+.alert-cep.text-danger {
+    color: var(--danger);
+    display: block;
+}
+
+.alert-cep.text-success {
+    color: var(--success);
+    display: block;
+}
+
+/* Spinner */
+.spinner-border-sm {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--gray-200) !important;
+    border-top-color: var(--primary) !important;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+/* ===== BOTÕES ===== */
+.d-grid {
+    display: grid !important;
+    gap: 1rem !important;
+    margin-top: 1.5rem !important;
+}
+
+.btn {
+    padding: 0.875rem 1.5rem !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    transition: var(--transition) !important;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn i {
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+/* Botão Primário - Salvar */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+    color: white !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(147, 41, 41, 0.25) !important;
+}
+
+.btn-primary:hover i {
+    transform: scale(1.1);
+}
+
+/* Botão Secundário - Cancelar */
+.btn-outline-secondary {
+    background: transparent !important;
+    border: 2px solid var(--gray-300) !important;
+    color: var(--gray-700) !important;
+}
+
+.btn-outline-secondary:hover {
+    background: var(--gray-100) !important;
+    border-color: var(--gray-400) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+    color: var(--gray-800) !important;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1024px) {
+    .container.py-4 {
+        padding: 0 1.5rem !important;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .produto-container {
+        border-radius: var(--radius-lg);
+    }
+
+    .form-container {
+        border-radius: var(--radius-lg);
+        border-left: 1px solid var(--gray-200);
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-brand img {
+        height: 70px;
+    }
+
+    .container.py-4 {
+        padding: 0 1rem !important;
+        margin: 1.5rem auto;
+    }
+
+    .produto-container,
+    .form-container {
+        padding: 1.5rem;
+        min-height: auto;
+    }
+
+    .produto-container .d-flex {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .produto-container img {
+        margin-bottom: 0.5rem;
+    }
+
+    .produto-info {
+        text-align: center;
+    }
+
+    .row {
+        flex-direction: column;
+    }
+
+    .col-md-8,
+    .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    .col-md-4 {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-brand img {
+        height: 60px;
+    }
+
+    .etapa::before {
+        width: 30px;
+    }
+
+    .produto-container,
+    .form-container {
+        padding: 1.25rem;
+    }
+
+    .form-title {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem !important;
+        font-size: 0.95rem !important;
+    }
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.produto-container .d-flex,
+.form-container {
+    animation: fadeIn 0.5s ease-out;
+}

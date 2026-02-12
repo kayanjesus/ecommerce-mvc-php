@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Endereço - Cantinho da Isa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/pagamento.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pagamento/editar-endereco.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -34,52 +35,56 @@
     <!-- Conteúdo Principal -->
     <div class="container py-4">
         <div class="row">
-            <!-- Resumo do Pedido -->
-            <div class="col-lg-6 mb-4">
-                <div class="produto-container">
-                   @foreach($itens as $item)
-            @php
-                $cartItem = \Cart::get($item->id);
-                if (!$cartItem) continue;
+<div class="col-lg-6 mb-4">
+    <div class="produto-container">
+        @if(!empty($itens))
+            @foreach($itens as $key => $itemArray)
+                @php
+                    $cartItem = \Cart::get($key);
+                @endphp
                 
-                $cor = isset($item->attributes['cor_id']) 
-                    ? App\Models\Cor::find($item->attributes['cor_id'])
-                    : null;
-                
-                $tamanho = isset($item->attributes['tamanho_id'])
-                    ? App\Models\Tamanho::find($item->attributes['tamanho_id'])
-                    : null;
-            @endphp
-            
-            <div class="d-flex mb-3">
-                @if($item->attributes->image)
-                    <img src="{{ asset($item->attributes->image) }}" class="produto-img me-3" 
-                         alt="{{ $item->name }}" loading="lazy">
-                @else
-                    <div class="produto-img me-3 d-flex align-items-center justify-content-center bg-light">
-                        <i class="fas fa-camera text-muted"></i>
+                @if($cartItem)
+                    @php
+                        $cor = isset($itemArray['attributes']['cor_id'])
+                            ? App\Models\Cor::find($itemArray['attributes']['cor_id'])
+                            : null;
+                            
+                        $tamanho = isset($itemArray['attributes']['tamanho_id'])
+                            ? App\Models\Tamanho::find($itemArray['attributes']['tamanho_id'])
+                            : null;
+                    @endphp
+
+                    <div class="d-flex mb-3">
+                        @if(isset($itemArray['attributes']['image']))
+                            <img src="{{ asset($itemArray['attributes']['image']) }}" 
+                                 alt="{{ $cartItem->name }}" 
+                                 class="me-3" 
+                                 style="width: 80px; height: 80px; object-fit: cover;">
+                        @endif
+                        
+                        <div class="produto-info">
+                            <p class="mb-1">
+                                <strong>{{ $cartItem->name }}</strong><br>
+                                @if($cor)
+                                    Cor: {{ $cor->nome_cor }}<br>
+                                @endif
+                                @if($tamanho)
+                                    Tamanho: {{ $tamanho->tamanho }}<br>
+                                @endif
+                                Quantidade: {{ $cartItem->quantity }}
+                            </p>
+                            <p class="mb-0">R$ {{ number_format($cartItem->price * $cartItem->quantity, 2, ',', '.') }}</p>
+                        </div>
                     </div>
                 @endif
-
-                <div class="produto-info">
-                    <p class="mb-1">
-                        <strong>{{ $item->name }}</strong><br>
-                        @if($cor)
-                            Cor: {{ $cor->nome }}<br>
-                        @endif
-                        @if($tamanho)
-                            Tamanho: {{ $tamanho->nome }}<br>
-                        @endif
-                        Quantidade: {{ $item->quantity }}
-                    </p>
-                    <p class="mb-0">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
-                </div>
-            </div>
-        @endforeach
+            @endforeach
+        @else
+            <p class="text-muted">Nenhum item no carrinho</p>
+        @endif
         
         <div class="total">Total: R$ {{ number_format($total, 2, ',', '.') }}</div>
-                </div>
-            </div>
+    </div>
+</div>
 
             <!-- Formulário de Edição -->
             <div class="col-lg-6">

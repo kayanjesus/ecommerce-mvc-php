@@ -341,25 +341,25 @@ class ProdutoController extends Controller
         }
     }
 
-    // public function destroy($id)
-    // {
-    //     $produto = Produto::findOrFail($id);
+    public function destroy($id)
+    {
+        $produto = Produto::findOrFail($id);
 
-    //     Remove imagens associadas
-    //     foreach ($produto->imagens as $imagem) {
-    //         $filePath = str_replace('storage/', '', $imagem->caminho);
-    //         if (Storage::disk('public')->exists($filePath)) {
-    //             Storage::disk('public')->delete($filePath);
-    //         }
-    //         $imagem->delete();
-    //     }
+        // Remove imagens associadas
+        foreach ($produto->imagens as $imagem) {
+            $filePath = str_replace('storage/', '', $imagem->caminho);
+            if (Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+            $imagem->delete();
+        }
 
-    //     Remove variações associadas
-    //     $produto->variacoes()->delete();
+        // Remove variações associadas
+        $produto->variacoes()->delete();
 
-    //     Finalmente, remove o produto
-    //     $produto->delete();
+        // Finalmente, remove o produto
+        $produto->delete();
 
-    //     return redirect()->route('adm.pdtestoque')->with('success', 'Produto removido com sucesso!');
-    // }
+        return redirect()->route('adm.pdtestoque')->with('success', 'Produto removido com sucesso!');
+    }
 }
