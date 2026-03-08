@@ -10,6 +10,34 @@
         <title>Cantinho da Isa</title>
     </head>
 
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox(event)">
+        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+
+        <div class="lightbox-content">
+            <div class="lightbox-nav lightbox-prev" onclick="changeImage(-1)">&#10094;</div>
+
+            <div class="lightbox-image-container" id="lightbox-image-container">
+                <img id="lightbox-image" src="" alt="Imagem ampliada do produto">
+                <div id="lightbox-spinner" class="lightbox-spinner" style="display: none;"></div>
+            </div>
+
+            <div class="lightbox-nav lightbox-next" onclick="changeImage(1)">&#10095;</div>
+        </div>
+
+        <!-- Botão de zoom -->
+        <div class="lightbox-zoom-btn" id="lightbox-zoom-btn" onclick="toggleZoom(event)" title="Clique para dar zoom">
+            <i class="fas fa-search-plus"></i>
+        </div>
+
+        <div class="lightbox-counter" id="lightbox-counter">1/1</div>
+
+        <div class="lightbox-indicators" id="lightbox-indicators"></div>
+    </div>
+
+
+
     <body>
 
 
@@ -20,7 +48,7 @@
             <section class="product-detail">
                 <div class="product-gallery">
                     <!-- <button class="carousel-button prev">&lt;</button>
-                                    <button class="carousel-button next">&gt;</button> -->
+                                                                <button class="carousel-button next">&gt;</button> -->
                     <div class="carousel-container">
                         <div class="carousel-track">
                             <div class="main-image">
@@ -95,7 +123,7 @@
                                 <button type="button" class="color-btn" data-cor-id="{{ $variacao->cor->id_cor }}" {{-- Usar
                                     id_cor --}}
                                     style="background-color: {{ $variacao->cor->codigo_hex }};
-                                                                                                                                                                                               border: 1px solid {{ $variacao->cor->codigo_hex == '#FFFFFF' ? '#ccc' : 'transparent' }};"
+                                                                                                                                                                                                                                                       border: 1px solid {{ $variacao->cor->codigo_hex == '#FFFFFF' ? '#ccc' : 'transparent' }};"
                                     title="{{ $variacao->cor->nome }}"></button>
                             @endforeach
                         </div>
@@ -174,73 +202,50 @@
                 </div>
             </section>
 
-            <!-- <section class="related-products">
-                                        <h2>Relacionados</h2>
-                                        <div class="products-grid">
-                                            @foreach ($produtos as $produto)
-                                                <div class="product-card">
-                                                    <a href="{{ route('home.details', $produto->slug) }}">
-                                                        <img src="{{ asset($produto->imagens->firstWhere('principal', true)->caminho ?? $produto->imagens->first()->caminho) }}"
-                                                            alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
-                                                    </a>
-                                                    <h3 classe="h3-sicroniza-cor">{{ $produto->nome_produto }}</h3>
-                                                    <p class="price">R$ {{ number_format($produto->preco, 2, ',', '.') }}</p>
-                                                    <a href="{{ route('home.details', $produto->slug) }}" class="comprar-link">Comprar</a>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </section> -->
-
-
             {{-- Seção de Avaliações (Review Section) --}}
             <section class="reviews">
-                <h2>Avaliações de Clientes ({{ $produto->total_avaliacoes }})</h2>
+                <h2>Avaliações de Clientes ({{ $produto->avaliacoes->count() }})</h2>
 
-                @if ($produto->total_avaliacoes > 0)
+                @if ($produto->avaliacoes->count() > 0)
                     <div class="reviews-summary">
                         <p>Média de Avaliação:
-                            <strong>{{ $produto->media_avaliacao }}</strong> / 5
+                            <strong>{{ number_format($produto->avaliacoes_avg_nota ?? 0, 1) }}</strong> / 5
                             <span class="star-rating" style="display: inline-block; margin-left: 10px;">
                                 @for ($i = 1; $i <= 5; $i++)
-                                    <i class="fa-star fa-{{ $i <= $produto->media_avaliacao ? 'solid' : 'regular' }} fa-star-size"
-                                        style="color: #ffc107;"></i>
+                                    @php
+                                        $media = $produto->avaliacoes_avg_nota ?? 0;
+                                    @endphp
+                                    <i class="fa{{ $i <= $media ? 's' : 'r' }} fa-star" style="color: #ffc107;"></i>
                                 @endfor
                             </span>
                         </p>
                     </div>
+
+                    <div class="reviews-container">
+                        @foreach ($produto->avaliacoes as $avaliacao)
+                            <div class="review">
+                                <div class="review-header">
+                                    <div class="review-user">
+                                        <strong>{{ $avaliacao->usuario->name ?? 'Cliente Anônimo' }}</strong>
+                                        <span class="review-date">{{ $avaliacao->created_at->format('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="star-rating">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <i class="fa{{ $i <= $avaliacao->nota ? 's' : 'r' }} fa-star" style="color: #ffc107;"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                                @if($avaliacao->comentario)
+                                    <div class="review-text">
+                                        {{ $avaliacao->comentario }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 @else
                     <p>Este produto ainda não possui avaliações.</p>
-                @endif
-
-                <div class="reviews-container">
-                    @forelse ($produto->avaliacoes as $avaliacao)
-                        <div class="review">
-                            <div class="review-header">
-                                <div class="review-user">
-                                    <strong>{{ $avaliacao->usuario->name ?? 'Cliente Anônimo' }}</strong>
-                                    <span class="review-date">{{ $avaliacao->created_at->format('d/m/Y') }}</span>
-                                </div>
-                                <div class="star-rating">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        <i class="fa-star fa-{{ $i <= $avaliacao->nota ? 'solid' : 'regular' }} fa-star-size"
-                                            style="color: #ffc107;"></i>
-                                    @endfor
-                                </div>
-                            </div>
-                            <div class="review-text">
-                                {{ $avaliacao->comentario }}
-                            </div>
-                        </div>
-                    @empty
-                        <div class="no-reviews">
-                            <p>Seja o primeiro a avaliar este produto!</p>
-                        </div>
-                    @endforelse
-                </div>
-
-                {{-- Botão para ver mais avaliações (se houver muitas) --}}
-                @if ($produto->total_avaliacoes > 3)
-                    <button class="see-more">Ver mais avaliações</button>
+                    <p class="text-muted">Seja o primeiro a avaliar este produto!</p>
                 @endif
             </section>
 
@@ -452,6 +457,397 @@
                         img.classList.remove('active');
                     });
                     thumbnail.classList.add('active');
+                }
+            }
+
+
+
+
+            // ============================================
+            // LIGHTBOX COM ZOOM - VERSÃO MELHORADA
+            // ============================================
+            let currentImageIndex = 0;
+            let images = [];
+            let isZoomed = false;
+            let zoomScale = 1;
+            let startX, startY, translateX = 0, translateY = 0;
+            let isDragging = false;
+
+            // Coletar todas as imagens do produto
+            function loadImages() {
+                images = [];
+                document.querySelectorAll('.thumbnail').forEach(thumb => {
+                    images.push(thumb.src);
+                });
+
+                // Adicionar também a imagem principal se não estiver na lista
+                const mainImage = document.getElementById('mainProductImage');
+                if (mainImage && !images.includes(mainImage.src)) {
+                    images.unshift(mainImage.src);
+                }
+            }
+
+            // Abrir lightbox
+            function openLightbox(index) {
+                loadImages();
+                currentImageIndex = index;
+                const modal = document.getElementById('lightbox-modal');
+                const lightboxImage = document.getElementById('lightbox-image');
+                const spinner = document.getElementById('lightbox-spinner');
+                const zoomBtn = document.getElementById('lightbox-zoom-btn');
+
+                // Resetar zoom
+                resetZoom();
+
+                // Mostrar spinner enquanto carrega
+                spinner.style.display = 'block';
+                lightboxImage.style.display = 'none';
+
+                // Pré-carregar a imagem
+                const img = new Image();
+                img.onload = function () {
+                    spinner.style.display = 'none';
+                    lightboxImage.style.display = 'block';
+                    lightboxImage.src = this.src;
+                    updateCounter();
+                    createIndicators();
+
+                    // Mostrar botão de zoom (esconder se for a única imagem?)
+                    zoomBtn.style.display = 'flex';
+                };
+                img.src = images[currentImageIndex];
+
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevenir scroll da página
+            }
+
+            // Fechar lightbox
+            function closeLightbox(event) {
+                // Prevenir fechamento quando clicar na imagem ou botões de navegação
+                if (event.target === document.getElementById('lightbox-image') ||
+                    event.target.classList.contains('lightbox-nav') ||
+                    event.target.classList.contains('lightbox-zoom-btn') ||
+                    event.target.closest('.lightbox-zoom-btn')) {
+                    return;
+                }
+
+                const modal = document.getElementById('lightbox-modal');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restaurar scroll
+                resetZoom();
+            }
+
+            // Navegar entre imagens
+            function changeImage(direction) {
+                const newIndex = currentImageIndex + direction;
+
+                if (newIndex >= 0 && newIndex < images.length) {
+                    currentImageIndex = newIndex;
+
+                    const lightboxImage = document.getElementById('lightbox-image');
+                    const spinner = document.getElementById('lightbox-spinner');
+
+                    // Resetar zoom
+                    resetZoom();
+
+                    // Mostrar spinner
+                    spinner.style.display = 'block';
+                    lightboxImage.style.display = 'none';
+
+                    // Pré-carregar nova imagem
+                    const img = new Image();
+                    img.onload = function () {
+                        spinner.style.display = 'none';
+                        lightboxImage.style.display = 'block';
+                        lightboxImage.src = this.src;
+                        updateCounter();
+                        updateActiveIndicator();
+                    };
+                    img.src = images[currentImageIndex];
+                }
+            }
+
+            // ============================================
+            // FUNÇÕES DE ZOOM
+            // ============================================
+
+            // Alternar zoom
+            function toggleZoom(event) {
+                event.stopPropagation();
+
+                const container = document.getElementById('lightbox-image-container');
+                const image = document.getElementById('lightbox-image');
+                const zoomBtn = document.getElementById('lightbox-zoom-btn');
+
+                if (!isZoomed) {
+                    // Ativar zoom
+                    isZoomed = true;
+                    image.classList.add('zoomed');
+                    container.classList.add('zoomed');
+                    zoomBtn.innerHTML = '<i class="fas fa-search-minus"></i>';
+
+                    // Calcular escala baseada no tamanho da imagem
+                    const scale = Math.max(
+                        image.naturalWidth / image.width,
+                        image.naturalHeight / image.height
+                    );
+
+                    if (scale > 1) {
+                        zoomScale = scale;
+                        image.style.transform = `scale(${zoomScale})`;
+                        image.style.width = `${image.naturalWidth}px`;
+                        image.style.height = `${image.naturalHeight}px`;
+                    } else {
+                        zoomScale = 2;
+                        image.style.transform = `scale(${zoomScale})`;
+                        image.style.width = `${image.naturalWidth}px`;
+                        image.style.height = `${image.naturalHeight}px`;
+                    }
+
+                    // Adicionar eventos de mouse
+                    image.addEventListener('mousedown', startDrag);
+                    image.addEventListener('mousemove', drag);
+                    image.addEventListener('mouseup', stopDrag);
+                    image.addEventListener('mouseleave', stopDrag);
+
+                    // Eventos de toque para mobile
+                    image.addEventListener('touchstart', startDragTouch);
+                    image.addEventListener('touchmove', dragTouch);
+                    image.addEventListener('touchend', stopDrag);
+
+                } else {
+                    // Desativar zoom
+                    resetZoom();
+                    zoomBtn.innerHTML = '<i class="fas fa-search-plus"></i>';
+                }
+            }
+
+            // Resetar zoom
+            function resetZoom() {
+                const container = document.getElementById('lightbox-image-container');
+                const image = document.getElementById('lightbox-image');
+                const zoomBtn = document.getElementById('lightbox-zoom-btn');
+
+                isZoomed = false;
+                image.classList.remove('zoomed');
+                container.classList.remove('zoomed');
+                image.style.transform = 'scale(1)';
+                image.style.width = '';
+                image.style.height = '';
+                translateX = 0;
+                translateY = 0;
+                zoomScale = 1;
+
+                // Remover eventos
+                image.removeEventListener('mousedown', startDrag);
+                image.removeEventListener('mousemove', drag);
+                image.removeEventListener('mouseup', stopDrag);
+                image.removeEventListener('mouseleave', stopDrag);
+                image.removeEventListener('touchstart', startDragTouch);
+                image.removeEventListener('touchmove', dragTouch);
+                image.removeEventListener('touchend', stopDrag);
+
+                if (zoomBtn) {
+                    zoomBtn.innerHTML = '<i class="fas fa-search-plus"></i>';
+                }
+            }
+
+            // Funções de drag (mouse)
+            function startDrag(e) {
+                if (!isZoomed) return;
+                e.preventDefault();
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+            }
+
+            function drag(e) {
+                if (!isDragging || !isZoomed) return;
+                e.preventDefault();
+
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+
+                const image = document.getElementById('lightbox-image');
+                image.style.transform = `scale(${zoomScale}) translate(${translateX}px, ${translateY}px)`;
+            }
+
+            function stopDrag() {
+                isDragging = false;
+            }
+
+            // Funções de drag (touch)
+            function startDragTouch(e) {
+                if (!isZoomed) return;
+                e.preventDefault();
+                isDragging = true;
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+            }
+
+            function dragTouch(e) {
+                if (!isDragging || !isZoomed) return;
+                e.preventDefault();
+
+                const touch = e.touches[0];
+                translateX = touch.clientX - startX;
+                translateY = touch.clientY - startY;
+
+                const image = document.getElementById('lightbox-image');
+                image.style.transform = `scale(${zoomScale}) translate(${translateX}px, ${translateY}px)`;
+            }
+
+            // Zoom com scroll do mouse
+            document.getElementById('lightbox-image-container').addEventListener('wheel', function (e) {
+                if (!isZoomed) {
+                    e.preventDefault();
+                    toggleZoom(e);
+                } else {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    zoomScale *= delta;
+                    zoomScale = Math.min(Math.max(1, zoomScale), 5); // Limitar zoom entre 1x e 5x
+
+                    const image = document.getElementById('lightbox-image');
+                    image.style.transform = `scale(${zoomScale}) translate(${translateX}px, ${translateY}px)`;
+                }
+            });
+
+            // Zoom com duplo clique
+            document.getElementById('lightbox-image').addEventListener('dblclick', function (e) {
+                e.preventDefault();
+                toggleZoom(e);
+            });
+
+            // ============================================
+            // FUNÇÕES AUXILIARES (mantidas iguais)
+            // ============================================
+
+            // Atualizar contador
+            function updateCounter() {
+                const counter = document.getElementById('lightbox-counter');
+                counter.textContent = `${currentImageIndex + 1}/${images.length}`;
+            }
+
+            // Criar indicadores (bolinhas)
+            function createIndicators() {
+                const indicators = document.getElementById('lightbox-indicators');
+                indicators.innerHTML = '';
+
+                images.forEach((_, index) => {
+                    const dot = document.createElement('span');
+                    dot.className = `lightbox-dot ${index === currentImageIndex ? 'active' : ''}`;
+                    dot.onclick = () => goToImage(index);
+                    indicators.appendChild(dot);
+                });
+            }
+
+            // Atualizar indicador ativo
+            function updateActiveIndicator() {
+                document.querySelectorAll('.lightbox-dot').forEach((dot, index) => {
+                    if (index === currentImageIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+
+            // Ir para imagem específica
+            function goToImage(index) {
+                if (index >= 0 && index < images.length) {
+                    currentImageIndex = index;
+
+                    const lightboxImage = document.getElementById('lightbox-image');
+                    const spinner = document.getElementById('lightbox-spinner');
+
+                    resetZoom();
+
+                    spinner.style.display = 'block';
+                    lightboxImage.style.display = 'none';
+
+                    const img = new Image();
+                    img.onload = function () {
+                        spinner.style.display = 'none';
+                        lightboxImage.style.display = 'block';
+                        lightboxImage.src = this.src;
+                        updateCounter();
+                        updateActiveIndicator();
+                    };
+                    img.src = images[currentImageIndex];
+                }
+            }
+
+            // Suporte a teclado
+            document.addEventListener('keydown', function (e) {
+                const modal = document.getElementById('lightbox-modal');
+                if (modal.style.display === 'flex') {
+                    if (e.key === 'Escape') {
+                        closeLightbox(e);
+                    } else if (e.key === 'ArrowLeft') {
+                        changeImage(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        changeImage(1);
+                    } else if (e.key === '+' || e.key === '=') {
+                        // Tecla + para dar zoom
+                        e.preventDefault();
+                        if (!isZoomed) toggleZoom(e);
+                    } else if (e.key === '-') {
+                        // Tecla - para reduzir zoom
+                        e.preventDefault();
+                        if (isZoomed) toggleZoom(e);
+                    }
+                }
+            });
+
+            // Tornar a imagem principal clicável
+            document.getElementById('mainProductImage').addEventListener('click', function () {
+                openLightbox(0);
+            });
+
+            // Tornar as miniaturas clicáveis para abrir no lightbox
+            document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+                thumb.addEventListener('click', function (e) {
+                    // O índice +1 porque a imagem principal é a primeira
+                    openLightbox(index + 1);
+                });
+            });
+
+            // Prevenir que o clique no lightbox-image feche o modal
+            document.getElementById('lightbox-image').addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+
+            // Swipe em dispositivos móveis
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            document.getElementById('lightbox-modal').addEventListener('touchstart', function (e) {
+                if (!isZoomed) {
+                    touchStartX = e.changedTouches[0].screenX;
+                }
+            });
+
+            document.getElementById('lightbox-modal').addEventListener('touchend', function (e) {
+                if (!isZoomed) {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }
+            });
+
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchEndX - touchStartX;
+
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0) {
+                        // Swipe para direita - imagem anterior
+                        changeImage(-1);
+                    } else {
+                        // Swipe para esquerda - próxima imagem
+                        changeImage(1);
+                    }
                 }
             }
         </script>

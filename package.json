@@ -22,6 +22,7 @@
         "@alpinejs/mask": "^3.14.9",
         "laravel-echo": "^2.2.3",
         "pusher-js": "^8.4.0",
+        "sharp": "^0.34.5",
         "swiper": "^12.1.0"
     }
 }

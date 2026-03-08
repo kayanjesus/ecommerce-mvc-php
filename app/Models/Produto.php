@@ -32,7 +32,6 @@ class Produto extends Model
     // App/Models/Produto.php
     public function avaliacoes()
     {
-        // 'id_produto' é a FK em 'avaliacoes', 'id_produto' é a PK em 'produtos'
         return $this->hasMany(Avaliacao::class, 'id_produto', 'id_produto');
     }
     public function getMediaAvaliacaoAttribute(): float

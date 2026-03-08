@@ -105,32 +105,33 @@ class SiteController extends Controller
         return view('details.blade.php', compact('produto'));
         // Agora o $produto já tem os dados de avaliações para uso na view.
     }
+
+
     public function details($slug)
     {
+        // Busca o produto com todas as relações necessárias
         $produto = Produto::where('slug', $slug)
             ->with([
                 'variacoes.cor',
                 'variacoes.tamanho',
                 'imagens',
-                // 1. Carrega todas as avaliações e o usuário que as fez
-                'avaliacoes.usuario',
+                'avaliacoes' => function ($query) {
+                    $query->with('usuario')->latest(); // Carrega as avaliações com os usuários, ordenadas por data
+                }
             ])
-            // 2. Calcula a média das notas e o total de avaliações.
-            // As propriedades 'avaliacoes_avg_nota' e 'avaliacoes_count' serão adicionadas ao objeto $produto
-            ->withAvg('avaliacoes', 'nota') // Adiciona $produto->avaliacoes_avg_nota
-            ->withCount('avaliacoes')     // Adiciona $produto->avaliacoes_count
+            ->withAvg('avaliacoes', 'nota') // Adiciona avaliacoes_avg_nota
             ->firstOrFail();
 
-        // Lógica para produtos relacionados
-        $produtos = Produto::where('id_produto', '!=', $produto->id_produto)
-            ->where('estacao', $produto->estacao)
-            ->limit(4)
-            ->get();
+        // DEBUG - Comente ou remova após testar
+        \Log::info('Produto ID: ' . $produto->id_produto);
+        \Log::info('Total avaliações: ' . $produto->avaliacoes->count());
+        \Log::info('Média avaliações: ' . $produto->avaliacoes_avg_nota);
 
-        $categoriasMenu = Categoria::all();
+        if ($produto->avaliacoes->count() > 0) {
+            \Log::info('Primeira avaliação: ', $produto->avaliacoes->first()->toArray());
+        }
 
-        // 3. Passe tudo para a view
-        return view('home.details', compact('produto', 'produtos', 'categoriasMenu'));
+        return view('home.details', compact('produto'));
     }
 
     public function categoria($id_categoria, Request $request)

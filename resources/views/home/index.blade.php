@@ -5,11 +5,11 @@
     <main>
         <section class="banner">
             <a href="{{ route('home.categoria', ['id_categoria' => 0]) }}">
-                <div class="banner-slide active"><img src="{{ asset("img/carossel/Blog1_destacada.jpg") }}" alt="Banner 1">
+                <div class="banner-slide active"><img src="{{ asset("img/carossel/Blog1_destacada.webp") }}" alt="Banner 1">
                 </div>
-                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-roupas.jpg") }}" alt="Banner 2"></div>
+                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-roupas.webp") }}" alt="Banner 2"></div>
                 <div class="banner-slide"><img src="{{ asset("img/carossel/banner-meninas.webp") }}" alt="Banner 3"></div>
-                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-criança.jpg") }}" alt="Banner 4"></div>
+                <div class="banner-slide"><img src="{{ asset("img/carossel/banner-criança.webp") }}" alt="Banner 4"></div>
             </a>
             <div class="banner-controls"><button class="prev" onclick="changeSlide(-1)">&#10094;</button>
                 <button class="next" onclick="changeSlide(1)">&#10095;</button>
@@ -69,7 +69,7 @@
                 @foreach ($categoriasMenu as $categoria)
                     <a href="{{ route('home.categoria', $categoria->id_categoria) }}">
                         <div class="circulo">
-                            <img src="img/produtos/circulo/circulo{{ $loop->iteration }}.jpg" alt="img circulo"
+                            <img src="img/produtos/circulo/circulo{{ $loop->iteration }}.webp" alt="img circulo"
                                 class="imagem-circulo">
                             <span class="Descricao">{{ $categoria->nome_categoria }}</span>
                         </div>
@@ -93,7 +93,7 @@
                                     @php
                                         $imagemExibicao = $produto->imagens ? ($produto->imagens->firstWhere('principal', true) ?? $produto->imagens->first()) : null;
                                     @endphp
-                                    <img src="{{ $imagemExibicao ? asset($imagemExibicao->caminho) : asset('img/sem-foto.jpg') }}"
+                                    <img src="{{ $imagemExibicao ? asset($imagemExibicao->caminho) : asset('img/sem-foto.webp') }}"
                                         alt="{{ $produto->nome_produto }}" class="imagem-best-seller" />
                                 </a>
                                 <span class="Descricao">{{ $produto->nome_produto }}</span>
@@ -148,14 +148,14 @@
         <div class="season-container">
             <div class="season-block winter">
                 <a href="{{ route('temporada', ['temporada' => 'inverno']) }}">
-                    <img src="{{asset("img/produtos/retangulo/Roupa_de_frio_infantil.jpg")}}" alt="Roupas de inverno">
+                    <img src="{{asset("img/produtos/retangulo/Roupa_de_frio_infantil.webp")}}" alt="Roupas de inverno">
                     <p class="season-text">❄ Roupas de Inverno</p>
                 </a>
             </div>
 
             <div class="season-block summer">
                 <a href="{{ route('temporada', ['temporada' => 'verao']) }}">
-                    <img src="{{asset("img/produtos/retangulo/roupas-de-verao.png")}}" alt="Roupas de verão">
+                    <img src="{{asset("img/produtos/retangulo/roupas-de-verao.webp")}}" alt="Roupas de verão">
                     <p class="season-text">☀ Roupas de Verão</p>
                 </a>
             </div>

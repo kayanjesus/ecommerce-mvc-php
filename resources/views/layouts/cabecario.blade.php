@@ -41,7 +41,7 @@
 
             <div class="logo-container">
                 <a href="{{ route('home.index') }}">
-                    <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
+                    <img src="{{ asset('img/logo/ft_logo.webp') }}" alt="Cantinho da Isa - Logo" class="logo-img">
                 </a>
             </div>
 
@@ -99,9 +99,9 @@
                 <p>Suas compras são processadas com segurança através do <strong>PagSeguro</strong>, garantindo proteção
                     total de seus dados e tranquilidade nas transações.</p>
                 <ul class="payment-methods">
-                    <li><img src="{{ asset('img/pagseguro.png') }}" alt="PagSeguro"></li>
-                    <li><img src="{{ asset('img/mastercard.png') }}" alt="Mastercard"></li>
-                    <li><img src="{{ asset('img/pix.png') }}" alt="Pix"></li>
+                    <li><img src="{{ asset('img/pagseguro.webp') }}" alt="PagSeguro"></li>
+                    <li><img src="{{ asset('img/mastercard.webp') }}" alt="Mastercard"></li>
+                    <li><img src="{{ asset('img/pix.webp') }}" alt="Pix"></li>
                 </ul>
             </div>
 

@@ -14,8 +14,22 @@ use App\Models\ProdutoImagem;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
 
+use Illuminate\Support\Facades\DB;
+use App\Services\ImageService;
+
 class ProdutoController extends Controller
 {
+    protected $imageService;
+
+    /**
+     * Construtor para injetar o ImageService
+     */
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
+
     /**
      * Exibe os produtos, com ou sem filtro por estação.
      */
@@ -66,9 +80,11 @@ class ProdutoController extends Controller
                 'tecido' => 'required|string|max:255',
                 'modelo' => 'required|string|max:50',
                 'imagens' => 'required|array',
-                'imagens.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'imagens.*' => 'image|mimes:jpeg,png,jpg,gif,bmp|max:5120', // Aumentei para 5MB e adicionei BMP
                 'main_image_id' => 'nullable|string'
             ]);
+
+            DB::beginTransaction();
 
             // Gera o slug baseado no nome do produto
             $slugBase = Str::slug($request->nome);
@@ -91,34 +107,72 @@ class ProdutoController extends Controller
                 'tecido' => $request->tecido,
                 'estacao' => $request->estacao,
                 'modelo' => $request->modelo,
-                'slug' => $slug // Usa o slug verificado/único
+                'slug' => $slug
             ]);
 
             // Associa categorias
             $produto->categorias()->attach($request->categorias);
 
             // Cria variações (cores e tamanhos)
+            $totalCombinacoes = count($request->cores) * count($request->tamanhos);
+            $estoquePorVariacao = $totalCombinacoes > 0 ? $request->estoque / $totalCombinacoes : 0;
+
             foreach ($request->cores as $corId) {
                 foreach ($request->tamanhos as $tamanhoId) {
                     ProdutoVariacoes::create([
                         'produto_id' => $produto->id_produto,
                         'cor_id' => $corId,
                         'tamanho_id' => $tamanhoId,
-                        'estoque' => $request->estoque / (count($request->cores) * count($request->tamanhos)),
+                        'estoque' => $estoquePorVariacao,
                         'preco' => $request->valor,
                     ]);
                 }
             }
 
-            // Upload e armazenamento das imagens
+            // Upload, conversão para WebP e armazenamento das imagens
             if ($request->hasFile('imagens')) {
                 $mainImageId = $request->main_image_id;
 
-                foreach ($request->file('imagens') as $key => $imagem) {
-                    $path = $imagem->store('produtos', 'public');
+                // Converte todas as imagens para WebP usando o ImageService
+                $convertedImages = $this->imageService->convertMultipleToWebP(
+                    $request->file('imagens'),
+                    'produtos'
+                );
+
+                foreach ($convertedImages as $key => $result) {
+                    // Se a conversão falhou, usa o caminho de fallback
+                    if ($result['success']) {
+                        $imagePath = $result['webp_path'];
+
+                        // Log da redução de tamanho
+                        \Log::info('Imagem convertida com sucesso', [
+                            'produto' => $produto->nome_produto,
+                            'redução' => round((1 - $result['size'] / $result['original_size']) * 100, 1) . '%',
+                            'tamanho_original' => $this->formatBytes($result['original_size']),
+                            'tamanho_webp' => $this->formatBytes($result['size'])
+                        ]);
+                    } else {
+                        // Fallback: usa a imagem original se a conversão falhar
+                        $imagePath = $result['fallback_path'] ?? null;
+
+                        if (!$imagePath) {
+                            \Log::error('Falha completa no upload da imagem', [
+                                'produto' => $produto->nome_produto,
+                                'erro' => $result['error'] ?? 'Erro desconhecido'
+                            ]);
+                            continue;
+                        }
+
+                        \Log::warning('Usando imagem original (fallback)', [
+                            'produto' => $produto->nome_produto,
+                            'motivo' => $result['error'] ?? 'Erro na conversão'
+                        ]);
+                    }
 
                     // Verifica se esta é a imagem principal
                     $isPrincipal = false;
+
+                    // Lógica para imagem principal
                     if ($mainImageId === 'new-' . $key) {
                         $isPrincipal = true;
                     }
@@ -126,19 +180,42 @@ class ProdutoController extends Controller
                     elseif ($key === 0 && empty($mainImageId)) {
                         $isPrincipal = true;
                     }
+                    // Se for a primeira imagem e nenhuma foi marcada como principal ainda
+                    elseif ($key === 0 && !ProdutoImagem::where('produto_id', $produto->id_produto)->exists()) {
+                        $isPrincipal = true;
+                    }
 
+                    // Salva no banco de dados
                     ProdutoImagem::create([
                         'produto_id' => $produto->id_produto,
-                        'caminho' => 'storage/' . $path,
+                        'caminho' => $imagePath,
                         'principal' => $isPrincipal,
                     ]);
                 }
+
+                // Verifica se pelo menos uma imagem foi salva
+                $imagensSalvas = ProdutoImagem::where('produto_id', $produto->id_produto)->count();
+                if ($imagensSalvas === 0) {
+                    throw new \Exception('Nenhuma imagem foi salva com sucesso.');
+                }
+
+                // Garante que tenha uma imagem principal
+                if (!ProdutoImagem::where('produto_id', $produto->id_produto)->where('principal', true)->exists()) {
+                    $primeiraImagem = ProdutoImagem::where('produto_id', $produto->id_produto)->first();
+                    if ($primeiraImagem) {
+                        $primeiraImagem->update(['principal' => true]);
+                    }
+                }
             }
 
+            DB::commit();
+
             return redirect()->route('adm.cdtproduto')
-                ->with('success', 'Produto cadastrado com sucesso!');
+                ->with('success', 'Produto cadastrado com sucesso! As imagens foram otimizadas para WebP automaticamente.');
 
         } catch (QueryException $e) {
+            DB::rollBack();
+
             // Captura erros de duplicação (código 1062)
             if ($e->errorInfo[1] == 1062) {
                 \Log::warning('Tentativa de cadastrar produto com nome duplicado: ' . $request->nome);
@@ -147,7 +224,7 @@ class ProdutoController extends Controller
                     ->withInput()
                     ->withErrors([
                         'nome' => 'Já existe um produto com este nome. Por favor, escolha um nome diferente ou adicione uma descrição mais específica.',
-                        'duplicate_error' => 'nome' // Flag adicional para JavaScript
+                        'duplicate_error' => 'nome'
                     ]);
             }
 
@@ -161,14 +238,31 @@ class ProdutoController extends Controller
                 ->withErrors(['error' => 'Erro ao conectar com o banco de dados. Por favor, tente novamente.']);
 
         } catch (\Exception $e) {
+            DB::rollBack();
+
             \Log::error('Erro geral ao cadastrar produto: ' . $e->getMessage());
             \Log::error('Trace: ' . $e->getTraceAsString());
 
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Ocorreu um erro inesperado. Por favor, tente novamente.']); // CORRIGIDO AQUI
+                ->withErrors(['error' => 'Ocorreu um erro inesperado: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Método auxiliar para formatar bytes (adicione dentro do controller)
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        return round($bytes / pow(1024, $pow), $precision) . ' ' . $units[$pow];
+    }
+
 
     // Métodos placeholders caso precise no futuro
     public function show($id_produto)
