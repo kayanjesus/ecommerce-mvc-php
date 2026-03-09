@@ -1,3 +1,8 @@
+@extends('layouts.footer') {{-- ESTE É O NOVO TOPO DO SEU ARQUIVO --}}
+
+@section('content') {{-- TUDO ABAIXO SERÁ O CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -17,7 +22,7 @@
     <header class="topo">
         <div class="logo">
             <a class="navbar-brand" href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Cantinho da Isa" />
+                <img src="{{ asset('img/logo/ft_logo.webp') }}" alt="Logo Cantinho da Isa" />
             </a>
         </div>
         <div class="barra-progresso">
@@ -376,3 +381,5 @@
 </body>
 
 </html>
+
+@endsection {{-- FIM DO CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}

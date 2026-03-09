@@ -105,6 +105,7 @@
                             <table class="table table-hover" id="tabelaUsuarios">
                                 <thead>
                                     <tr>
+                                        <th>ID</th>
                                         <th>Nome</th>
                                         <th>E-mail</th>
                                         <th>Perfil</th>
@@ -115,6 +116,7 @@
                                 <tbody>
                                     @foreach ($users as $user)
                                         <tr>
+                                            <td>{{ $user->id }}</td>
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->access_level }}</td>

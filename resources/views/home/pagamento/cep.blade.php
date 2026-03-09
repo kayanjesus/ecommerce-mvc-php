@@ -1,3 +1,8 @@
+@extends('layouts.footer') {{-- ESTE É O NOVO TOPO DO SEU ARQUIVO --}}
+
+@section('content') {{-- TUDO ABAIXO SERÁ O CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -7,6 +12,8 @@
     <title>Cantinho da Isa - Carrinho</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/pagamento.css') }}" />
+    <!-- CSS dos popups -->
+    <link rel="stylesheet" href="{{ asset('css/popups.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +23,7 @@
     <header class="topo">
         <div class="logo">
             <a class="navbar-brand" href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Logo Cantinho da Isa" />
+                <img src="{{ asset('img/logo/ft_logo.webp') }}" alt="Logo Cantinho da Isa" />
             </a>
         </div>
         <div class="barra-progresso">
@@ -40,11 +47,7 @@
     </div>
 
     <main class="container">
-        @if(session('erro'))
-            <div class="alert alert-danger">
-                {{ session('erro') }}
-            </div>
-        @endif
+        {{-- As mensagens vão aparecer como popups --}}
 
         {{-- Adicione uma mensagem se o carrinho estiver vazio --}}
         @if($itens->isEmpty())
@@ -77,10 +80,12 @@
                             <p class="preco">R$ {{ number_format($item->price, 2, ',', '.') }}</p>
                         </div>
 
-                        <form action="{{ route('home.removecarrinho') }}" method="POST">
+                        <form action="{{ route('home.removecarrinho') }}" method="POST" id="form-remove-{{ $loop->index }}"
+                            style="display: inline;">
                             @csrf
                             <input type="hidden" name="id" value="{{ $item->id }}">
-                            <button type="submit" class="remover">
+                            <button type="button" class="remover"
+                                onclick="confirmarRemoverItem('{{ $loop->index }}', '{{ $item->name }}')">
                                 <i class="fa-solid fa-trash" style="color: #5c0000;"></i>
                             </button>
                         </form>
@@ -96,7 +101,7 @@
         <section class="entrega">
             <h3>Informações de Entrega</h3>
             @if(!$itens->isEmpty())
-                <form action="{{ route('pagamento.salvar-endereco') }}" method="POST">
+                <form action="{{ route('pagamento.salvar-endereco') }}" method="POST" id="form-endereco">
                     @csrf
 
                     <div class="form-group">
@@ -145,47 +150,75 @@
         </section>
     </main>
 
-    <footer>
-        <section class="top-footer">
-            <h3>Cantinho da Isa</h3>
-            <p>Crianças crescem rápido, não é mesmo? Em pouco tempo, as roupinhas vão ficando mais curtas, e é preciso
-                renovar os guarda-roupas. Aqui no Cantinho da Isa, temos o melhor vestuário para os pequenos, e com os
-                menores preços. Venha conferir. </p>
-        </section>
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>Institucional</h3>
-                <ul>
-                    <li><a href="#">Quem Somos</a></li>
-                    <li><a href="#">Política de Privacidade</a></li>
-                    <li><a href="#">Troca e Devolução</a></li>
-                    <li><a href="#">Política de Entrega</a></li>
-                    <li><a href="#">Política de Pagamento</a></li>
-                    <li><a href="#">Ajuda</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Atendimento</h3>
-                <p>( xx ) xxxx-xxxx</p>
-                <p>De segunda-feira a sexta-feira:<br>12h ás 18h</p>
-            </div>
-            <div class="footer-column">
-                <h3>Compre Seguro</h3>
-                <p>Suas compras são processadas com segurança através do <strong>PagSeguro</strong>, garantindo proteção
-                    total de seus dados e tranquilidade nas transações.</p>
-                <ul class="payment-methods">
-                    <li><img src="{{ asset('img/pagseguro.png') }}" alt="PagSeguro"></li>
-                    <li><img src="{{ asset('img/mastercard.png') }}" alt="Mastercard"></li>
-                    <li><img src="{{ asset('img/pix.png') }}" alt="Pix"></li>
-                </ul>
-            </div>
 
-
-        </div>
-    </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script dos popups -->
+    <script src="{{ asset('js/popups.js') }}"></script>
+
     <script>
+        // ============================================
+        // FUNÇÕES DE CONFIRMAÇÃO
+        // ============================================
+
+        // Confirmar remoção de item do carrinho
+        function confirmarRemoverItem(index, nomeProduto) {
+            confirmar(
+                `Deseja remover "${nomeProduto}" do carrinho?`,
+                function () {
+                    const load = loading('Removendo item...');
+                    setTimeout(function () {
+                        document.getElementById('form-remove-' + index).submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // ============================================
+        // FUNÇÃO PARA ENVIAR ENDEREÇO (SEM CONFIRMAÇÃO)
+        // ============================================
+
+        function enviarEndereco() {
+            // Validações básicas
+            const cep = document.getElementById('cep').value.replace(/\D/g, '');
+            const rua = document.getElementById('rua').value.trim();
+            const bairro = document.getElementById('bairro').value.trim();
+            const numero = document.getElementById('numero').value.trim();
+            const cidade = document.getElementById('cidade').value.trim();
+            const estado = document.getElementById('estado').value.trim();
+
+            let erro = '';
+
+            if (cep.length !== 8) {
+                erro = 'CEP inválido. Digite um CEP com 8 dígitos.';
+            } else if (!rua) {
+                erro = 'Por favor, preencha o nome da rua.';
+            } else if (!bairro) {
+                erro = 'Por favor, preencha o bairro.';
+            } else if (!numero) {
+                erro = 'Por favor, preencha o número.';
+            } else if (!cidade) {
+                erro = 'Por favor, preencha a cidade.';
+            } else if (!estado || estado.length !== 2) {
+                erro = 'Por favor, preencha o estado com 2 letras (ex: SP, RJ).';
+            }
+
+            if (erro) {
+                mostrarMensagem(erro, 'warning');
+                return;
+            }
+
+            // Se passou na validação, mostra loading e envia
+            const load = loading('Processando endereço...');
+            setTimeout(function () {
+                document.getElementById('form-endereco').submit();
+            }, 500);
+        }
+
+        // ============================================
+        // FUNÇÕES EXISTENTES (MANTIDAS)
+        // ============================================
+
         $(document).ready(function () {
             // Formatação automática do CEP
             $('#cep').on('input', function () {
@@ -225,13 +258,20 @@
                             $('#cidade').val(response.cep_data.cidade);
                             $('#estado').val(response.cep_data.estado);
                             $('#numero').focus();
+
+                            // Mostra mensagem de sucesso
+                            mostrarMensagem('CEP encontrado com sucesso!', 'success');
+
                             $feedback.text('CEP encontrado!').removeClass('text-danger').addClass('text-success').show();
                         } else {
-                            $feedback.text(response.error || 'CEP não encontrado').removeClass('text-success').addClass('text-danger').show();
+                            const erro = response.error || 'CEP não encontrado';
+                            mostrarMensagem(erro, 'error');
+                            $feedback.text(erro).removeClass('text-success').addClass('text-danger').show();
                         }
                     },
                     error: function (xhr) {
                         const msg = xhr.responseJSON?.error || 'Erro ao buscar CEP';
+                        mostrarMensagem(msg, 'error');
                         $feedback.text(msg).removeClass('text-success').addClass('text-danger').show();
                     },
                     complete: function () {
@@ -240,36 +280,23 @@
                     }
                 });
             });
-
-            // Lógica para o botão de remover item
-            $('.remover').on('click', function (e) {
-                if (!confirm('Tem certeza que deseja remover este item do carrinho?')) {
-                    e.preventDefault(); // Impede o envio do formulário se o usuário cancelar
-                }
-            });
         });
-    </script>
 
-    <script>
+        // ============================================
+        // LÓGICA DA BARRA DE PROGRESSO (MANTIDA)
+        // ============================================
+
         document.addEventListener('DOMContentLoaded', function () {
-
-            // LÓGICA DA BARRA DE PROGRESSO
             const totalSteps = 3;
-            const currentStep = 1; // ETAPA ATUAL
+            const currentStep = 1;
             const progressBar = document.querySelector('.progress-line');
-
-            // Calcula a largura: (Etapa Atual - 1) / (Total de Etapas - 1) * 100
-            // Exemplo: (1 - 1) / (3 - 1) * 100 = 0%
-            // O 2º e 3º item ficam no centro da bolinha
             const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
-
-            // Ajuste o tamanho da linha para 94% para alinhar com as bolinhas
             const lineWidth = (progress / 100) * 94;
-
             progressBar.style.width = lineWidth + '%';
-
         });
     </script>
 </body>
 
 </html>
+
+@endsection {{-- FIM DO CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}

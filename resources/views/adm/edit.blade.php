@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/adm/edit.css') }}" />
-
+    <!-- CSS dos popups -->
+    <link rel="stylesheet" href="{{ asset('css/popups.css') }}">
 </head>
 
 <body>
@@ -85,7 +86,7 @@
                         <a href="{{ route('adm.pdtestoque') }}" class="btn btn-outline-secondary me-2">
                             <i class="bi bi-arrow-left"></i> Voltar
                         </a>
-                        <button type="submit" form="editProductForm" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="confirmarAlteracoes()">
                             <i class="bi bi-save"></i> Salvar Alterações
                         </button>
                     </div>
@@ -101,17 +102,7 @@
                     </div>
                 @endif
 
-                @if(session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
-                    </div>
-                @endif
+                {{-- As mensagens de sucesso/erro vão aparecer como popups --}}
 
                 <div class="card">
                     <div class="card-body">
@@ -221,7 +212,7 @@
                                                 <input type="text" class="form-control" id="nome" name="nome"
                                                     value="{{ old('nome', $produto->nome_produto) }}" required>
                                             </div>
-                                            <p class="text-muted">Código: {{ $produto->codigo }}</p>
+                                            <p class="text-muted">Código: {{ $produto->id_produto }}</p>
                                         </div>
 
                                         <!-- Categorias -->
@@ -401,7 +392,83 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Script dos popups -->
+    <script src="{{ asset('js/popups.js') }}"></script>
+
     <script>
+        // ============================================
+        // FUNÇÃO PARA CONFIRMAR ALTERAÇÕES
+        // ============================================
+
+        function confirmarAlteracoes() {
+            // Valida os campos obrigatórios
+            if (!validarFormulario()) {
+                return;
+            }
+
+            // Mostra confirmação
+            confirmar(
+                'Deseja salvar as alterações feitas no produto?',
+                function () {
+                    // Se clicou em SIM
+                    salvarAlteracoes();
+                },
+                function () {
+                    // Se clicou em NÃO
+                    console.log('Edição cancelada');
+                }
+            );
+        }
+
+        // ============================================
+        // FUNÇÃO PARA SALVAR ALTERAÇÕES (COM LOADING)
+        // ============================================
+
+        function salvarAlteracoes() {
+            // MOSTRA O LOADING
+            const load = loading('Salvando alterações...');
+
+            // Pequeno delay para o loading aparecer
+            setTimeout(function () {
+                // Envia o formulário
+                document.getElementById('editProductForm').submit();
+            }, 500);
+        }
+
+        // ============================================
+        // FUNÇÃO DE VALIDAÇÃO (MELHORADA)
+        // ============================================
+
+        function validarFormulario() {
+            const nome = document.getElementById('nome').value.trim();
+            const categorias = document.querySelector('.categorias-select');
+            const cores = document.querySelector('.cores-select');
+            const tamanhos = document.querySelector('.tamanhos-select');
+
+            let erro = '';
+
+            if (!nome) {
+                erro = 'Por favor, preencha o nome do produto';
+            } else if (categorias && categorias.selectedOptions.length === 0) {
+                erro = 'Por favor, selecione pelo menos uma categoria';
+            } else if (cores && cores.selectedOptions.length === 0) {
+                erro = 'Por favor, selecione pelo menos uma cor';
+            } else if (tamanhos && tamanhos.selectedOptions.length === 0) {
+                erro = 'Por favor, selecione pelo menos um tamanho';
+            }
+
+            if (erro) {
+                mostrarMensagem(erro, 'warning');
+                return false;
+            }
+
+            return true;
+        }
+
+        // ============================================
+        // FUNÇÕES EXISTENTES (MANTIDAS IGUAIS)
+        // ============================================
+
         // Variáveis globais
         let removedImages = [];
         let newImages = [];
@@ -586,42 +653,8 @@
             }, 300);
         }
 
-        // Validação do formulário antes de enviar
-        document.getElementById('editProductForm').addEventListener('submit', function (e) {
-            const nome = document.getElementById('nome').value.trim();
-            const categorias = document.querySelector('.categorias-select').value;
-            const cores = document.querySelector('.cores-select').value;
-            const tamanhos = document.querySelector('.tamanhos-select').value;
-
-            if (!nome) {
-                e.preventDefault();
-                alert('Por favor, preencha o nome do produto');
-                return false;
-            }
-
-            if (!categorias || categorias.length === 0) {
-                e.preventDefault();
-                alert('Por favor, selecione pelo menos uma categoria');
-                return false;
-            }
-
-            if (!cores || cores.length === 0) {
-                e.preventDefault();
-                alert('Por favor, selecione pelo menos uma cor');
-                return false;
-            }
-
-            if (!tamanhos || tamanhos.length === 0) {
-                e.preventDefault();
-                alert('Por favor, selecione pelo menos um tamanho');
-                return false;
-            }
-
-            // Mostra loading
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-            submitBtn.disabled = true;
-        });
+        // Remove a validação antiga (já que agora usamos a nova)
+        // document.getElementById('editProductForm').addEventListener('submit', function (e) { ... });
     </script>
 </body>
 

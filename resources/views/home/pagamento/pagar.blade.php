@@ -1,3 +1,8 @@
+@extends('layouts.footer') {{-- ESTE É O NOVO TOPO DO SEU ARQUIVO --}}
+
+@section('content') {{-- TUDO ABAIXO SERÁ O CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -19,7 +24,7 @@
     <header class="topo">
         <div class="logo">
             <a href="{{ route('home.index') }}">
-                <img src="{{ asset('img/logo/ft_logo.png') }}" alt="Cantinho da Isa - Logo" class="logo-img">
+                <img src="{{ asset('img/logo/ft_logo.webp') }}" alt="Cantinho da Isa - Logo" class="logo-img">
             </a>
         </div>
         <div class="barra-progresso">
@@ -110,44 +115,7 @@
             </div>
         </div>
     </main>
-    <footer>
-        <section class="top-footer">
-            <h3>Cantinho da Isa</h3>
-            <p>Crianças crescem rápido, não é mesmo? Em pouco tempo, as roupinhas vão ficando mais curtas, e é preciso
-                renovar os guarda-roupas. Aqui no Cantinho da Isa, temos o melhor vestuário para os pequenos, e com os
-                menores preços. Venha conferir. </p>
-        </section>
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>Institucional</h3>
-                <ul>
-                    <li><a href="#">Quem Somos</a></li>
-                    <li><a href="#">Política de Privacidade</a></li>
-                    <li><a href="#">Troca e Devolução</a></li>
-                    <li><a href="#">Política de Entrega</a></li>
-                    <li><a href="#">Política de Pagamento</a></li>
-                    <li><a href="#">Ajuda</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Atendimento</h3>
-                <p>( xx ) xxxx-xxxx</p>
-                <p>De segunda-feira a sexta-feira:<br>12h ás 18h</p>
-            </div>
-            <div class="footer-column">
-                <h3>Compre Seguro</h3>
-                <p>Suas compras são processadas com segurança através do <strong>PagSeguro</strong>, garantindo proteção
-                    total de seus dados e tranquilidade nas transações.</p>
-                <ul class="payment-methods">
-                    <li><img src="{{ asset('img/pagseguro.png') }}" alt="PagSeguro"></li>
-                    <li><img src="{{ asset('img/mastercard.png') }}" alt="Mastercard"></li>
-                    <li><img src="{{ asset('img/pix.png') }}" alt="Pix"></li>
-                </ul>
-            </div>
 
-
-        </div>
-    </footer>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -239,3 +207,5 @@
 </body>
 
 </html>
+
+@endsection {{-- FIM DO CONTEÚDO ESPECÍFICO DESTA PÁGINA --}}

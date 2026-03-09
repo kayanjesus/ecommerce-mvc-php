@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="{{ asset('css/perfil-user.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <!-- CSS dos popups -->
+    <link rel="stylesheet" href="{{ asset('css/popups.css') }}">
 </head>
 
 <body>
@@ -77,9 +78,9 @@
                     </a>
                 </div>
                 
-                <form method="POST" action="{{ route('logout') }}" class="mt-4">
+                <form method="POST" action="{{ route('logout') }}" id="logout-form">
                     @csrf
-                    <button type="submit" class="logout-btn">
+                    <button type="button" class="logout-btn" onclick="confirmarLogout()">
                         <i class="fas fa-sign-out-alt"></i>
                         Sair da Conta
                     </button>
@@ -183,10 +184,13 @@
                                             
                                             <div class="pedido-actions">
                                                 @if ($pedido->podeSerCanceladoPeloCliente())
-                                                    <form action="{{ route('cliente.pedidos.cancelar', $pedido->id_pedido) }}" method="POST"
-                                                          onsubmit="return confirm('Tem certeza que deseja cancelar este pedido?');">
+                                                    <form action="{{ route('cliente.pedidos.cancelar', $pedido->id_pedido) }}" 
+                                                          method="POST" 
+                                                          id="form-cancelar-{{ $pedido->id_pedido }}" 
+                                                          style="display: inline;">
                                                         @csrf
-                                                        <button type="submit" class="action-btn btn-danger">
+                                                        <button type="button" class="action-btn btn-danger" 
+                                                                onclick="confirmarCancelamento({{ $pedido->id_pedido }})">
                                                             <i class="fas fa-times-circle"></i> Cancelar
                                                         </button>
                                                     </form>
@@ -194,9 +198,12 @@
 
                                                 @if ($pedido->podeConfirmarEntrega())
                                                     <form action="{{ route('cliente.pedidos.confirmarEntrega', $pedido->id_pedido) }}"
-                                                          method="POST" onsubmit="return confirm('Confirma o recebimento deste pedido?');">
+                                                          method="POST" 
+                                                          id="form-confirmar-{{ $pedido->id_pedido }}"
+                                                          style="display: inline;">
                                                         @csrf
-                                                        <button type="submit" class="action-btn btn-success">
+                                                        <button type="button" class="action-btn btn-success"
+                                                                onclick="confirmarRecebimento({{ $pedido->id_pedido }})">
                                                             <i class="fas fa-check-circle"></i> Confirmar Recebimento
                                                         </button>
                                                     </form>
@@ -221,8 +228,8 @@
                                                 @endif
 
                                                 @if ($pedido->status === 'entregue' && $pedido->podeSolicitarReembolso() && $pedido->prazoReembolsoRestante > 0)
-                                                    <button type="button" class="action-btn btn-warning" data-bs-toggle="modal"
-                                                            data-bs-target="#reembolsoModal-{{ $pedido->id_pedido }}">
+                                                    <button type="button" class="action-btn btn-warning" 
+                                                            onclick="abrirModalReembolso({{ $pedido->id_pedido }})">
                                                         <i class="fas fa-undo"></i> Reembolso
                                                     </button>
                                                 @elseif($pedido->status === 'entregue' && $pedido->prazoReembolsoRestante !== null && $pedido->prazoReembolsoRestante <= 0)
@@ -235,7 +242,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Modal de Reembolso -->
+                                <!-- Modal de Reembolso (MANTIDO, mas com trigger via JS) -->
                                 <div class="modal fade" id="reembolsoModal-{{ $pedido->id_pedido }}" tabindex="-1">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content modal-custom">
@@ -246,7 +253,9 @@
                                                 </h5>
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form action="{{ route('cliente.pedidos.solicitarReembolso', $pedido->id_pedido) }}" method="POST">
+                                            <form action="{{ route('cliente.pedidos.solicitarReembolso', $pedido->id_pedido) }}" 
+                                                  method="POST" 
+                                                  id="form-reembolso-{{ $pedido->id_pedido }}">
                                                 @csrf
                                                 <div class="modal-body modal-body-custom">
                                                     <div class="alert alert-info">
@@ -273,7 +282,8 @@
                                                     <button type="button" class="action-btn btn-secondary" data-bs-dismiss="modal">
                                                         <i class="fas fa-times me-1"></i> Cancelar
                                                     </button>
-                                                    <button type="submit" class="action-btn btn-primary">
+                                                    <button type="button" class="action-btn btn-primary" 
+                                                            onclick="confirmarReembolso({{ $pedido->id_pedido }})">
                                                         <i class="fas fa-check me-1"></i> Confirmar Solicitação
                                                     </button>
                                                 </div>
@@ -313,10 +323,12 @@
                                     <div class="favorito-image">
                                         <img src="{{ asset($item->attributes->image) }}" alt="{{ $item->name }}">
                                         <div class="favorito-actions">
-                                            <form action="{{ route('home.removefavoritos') }}" method="POST">
+                                            <form action="{{ route('home.removefavoritos') }}" method="POST" 
+                                                  id="form-remove-favorito-{{ $item->id }}" style="display: inline;">
                                                 @csrf
                                                 <input type="hidden" name="id" value="{{ $item->id }}">
-                                                <button type="submit" class="remove-btn" title="Remover dos favoritos">
+                                                <button type="button" class="remove-btn" title="Remover dos favoritos"
+                                                        onclick="confirmarRemoverFavorito('{{ $item->id }}', '{{ $item->name }}')">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </form>
@@ -328,9 +340,9 @@
                                             R$ {{ number_format($item->price, 2, ',', '.') }}
                                         </div>
                                         <div class="d-grid">
-                                            <a href="{{ url('/') }}" class="action-btn btn-primary">
+                                            <a href="{{ route('home.details', ['slug' => $item->attributes->product_id]) }}" class="action-btn btn-primary">
                                                 <i class="fas fa-shopping-cart me-2"></i>
-                                                Adicionar ao Carrinho
+                                                Ver Produto
                                             </a>
                                         </div>
                                     </div>
@@ -342,12 +354,10 @@
                             <a href="{{ url('/') }}" class="action-btn btn-primary">
                                 <i class="fas fa-arrow-left me-2"></i> Continuar Comprando
                             </a>
-                            <form action="{{ route('home.limparfavoritos') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="action-btn btn-danger"
-                                        onclick="return confirm('Tem certeza que deseja limpar todos os favoritos?')">
-                                    <i class="fas fa-trash-alt me-2"></i> Limpar Favoritos
-                                </button>
+                            <form action="{{ route('home.limparfavoritos') }}" method="GET" id="form-limpar-favoritos">
+                                 <button type="button" class="action-btn btn-danger" onclick="confirmarLimparFavoritos()">
+                                      <i class="fas fa-trash-alt me-2"></i> Limpar Favoritos
+                                 </button>
                             </form>
                         </div>
                     @endif
@@ -357,8 +367,102 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script dos popups -->
+    <script src="{{ asset('js/popups.js') }}"></script>
+
     <script>
-        // Animações e interações
+        // ============================================
+        // FUNÇÕES DE CONFIRMAÇÃO PARA O DASHBOARD
+        // ============================================
+
+        // Confirmar cancelamento de pedido
+        function confirmarCancelamento(pedidoId) {
+            confirmar(
+                'Deseja realmente cancelar este pedido?',
+                function() {
+                    const load = loading('Cancelando pedido...');
+                    setTimeout(function() {
+                        document.getElementById('form-cancelar-' + pedidoId).submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // Confirmar recebimento do pedido
+        function confirmarRecebimento(pedidoId) {
+            confirmar(
+                'Confirma o recebimento deste pedido?',
+                function() {
+                    const load = loading('Confirmando recebimento...');
+                    setTimeout(function() {
+                        document.getElementById('form-confirmar-' + pedidoId).submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // Confirmar reembolso
+        function confirmarReembolso(pedidoId) {
+            confirmar(
+                'Deseja solicitar reembolso para este pedido?',
+                function() {
+                    const load = loading('Processando solicitação...');
+                    setTimeout(function() {
+                        document.getElementById('form-reembolso-' + pedidoId).submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // Abrir modal de reembolso (mantém o Bootstrap modal)
+        function abrirModalReembolso(pedidoId) {
+            const modal = new bootstrap.Modal(document.getElementById('reembolsoModal-' + pedidoId));
+            modal.show();
+        }
+
+        // Confirmar remoção de favorito
+        function confirmarRemoverFavorito(itemId, nomeProduto) {
+            confirmar(
+                `Deseja remover "${nomeProduto}" dos favoritos?`,
+                function() {
+                    const load = loading('Removendo dos favoritos...');
+                    setTimeout(function() {
+                        document.getElementById('form-remove-favorito-' + itemId).submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // Confirmar limpar todos os favoritos
+        function confirmarLimparFavoritos() {
+            confirmar(
+                'Tem certeza que deseja limpar TODOS os favoritos? Esta ação não pode ser desfeita.',
+                function() {
+                    const load = loading('Limpando favoritos...');
+                    setTimeout(function() {
+                        document.getElementById('form-limpar-favoritos').submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // Confirmar logout
+        function confirmarLogout() {
+            confirmar(
+                'Deseja realmente sair da sua conta?',
+                function() {
+                    const load = loading('Saindo...');
+                    setTimeout(function() {
+                        document.getElementById('logout-form').submit();
+                    }, 500);
+                }
+            );
+        }
+
+        // ============================================
+        // ANIMAÇÕES E INTERAÇÕES (MANTIDAS)
+        // ============================================
+
         document.addEventListener('DOMContentLoaded', function() {
             // Tooltips para botões de ação
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
@@ -389,18 +493,9 @@
                 observer.observe(card);
             });
 
-            // Confirmação para ações importantes
+            // Remover os confirms antigos (já que agora usamos os popups)
             document.querySelectorAll('form[onsubmit*="confirm"]').forEach(form => {
-                const originalSubmit = form.onsubmit;
-                form.onsubmit = null;
-                form.addEventListener('submit', function(e) {
-                    const message = this.getAttribute('onsubmit')?.match(/confirm\('([^']+)'/)?.[1];
-                    if (message && !confirm(message)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                    if (originalSubmit) return originalSubmit.call(this, e);
-                });
+                form.removeAttribute('onsubmit');
             });
         });
     </script>

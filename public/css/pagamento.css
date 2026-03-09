@@ -441,108 +441,7 @@ body {
     transform: translateX(5px);
 }
 
-/* ===== FOOTER ===== */
-.top-footer {
-    background: var(--primary);
-    padding: 3rem 2rem;
-    color: white;
-    text-align: center;
-    margin-top: 3rem;
-}
 
-.top-footer h3 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.top-footer p {
-    max-width: 800px;
-    margin: 0 auto;
-    opacity: 0.95;
-    line-height: 1.6;
-}
-
-.footer-container {
-    max-width: 1700px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    background: white;
-}
-
-.footer-column h3 {
-    font-size: 1.1rem;
-    color: var(--gray-800);
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    position: relative;
-    padding-bottom: 0.5rem;
-}
-
-.footer-column h3::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40px;
-    height: 3px;
-    background: var(--primary);
-    border-radius: 3px;
-}
-
-.footer-column ul {
-    list-style: none;
-}
-
-.footer-column ul li {
-    margin-bottom: 0.75rem;
-}
-
-.footer-column ul li a {
-    color: var(--gray-600);
-    text-decoration: none;
-    transition: var(--transition);
-    font-size: 0.95rem;
-}
-
-.footer-column ul li a:hover {
-    color: var(--primary);
-    padding-left: 5px;
-}
-
-.footer-column p {
-    color: var(--gray-600);
-    line-height: 1.6;
-    margin-bottom: 0.75rem;
-}
-
-.payment-methods {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.25rem;
-    flex-wrap: wrap;
-}
-
-.payment-methods li {
-    list-style: none;
-}
-
-.payment-methods img {
-    width: 65px;
-    height: auto;
-    filter: grayscale(30%);
-    transition: var(--transition);
-    opacity: 0.9;
-}
-
-.payment-methods img:hover {
-    filter: grayscale(0);
-    transform: scale(1.1);
-    opacity: 1;
-}
 
 /* ===== RESPONSIVIDADE ===== */
 @media (max-width: 1024px) {
@@ -571,10 +470,7 @@ body {
 }
 
 @media (max-width: 768px) {
-    .footer-container {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
+
 
     .item {
         flex-wrap: wrap;

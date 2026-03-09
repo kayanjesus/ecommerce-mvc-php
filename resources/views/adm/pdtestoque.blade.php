@@ -7,8 +7,9 @@
     <title>Cantinho da Isa - Produtos e Estoque</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset("css/adm/produtos e estoque.css") }}"> {{-- Certifique-se que o nome do CSS
-    está correto --}}
+    <link rel="stylesheet" href="{{ asset("css/adm/produtos e estoque.css") }}">
+    <!-- CSS dos popups -->
+    <link rel="stylesheet" href="{{ asset('css/popups.css') }}">
 </head>
 
 <body>
@@ -84,19 +85,8 @@
                     </a>
                 </div>
 
-                {{-- Mensagens de sucesso/erro (se você tiver no seu controlador) --}}
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+                {{-- As mensagens vão aparecer como popups bonitinhos agora! --}}
+                {{-- Não precisa mais dos alerts do Bootstrap --}}
 
                 <div class="card">
                     <div class="card-body">
@@ -111,7 +101,6 @@
                                 </button>
                             </div>
                             <div class="btn-group" role="group" aria-label="Filtro de Estoque">
-                                {{-- Os botões agora são do tipo 'submit' e enviam o valor do filtro --}}
                                 <button type="submit" name="stock_filter" value="todos"
                                     class="btn btn-outline-secondary {{ $stockFilter === 'todos' ? 'active' : '' }}">Todos</button>
                                 <button type="submit" name="stock_filter" value="estoque"
@@ -122,12 +111,12 @@
                                     Estoque</button>
                             </div>
                         </form>
-                        {{-- Fim do Formulário de Pesquisa e Filtros --}}
 
                         <div class="table-responsive">
                             <table class="table table-hover" id="tabelaProdutos">
                                 <thead>
                                     <tr>
+                                        
                                         <th>Nome</th>
                                         <th>Imagem</th>
                                         <th>Tipo</th>
@@ -166,7 +155,7 @@
                                                 @foreach($produto->variacoes->unique('cor_id') as $variacao)
                                                     <span
                                                         style="background-color: {{ $variacao->cor->codigo_hex ?? '#000' }}; 
-                                                                                        display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle;"></span>
+                                                                                                                                display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #ccc; vertical-align: middle;"></span>
                                                     {{ $variacao->cor->nome ?? 'N/A' }}@if(!$loop->last), @endif
                                                 @endforeach
                                             </td>
@@ -194,15 +183,19 @@
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
 
-                                                <!-- Botão Excluir -->
-                                                <form action="{{ route('produtos.destroy', $produto->id_produto) }}"
-                                                    method="POST" class="d-inline">
+                                                <!-- Botão Excluir - AGORA USA O NOVO SISTEMA DE CONFIRMAÇÃO -->
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    title="Excluir produto"
+                                                    onclick="confirmarExclusao('{{ $produto->id_produto }}', '{{ $produto->nome_produto }}')">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+
+                                                <!-- Formulário escondido para cada produto -->
+                                                <form id="form-excluir-{{ $produto->id_produto }}"
+                                                    action="{{ route('produtos.destroy', $produto->id_produto) }}"
+                                                    method="POST" style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        title="Excluir produto" onclick="showConfirmModal(this)">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -219,11 +212,6 @@
                         {{-- Paginação --}}
                         <nav aria-label="Navegação de páginas">
                             {{ $produtos->appends(['search' => $searchQuery, 'stock_filter' => $stockFilter])->links('pagination::bootstrap-5') }}
-                            {{--
-                            O método appends() garante que os parâmetros de pesquisa e filtro sejam mantidos
-                            ao clicar nos links de paginação.
-                            'pagination::bootstrap-5' especifica o template de paginação do Bootstrap 5.
-                            --}}
                         </nav>
                     </div>
                 </div>
@@ -231,77 +219,63 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação (Mantido como estava) -->
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="btn-confirm-delete">Excluir</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- NÃO PRECISA MAIS DO MODAL ANTIGO - FOI REMOVIDO -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script dos popups -->
+    <script src="{{ asset('js/popups.js') }}"></script>
+
     <script>
-        /**
-         * Lógica para o Modal de Confirmação de Exclusão (Bootstrap 5)
-         *
-         * Observação: Este script espera que o Modal de Confirmação no HTML
-         * utilize a estrutura e IDs corretas do Bootstrap 5 conforme sugerido:
-         * - ID do modal: #confirmModal
-         * - ID do botão de confirmação: #btn-confirm-delete
-         */
+        // ============================================
+        // FUNÇÃO DE CONFIRMAÇÃO PARA EXCLUIR PRODUTOS (COM LOADING)
+        // ============================================
 
-        // Variável para armazenar a referência do formulário de exclusão a ser submetido
-        let formToSubmit = null;
+        function confirmarExclusao(id, nome) {
+            // Usa a função 'confirmar' que está no popups.js
+            confirmar(
+                `Tem certeza que deseja excluir o produto "${nome}"? Esta ação não pode ser desfeita.`,
+                function () {
+                    // MOSTRA O LOADING ANTES DE ENVIAR
+                    const load = loading('Excluindo produto...');
 
-        // Inicializa o objeto Modal do Bootstrap, garantindo que ele esteja pronto para ser manipulado.
-        const modalElement = document.getElementById('confirmModal');
-        if (modalElement) {
-            const confirmModal = new bootstrap.Modal(modalElement);
-            const btnConfirmDelete = document.getElementById('btn-confirm-delete');
-
-            // 1. Função chamada pelo botão de Lixeira no corpo da tabela
-            window.showConfirmModal = function (button) {
-                // Encontra o formulário DELETE mais próximo (o do produto)
-                formToSubmit = button.closest('form');
-                // Exibe o modal usando a API do Bootstrap
-                confirmModal.show();
-            };
-
-            // 2. Listener para o botão de 'Excluir' dentro do modal
-            if (btnConfirmDelete) {
-                btnConfirmDelete.addEventListener('click', function () {
-                    if (formToSubmit) {
-                        // Se o formulário foi encontrado, submete ele
-                        formToSubmit.submit();
-                    }
-                    // Oculta o modal. O Bootstrap faz isso automaticamente,
-                    // mas é bom garantir antes do submit.
-                    confirmModal.hide();
-                });
-            }
-
-            // 3. Listener para limpar o formulário ao fechar o modal
-            // Isso é importante para evitar submissões acidentais futuras.
-            modalElement.addEventListener('hidden.bs.modal', function () {
-                formToSubmit = null;
-            });
-
-        } else {
-            console.error("Erro: O elemento com ID 'confirmModal' não foi encontrado. O modal de exclusão pode não funcionar.");
+                    // Pequeno delay para o loading aparecer
+                    setTimeout(function () {
+                        // Envia o formulário
+                        document.getElementById('form-excluir-' + id).submit();
+                    }, 300);
+                },
+                function () {
+                    // Se clicou em NÃO (opcional)
+                    console.log('Exclusão cancelada');
+                }
+            );
         }
 
-        // A lógica de pesquisa/filtro é puramente do servidor (Laravel/Blade) e não precisa de JS.
+        // ============================================
+        // EXEMPLO DE COMO USAR LOADING (SEPARADO)
+        // ============================================
+
+        function exemploLoading() {
+            const load = loading('Processando...');
+
+            // Simula uma tarefa demorada
+            setTimeout(function () {
+                load.fechar();
+                mostrarMensagem('Operação concluída!', 'success');
+            }, 2000);
+        }
+
+        // ============================================
+        // EXEMPLO DE COMO MOSTRAR MENSAGENS MANUALMENTE
+        // ============================================
+
+        // Para testar, descomente as linhas abaixo:
+        //
+        // mostrarMensagem('Produto excluído com sucesso!', 'success');  <-- AGORA ESTÁ COMENTADO
+        // mostrarMensagem('Isso é um erro!', 'error');
+        // mostrarMensagem('Isso é um aviso!', 'warning');
+        // mostrarMensagem('Isso é uma informação!', 'info');
+
     </script>
 </body>
 
