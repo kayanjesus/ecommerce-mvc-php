@@ -45,7 +45,6 @@
         line-height: 1.6;
     }
 
-    /* Ilustração infantil */
     .kids-illustration {
         margin: 30px 0;
         position: relative;
@@ -78,64 +77,6 @@
     .illustration-item i {
         font-size: 50px;
         color: var(--primary-red);
-    }
-
-    .illustration-item span {
-        font-size: 60px;
-        font-weight: bold;
-        color: var(--primary-red);
-    }
-
-    .search-help {
-        background-color: #f9f9f9;
-        padding: 25px;
-        border-radius: 15px;
-        margin: 30px 0;
-        border: 2px dashed var(--primary-red);
-    }
-
-    .search-help p {
-        font-size: 16px;
-        color: var(--dark-gray);
-        margin-bottom: 15px;
-        font-weight: 500;
-    }
-
-    .search-form {
-        display: flex;
-        max-width: 400px;
-        margin: 0 auto;
-        gap: 10px;
-    }
-
-    .search-form input {
-        flex: 1;
-        padding: 12px 15px;
-        border: 2px solid #ddd;
-        border-radius: 25px;
-        font-size: 16px;
-        outline: none;
-        transition: border-color 0.3s;
-    }
-
-    .search-form input:focus {
-        border-color: var(--primary-red);
-    }
-
-    .search-form button {
-        padding: 12px 25px;
-        background-color: var(--primary-red);
-        color: var(--white);
-        border: none;
-        border-radius: 25px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .search-form button:hover {
-        background-color: #7a2121;
     }
 
     .action-buttons {
@@ -184,6 +125,20 @@
         transform: translateY(-2px);
     }
 
+    .support-box {
+        background-color: #f9f9f9;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 30px 0;
+        border: 2px solid var(--primary-red);
+    }
+
+    .support-box p {
+        font-size: 16px;
+        color: var(--dark-gray);
+        margin-bottom: 10px;
+    }
+
     .help-links {
         margin-top: 30px;
         display: flex;
@@ -208,44 +163,6 @@
 
     .help-links a:hover {
         color: var(--primary-red);
-    }
-
-    /* Categorias rápidas */
-    .quick-categories {
-        margin-top: 40px;
-    }
-
-    .quick-categories h3 {
-        color: var(--dark-gray);
-        font-size: 20px;
-        margin-bottom: 15px;
-        font-weight: 600;
-    }
-
-    .category-chips {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .category-chip {
-        display: inline-block;
-        padding: 8px 20px;
-        background-color: #f0f0f0;
-        color: var(--dark-gray);
-        text-decoration: none;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s;
-        border: 1px solid transparent;
-    }
-
-    .category-chip:hover {
-        background-color: var(--primary-red);
-        color: var(--white);
-        transform: translateY(-2px);
     }
 
     @keyframes fadeInUp {
@@ -284,7 +201,6 @@
         }
     }
 
-    /* Responsividade */
     @media (max-width: 768px) {
         .error-number {
             font-size: 80px;
@@ -292,10 +208,6 @@
 
         .error-message {
             font-size: 24px;
-        }
-
-        .error-description {
-            font-size: 16px;
         }
 
         .illustration-item {
@@ -307,119 +219,60 @@
             font-size: 35px;
         }
 
-        .illustration-item span {
-            font-size: 40px;
-        }
-
-        .search-form {
-            flex-direction: column;
-        }
-
-        .search-form button {
-            width: 100%;
-        }
-
         .btn-primary,
         .btn-secondary {
             padding: 12px 25px;
             font-size: 14px;
         }
     }
-
-    @media (max-width: 480px) {
-        .error-number {
-            font-size: 60px;
-        }
-
-        .error-message {
-            font-size: 20px;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-            width: 100%;
-            text-align: center;
-        }
-    }
 </style>
 
-<!-- Link do Font Awesome para os ícones (se ainda não estiver incluído no layout) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <div class="error-404-container">
     <div class="error-content">
-        <div class="error-number">404</div>
+        <div class="error-number">😅 500</div>
 
-        <h1 class="error-message">Ops! Cantinho errado</h1>
+        <h1 class="error-message">Opa! Bagunçamos tudo!</h1>
 
         <p class="error-description">
-            Parece que aqui é o cantinho errado! <br>
-            Que tal voltar para a loja e dar uma olhada nas nossas roupinhas?
+            Nossos brinquedos estão todos bagunçados! Nosso time já está arrumando
+            a bagunça para você continuar escolhendo as roupinhas mais lindas.
         </p>
 
-        <!-- Ilustração infantil com brinquedos/roupas -->
         <div class="kids-illustration">
             <div class="illustration-item">
-                <i class="fas fa-tshirt"></i>
+                <i class="fas fa-tools"></i>
             </div>
             <div class="illustration-item">
-                <span>?</span>
+                <i class="fas fa-child"></i>
             </div>
             <div class="illustration-item">
-                <i class="fas fa-shoe-prints"></i>
+                <i class="fas fa-heart-broken"></i>
             </div>
         </div>
 
+        <div class="support-box">
+            <p><i class="fas fa-smile-wink"></i> Não se preocupe!</p>
+            <p>Nossa equipe foi avisada e já está resolvendo. Em poucos minutos tudo vai voltar ao normal!</p>
+        </div>
 
-
-        <!-- Botões de ação -->
         <div class="action-buttons">
-            <a href="{{ route('home.index') }}" class="btn-primary">
+            <a href="javascript:location.reload()" class="btn-primary">
+                <i class="fas fa-sync-alt"></i> Tentar Novamente
+            </a>
+            <a href="{{ route('home.index') }}" class="btn-secondary">
                 <i class="fas fa-home"></i> Voltar para Home
             </a>
-            <a href="{{ route('home.categoria', ['id_categoria' => 0]) }}" class="btn-secondary">
-                <i class="fas fa-shopping-bag"></i> Ver Catálogo
-            </a>
         </div>
 
-        <!-- Links de ajuda -->
         <div class="help-links">
             <a href="{{ route('paginas.ajuda') }}">
-                <i class="fa-regular fa-envelope"></i> Ajuda
+                <i class="fa-regular fa-envelope"></i> Falar com o Suporte
             </a>
-            <a href="{{ route('pagamento.cep') }}">
-                <i class="fas fa-shopping-cart"></i> Meu Carrinho
+            <a href="{{ route('home.index') }}">
+                <i class="fas fa-shopping-bag"></i> Ver Outros Produtos
             </a>
-            <a href="{{ route('home.dashboard', ['show' => 'favoritos']) }}"><i class="fas fa-heart fa-lg"></i>
-                Favoritos</a>
-        </div>
-
-        <!-- Categorias rápidas -->
-        <div class="quick-categories">
-            <h3>✨ Sugestões para você:</h3>
-            <div class="category-chips">
-                <a href="{{ route('home.categoria', ['id_categoria' => 0, 'genero' => 'Menino']) }}"
-                    class="category-chip">
-                    <i class="fas fa-child"></i> Menino
-                </a>
-                <a href="{{ route('home.categoria', ['id_categoria' => 0, 'genero' => 'Menina']) }}"
-                    class="category-chip">
-                    <i class="fas fa-child"></i> Menina
-                </a>
-                <a href="{{ route('temporada', ['temporada' => 'inverno']) }}" class="category-chip">
-                    <i class="fas fa-snowflake"></i> Inverno
-                </a>
-                <a href="{{ route('temporada', ['temporada' => 'verao']) }}" class="category-chip">
-                    <i class="fas fa-sun"></i> Verão
-                </a>
-                <a href="{{ route('home.index') }}" class="category-chip">
-                    <i class="fas fa-star"></i> Novidades
-                </a>
-            </div>
         </div>
     </div>
 </div>

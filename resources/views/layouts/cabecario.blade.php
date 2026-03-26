@@ -83,18 +83,20 @@
             <div class="footer-column">
                 <h3>Institucional</h3>
                 <ul>
-                    <li><a href="#">Quem Somos</a></li>
-                    <li><a href="#">Política de Privacidade</a></li>
-                    <li><a href="#">Troca e Devolução</a></li>
-                    <li><a href="#">Política de Entrega</a></li>
-                    <li><a href="#">Política de Pagamento</a></li>
-                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="{{ route('paginas.quem-somos') }}">Quem Somos</a></li>
+                    <li><a href="{{ route('paginas.politica-privacidade') }}">Política de Privacidade</a></li>
+                    <li><a href="{{ route('paginas.troca-devolucao') }}">Troca e Devolução</a></li>
+                    <li><a href="{{ route('paginas.politica-entrega') }}">Política de Entrega</a></li>
+                    <li><a href="{{ route('paginas.politica-pagamento') }}">Política de Pagamento</a></li>
+                    <li><a href="{{ route('paginas.ajuda') }}">Ajuda</a></li>
                 </ul>
             </div>
             <div class="footer-column">
                 <h3>Atendimento</h3>
-                <p>( xx ) xxxx-xxxx</p>
-                <p>De segunda-feira a sexta-feira:<br>12h ás 18h</p>
+                <p><i class="fas fa-phone me-2"></i>(11) 99999-9999</p>
+                <p><i class="fas fa-envelope me-2"></i>contato@cantinhodaisa.com.br</p>
+                <p><i class="fab fa-whatsapp me-2" style="color: #25D366;"></i> (11) 99999-9999</p>
+                <p><i class="far fa-clock me-2"></i>Segunda a Sexta<br>12h às 18h</p>
             </div>
             <div class="footer-column">
                 <h3>Compre Seguro</h3>
@@ -106,8 +108,9 @@
                     <li><img src="{{ asset('img/pix.webp') }}" alt="Pix"></li>
                 </ul>
             </div>
-
-
+        </div>
+        <div class="text-center p-3" style="background-color: #f5f5f5; border-top: 1px solid #ddd;">
+            <p class="mb-0">© {{ date('Y') }} Cantinho da Isa. Todos os direitos reservados.</p>
         </div>
     </footer>
     <script src="{{ asset("js/carrosel.js") }}"></script>

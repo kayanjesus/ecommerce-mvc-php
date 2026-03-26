@@ -194,5 +194,34 @@ Route::prefix('minha-conta/pedidos')->name('cliente.pedidos.')->middleware('auth
 });
 
 
+
+
+
+// Rotas do rodapé
+Route::get('/quem-somos', function () {
+    return view('paginas.quem-somos');
+})->name('paginas.quem-somos');
+
+Route::get('/politica-privacidade', function () {
+    return view('paginas.politica-privacidade');
+})->name('paginas.politica-privacidade');
+
+Route::get('/troca-devolucao', function () {
+    return view('paginas.troca-devolucao');
+})->name('paginas.troca-devolucao');
+
+Route::get('/politica-entrega', function () {
+    return view('paginas.politica-entrega');
+})->name('paginas.politica-entrega');
+
+Route::get('/politica-pagamento', function () {
+    return view('paginas.politica-pagamento');
+})->name('paginas.politica-pagamento');
+
+Route::get('/ajuda', function () {
+    return view('paginas.ajuda');
+})->name('paginas.ajuda');
+
+
 require __DIR__ . '/auth.php';
 

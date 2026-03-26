@@ -66,10 +66,14 @@ header {
     width: 250px;
 }
 
+
 .search-input {
     width: 100%;
     padding: 10px 35px 10px 10px;
     font-size: 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50px;
+    outline: none;
 }
 
 .search-icon {

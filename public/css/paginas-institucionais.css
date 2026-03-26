@@ -1,0 +1,384 @@
+/* ============================================
+   PÁGINAS INSTITUCIONAIS - CANTINHO DA ISA
+   ============================================ */
+
+:root {
+    --primary: #9b2a2a;
+    --primary-light: #c44b4b;
+    --primary-dark: #7b1d1d;
+    --secondary: #f8e6e6;
+    --accent: #ffb6b6;
+    --text: #333;
+    --text-light: #666;
+    --background: #fff9f9;
+    --card-shadow: 0 10px 30px rgba(155, 42, 42, 0.1);
+}
+
+body {
+    background-color: var(--background);
+    font-family: 'Inter', sans-serif;
+}
+
+.institutional-page {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+/* Header da página */
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-shadow: 3px 3px 0 rgba(155, 42, 42, 0.1);
+    position: relative;
+    display: inline-block;
+}
+
+.page-header h1::before,
+.page-header h1::after {
+    content: "👕";
+    font-size: 2rem;
+    position: absolute;
+    opacity: 0.3;
+}
+
+.page-header h1::before {
+    left: -50px;
+    top: 0;
+    transform: rotate(-15deg);
+}
+
+.page-header h1::after {
+    right: -50px;
+    top: 0;
+    transform: rotate(15deg);
+}
+
+.page-header .header-decoration {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    margin: 1rem auto;
+}
+
+/* Cards interativos */
+.info-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(155, 42, 42, 0.1);
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(155, 42, 42, 0.15);
+}
+
+.info-card-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-card-header::after {
+    content: "👗👕🧦";
+    font-size: 3rem;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.2;
+    white-space: nowrap;
+}
+
+.info-card-header h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.info-card-header h3 i {
+    margin-right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.info-card-body {
+    padding: 2rem;
+}
+
+/* Tabelas estilizadas */
+.table-custom {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.table-custom thead {
+    background: var(--secondary);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.table-custom th {
+    padding: 1rem;
+    border: none;
+    font-size: 1.1rem;
+}
+
+.table-custom td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.table-custom tr:hover td {
+    background-color: #fff5f5;
+}
+
+/* Badges e tags */
+.badge-custom {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Timeline para processos */
+.timeline {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 2px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 3rem;
+    width: 50%;
+    padding: 0 2rem;
+}
+
+.timeline-item:nth-child(odd) {
+    left: 0;
+}
+
+.timeline-item:nth-child(even) {
+    left: 50%;
+}
+
+.timeline-item .timeline-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+}
+
+.timeline-item .timeline-number {
+    position: absolute;
+    top: -15px;
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 5px 10px rgba(155, 42, 42, 0.3);
+}
+
+.timeline-item:nth-child(odd) .timeline-number {
+    right: -20px;
+}
+
+.timeline-item:nth-child(even) .timeline-number {
+    left: -20px;
+}
+
+/* Accordion customizado */
+.accordion-custom {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.accordion-custom .accordion-item {
+    border: 1px solid rgba(155, 42, 42, 0.1);
+    margin-bottom: 1rem;
+    border-radius: 10px !important;
+    overflow: hidden;
+}
+
+.accordion-custom .accordion-header {
+    background: white;
+}
+
+.accordion-custom .accordion-button {
+    padding: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    background: white;
+}
+
+.accordion-custom .accordion-button:not(.collapsed) {
+    background: var(--secondary);
+    color: var(--primary);
+}
+
+.accordion-custom .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(155, 42, 42, 0.2);
+}
+
+.accordion-custom .accordion-body {
+    padding: 1.5rem;
+    background: #fafafa;
+}
+
+/* Cards de contato */
+.contact-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(155, 42, 42, 0.1);
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    background: var(--secondary);
+}
+
+.contact-card i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.contact-card h4 {
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.contact-card p {
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* Botões flutuantes de ajuda */
+.help-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(155, 42, 42, 0.3);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.help-button:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+}
+
+.help-tooltip {
+    position: absolute;
+    right: 70px;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.help-button:hover .help-tooltip {
+    opacity: 1;
+    visibility: visible;
+    right: 80px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .page-header h1::before,
+    .page-header h1::after {
+        display: none;
+    }
+
+    .timeline::before {
+        left: 30px;
+    }
+
+    .timeline-item {
+        width: 100%;
+        left: 0 !important;
+        padding-left: 70px;
+    }
+
+    .timeline-item .timeline-number {
+        left: 10px !important;
+        right: auto !important;
+    }
+}
