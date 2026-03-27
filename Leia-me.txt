@@ -1,0 +1,227 @@
+======================================================================
+🇧🇷 VERSÃO EM PORTUGUÊS: E-COMMERCE DE ROUPAS INFANTIS – TCC
+======================================================================
+
+📌 SOBRE O PROJETO
+----------------------------------------------------------------------
+Este projeto consiste em um sistema de E-Commerce de Roupas Infantais 
+desenvolvido como Trabalho de Conclusão de Curso (TCC). O sistema 
+permite o gerenciamento completo de produtos, usuários e pedidos, 
+além de simular pagamentos através da integração com a API do 
+PagSeguro em ambiente de desenvolvimento (Sandbox).
+
+O objetivo principal foi aplicar na prática conceitos de desenvolvimento 
+web, arquitetura MVC, modelagem de banco de dados e integração com 
+APIs de pagamento em um cenário real de e-commerce.
+
+🚀 FUNCIONALIDADES DO SISTEMA
+----------------------------------------------------------------------
+👥 FUNCIONALIDADES DO USUÁRIO:
+- Cadastro e autenticação de usuários
+- Navegação e busca de produtos
+- Gerenciamento de carrinho de compras
+- Finalização de pedido
+- Simulação de pagamento via PagSeguro
+
+🔧 FUNCIONALIDADES DO ADMINISTRADOR:
+- Painel administrativo
+- CRUD de produtos (Criar, Ler, Atualizar, Deletar)
+- Upload de imagens dos produtos
+- Gerenciamento de pedidos
+- Controle de usuários
+
+🛠️ TECNOLOGIAS UTILIZADAS
+----------------------------------------------------------------------
+[BACKEND]
+Tecnologia         | Finalidade
+-------------------|--------------------------------------------------
+PHP 8.x            | Linguagem de programação server-side
+Laravel 10.x       | Framework MVC para estruturação da aplicação
+MySQL              | Sistema de gerenciamento de banco de dados
+
+[FRONTEND]
+Tecnologia         | Finalidade
+-------------------|--------------------------------------------------
+HTML5              | Estrutura das páginas
+CSS3               | Estilização e responsividade
+JavaScript         | Interatividade no cliente
+Bootstrap 5        | Framework CSS para UI responsiva
+
+[FERRAMENTAS DE DESENVOLVIMENTO]
+Ferramenta         | Finalidade
+-------------------|--------------------------------------------------
+Node.js & NPM      | Gerenciamento de dependências frontend
+Composer           | Gerenciamento de dependências PHP
+Git & GitHub       | Controle de versão e colaboração
+Ngrok              | Exposição do servidor local para webhooks
+PagSeguro API      | Integração com gateway de pagamento (Sandbox)
+
+🏗️ ARQUITETURA DO SISTEMA
+----------------------------------------------------------------------
+O sistema segue a arquitetura MVC (Model-View-Controller) do Laravel:
+
+┌─────────────────────────────────────────────────────┐
+│                   Navegador do Cliente               │
+└─────────────────────┬───────────────────────────────┘
+                      │ Requisição HTTP
+                      ▼
+┌─────────────────────────────────────────────────────┐
+│                   Routes (web.php)                   │
+│         Define URLs e mapeia para Controllers        │
+└─────────────────────┬───────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────┐
+│                    Controller                        │
+│    Processa requisições, validações e lógica        │
+└──────────────┬──────────────────┬───────────────────┘
+               │                  │
+               ▼                  ▼
+┌──────────────────────┐  ┌──────────────────────┐
+│       Model          │  │        View          │
+│  Consultas banco     │  │  Templates UI        │
+│  Regras de negócio   │  │  (Arquivos Blade)    │
+└──────────────────────┘  └──────────────────────┘
+
+[ESTRUTURA DE DIRETÓRIOS]
+app/
+ |-- Http/Controllers/     # Lógica da aplicação
+ |-- Http/Middleware/      # Filtros de requisição
+ |-- Models/               # Modelos de dados e relacionamentos
+ |-- Services/             # Integrações com APIs externas
+routes/
+ |-- web.php               # Rotas da aplicação web
+ |-- api.php               # Rotas de API
+resources/
+ |-- views/                # Templates Blade
+ |-- css/js/               # Assets frontend
+database/
+ |-- migrations/           # Controle de versão do schema
+ |-- seeders/              # População de dados de teste
+public/                    # Arquivos publicamente acessíveis
+storage/                   # Arquivos enviados e logs
+
+🗄️ BANCO DE DADOS
+----------------------------------------------------------------------
+TABELAS PRINCIPAIS:
+- users            : Contas de clientes e administradores
+- products         : Catálogo de produtos
+- categories       : Categorias dos produtos
+- orders           : Cabeçalhos dos pedidos
+- order_items      : Itens individuais por pedido
+- payments         : Registros de transações de pagamento
+
+DIAGRAMA DE RELACIONAMENTOS:
+users (1) ------- (n) orders
+orders (1) ------ (n) order_items
+order_items (n) - (1) products
+products (n) ---- (1) categories
+orders (1) ------ (1) payments
+
+RELACIONAMENTOS DETALHADOS:
+- Usuário -> Pedidos: Um-para-Muitos
+- Pedido -> Itens do Pedido: Um-para-Muitos
+- Item do Pedido -> Produto: Muitos-para-Um
+- Produto -> Categoria: Muitos-para-Um
+- Pedido -> Pagamento: Um-para-Um
+
+💳 INTEGRAÇÃO COM PAGSEGURO
+----------------------------------------------------------------------
+O sistema integra com a API do PagSeguro em modo Sandbox.
+
+FLUXO DE PAGAMENTO:
+Usuário -> Sistema -> PagSeguro API -> Ngrok Tunnel -> Webhook
+
+POR QUE USAR NGROK?
+Como o PagSeguro requer uma URL pública para enviar notificações de 
+pagamento (webhooks), o Ngrok foi utilizado para expor o servidor 
+Laravel local (porta 8000) para a internet.
+
+PROCESSO DE PAGAMENTO:
+1. Usuário adiciona produtos ao carrinho e vai para o checkout.
+2. Sistema envia dados de pagamento para API do PagSeguro.
+3. PagSeguro redireciona para página de pagamento simulada.
+4. Usuário completa pagamento no ambiente Sandbox.
+5. PagSeguro envia notificação POST para a URL pública do Ngrok.
+6. Sistema atualiza status do pedido no banco de dados.
+7. Usuário recebe confirmação.
+
+⚙️ INSTALAÇÃO E CONFIGURAÇÃO
+----------------------------------------------------------------------
+1. Clonar o Repositório: git clone [URL]
+2. Instalar Dependências PHP: composer install
+3. Instalar Dependências Frontend: npm install
+4. Configurar Ambiente: cp .env.example .env && php artisan key:generate
+
+[CONFIGURAÇÃO .env]
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nome_do_banco
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+
+PAGSEGURO_EMAIL=seu_email_sandbox
+PAGSEGURO_TOKEN=seu_token_sandbox
+PAGSEGURO_SANDBOX=true
+
+5. Executar Migrations: php artisan migrate
+6. Compilar Assets Frontend: npm run dev (ou npm run build)
+7. Iniciar Servidor Laravel: php artisan serve
+8. Iniciar Ngrok: ngrok http 8000
+
+📄 DOCUMENTAÇÃO ADICIONAL (/docs)
+Observação: Parte da documentação foi elaborada antes da finalização completa do sistema, portanto alguns detalhes de implementação, estruturas ou funcionalidades podem estar diferentes da versão final do projeto. A documentação deve ser considerada como base de análise, modelagem e planejamento do sistema, podendo haver pequenas divergências em relação ao código atual.
+
+
+🎯 OBJETIVOS ACADÊMICOS
+----------------------------------------------------------------------
+- Desenvolvimento Web (Construção de e-commerce completo)
+- Laravel Framework (Implementação MVC e boas práticas)
+- Modelagem de Banco de Dados (Schemas relacionais)
+- Integração de APIs (Consumo de gateway de pagamento)
+- Lógica de E-commerce (Carrinho, pedidos, fluxo)
+- Controle de Versão (Git/GitHub)
+- Documentação de Software (Escrita técnica)
+
+🧪 TESTANDO A APLICAÇÃO
+----------------------------------------------------------------------
+ACESSO ADMIN:
+Defina access_level = admin no banco de dados ou execute:
+php artisan db:seed --class=AdminUserSeeder
+
+
+👨‍💻 AUTORES
+----------------------------------------------------------------------
+KAYAN DA SILVA JESUS 
+ISABELLA MURAKAMI ROCHA
+RAÍSSA NASCIMENTO MORAES
+LEONARDO PEREIRA BRAGA 
+LUCAS VINÍCIUS SANTOS ROCHA 
+
+Instituição: Etec Jardim Ângela 
+Curso: DESENVOLVIMENTO DE SISTEMA
+
+📌 OBSERVAÇÕES IMPORTANTES
+----------------------------------------------------------------------
+⚠️ APENAS PARA FINS ACADÊMICOS: Não recomendado para uso em produção 
+sem auditorias de segurança e infraestrutura adequada.
+
+SEGURANÇA PARA PRODUÇÃO:
+- Implementar HTTPS (SSL)
+- Proteção CSRF em formulários
+- Sanitização de entradas
+- Variáveis de ambiente para credenciais
+- Logging e monitoramento
+
+📝 LICENÇA
+----------------------------------------------------------------------
+Este projeto é para fins educacionais. Todos os direitos reservados.
+
+📊 STATUS DO PROJETO
+----------------------------------------------------------------------
+✅ Desenvolvimento: Completo
+✅ Testes: Completo
+✅ Documentação: Completa
+⚠️ Produção: Não Recomendado
+======================================================================
