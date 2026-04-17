@@ -1,66 +1,203 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+======================================================================
+🇺🇸 ENGLISH VERSION: KIDS' CLOTHING E-COMMERCE – FINAL YEAR PROJECT
+======================================================================
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+📌 PROJECT OVERVIEW
+----------------------------------------------------------------------
+This project consists of a Kids' Clothing E-Commerce System developed 
+as a Final Year Project (TCC). The system enables product, user, and 
+order management, along with payment simulation through PagSeguro 
+integration in a development environment.
 
-## About Laravel
+The project aimed to apply web development concepts, MVC architecture, 
+database modeling, and payment API integration in a real-world 
+e-commerce scenario.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+🚀 SYSTEM FEATURES
+----------------------------------------------------------------------
+👥 USER FEATURES:
+- User registration and authentication
+- Product browsing and search
+- Shopping cart management
+- Checkout and order placement
+- Payment simulation via PagSeguro
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+🔧 ADMIN FEATURES:
+- Admin dashboard
+- Product CRUD (Create, Read, Update, Delete)
+- Product image upload
+- Order management and tracking
+- User management
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+🛠️ TECHNOLOGY STACK
+----------------------------------------------------------------------
+[BACKEND]
+Technology        | Purpose
+------------------|---------------------------------------------------
+PHP 8.x           | Server-side programming language
+Laravel 10.x      | MVC framework for application structure
+MySQL             | Relational database management
 
-## Learning Laravel
+[FRONTEND]
+Technology        | Purpose
+------------------|---------------------------------------------------
+HTML5             | Page structure
+CSS3              | Styling and responsive design
+JavaScript        | Client-side interactivity
+Bootstrap 5       | Responsive UI framework
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+[DEVELOPMENT TOOLS]
+Tool              | Purpose
+------------------|---------------------------------------------------
+Node.js & NPM     | Frontend dependency management
+Composer          | PHP dependency management
+Git & GitHub      | Version control and collaboration
+Ngrok             | Exposing local server for webhooks
+PagSeguro API     | Payment gateway integration (Sandbox)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+🏗️ SYSTEM ARCHITECTURE
+----------------------------------------------------------------------
+The system follows Laravel's MVC (Model-View-Controller) architecture:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+┌─────────────────────────────────────────────────────┐
+│                    Client Browser                    │
+└─────────────────────┬───────────────────────────────┘
+                      │ HTTP Request
+                      ▼
+┌─────────────────────────────────────────────────────┐
+│                   Routes (web.php)                   │
+│         Define URLs and map to Controllers           │
+└─────────────────────┬───────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────┐
+│                    Controller                        │
+│    Handles requests, business logic validation      │
+└──────────────┬──────────────────┬───────────────────┘
+               │                  │
+               ▼                  ▼
+┌──────────────────────┐  ┌──────────────────────┐
+│       Model          │  │        View          │
+│  Database queries    │  │  UI Templates        │
+│  Business rules      │  │  (Blade files)       │
+└──────────────────────┘  └──────────────────────┘
 
-## Laravel Sponsors
+[DIRECTORY STRUCTURE]
+app/
+ |-- Http/Controllers/     # Application logic
+ |-- Http/Middleware/      # Request filters
+ |-- Models/               # Database models and relationships
+ |-- Services/             # External API integrations (PagSeguro)
+routes/
+ |-- web.php               # Web routes
+resources/
+ |-- views/                # Blade templates
+ |-- css/js/               # Frontend assets
+database/
+ |-- migrations/           # Database schema version control
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+🗄️ DATABASE DESIGN
+----------------------------------------------------------------------
+CORE TABLES:
+- users: Customer and admin accounts
+- products: Product catalog
+- categories: Product categorization
+- orders: Order headers
+- order_items: Individual items per order
+- payments: Payment transaction records
 
-### Premium Partners
+ENTITY-RELATIONSHIP DIAGRAM:
+users (1) ------- (n) orders
+orders (1) ------ (n) order_items
+order_items (n) - (1) products
+products (n) ---- (1) categories
+orders (1) ------ (1) payments
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+💳 PAGSEGURO INTEGRATION
+----------------------------------------------------------------------
+The system integrates with PagSeguro's API in Sandbox mode.
 
-## Contributing
+PAYMENT FLOW:
+User -> System -> PagSeguro API -> Ngrok Tunnel -> Webhook
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+WHY NGROK?
+Since PagSeguro requires a public URL to send payment notifications 
+(webhooks), Ngrok was used during development to expose the local 
+Laravel server (port 8000) to the internet.
 
-## Code of Conduct
+⚙️ INSTALLATION & SETUP
+----------------------------------------------------------------------
+1. Clone Repository: git clone [URL]
+2. Install PHP Deps: composer install
+3. Install JS Deps: npm install
+4. Environment: cp .env.example .env && php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+[ENVIRONMENT CONFIG (.env)]
+DB_CONNECTION=mysql
+DB_DATABASE=your_database
+PAGSEGURO_EMAIL=your_sandbox_email
+PAGSEGURO_TOKEN=your_sandbox_token
 
-## Security Vulnerabilities
+5. Run Migrations: php artisan migrate
+6. Compile Assets: npm run dev
+7. Start Server: php artisan serve
+8. Start Ngrok: ngrok http 8000
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+📄 ADDITIONAL DOCUMENTATION (/docs) Note: Some of the documentation was prepared before the system was fully finalized, so some implementation details, structures, or functionality may differ from the final version of the project. Documentation should be considered as a basis for analysis, modeling and planning of the system, and there may be small discrepancies in relation to the current code.
 
-## License
+🎯 ACADEMIC OBJECTIVES
+----------------------------------------------------------------------
+- Web Development (Complete e-commerce building)
+- Laravel Framework (MVC and best practices)
+- Database Modeling (Relational schemas)
+- API Integration (External payment gateway)
+- E-commerce Logic (Cart, order flow)
+- Software Documentation (Technical writing)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+🧪 TESTING THE APPLICATION
+----------------------------------------------------------------------
+ADMIN ACCESS:
+Set access_level = admin in the database or run:
+php artisan db:seed --class=AdminUserSeeder
+
+PAGSEGURO SANDBOX CARDS:
+- Visa: 4111111111111111
+- Mastercard: 5555555555554444
+
+👨‍💻 AUTHOR
+----------------------------------------------------------------------
+KAYAN DA SILVA JESUS 
+ISABELLA MURAKAMI ROCHA
+RAÍSSA NASCIMENTO MORAES
+LEONARDO PEREIRA BRAGA 
+LUCAS VINÍCIUS SANTOS ROCHA 
+
+Institution: Etec Jardim Ângela
+Course: DESENVOLVIMENTO DE SISTEMA
+
+📌 IMPORTANT NOTES
+----------------------------------------------------------------------
+⚠️ ACADEMIC PROJECT ONLY: Not recommended for production without 
+security audits and proper infrastructure.
+======================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
