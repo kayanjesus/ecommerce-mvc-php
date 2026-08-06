@@ -21,13 +21,22 @@ class SiteController extends Controller
         $categoriasMenu = Categoria::whereIn('nome_categoria', ['Conjunto', 'Camisetas', 'Calças', 'Vestidos'])->get();
 
         // PEGUE MAIS PRODUTOS E USE .get() EM VEZ DE .paginate()
-        $produtos = Produto::with('imagens')->where('ativo', 'S')->take(12)->get();
+        //  $produtos = Produto::with('imagens')->where('ativo', 'S')->take(12)->get();
 
         // Pegamos os 10 mais recentes (pelo ID ou created_at)
+        // $novidades = Produto::with('imagens')
+        //       ->where('ativo', 'S')
+        //           ->orderBy('id_produto', 'desc') // Mais recentes primeiro
+        //         ->take(10)              // Pegamos 10 para o carrossel rodar
+        //            ->get();
+
+        $produtos = Produto::with('imagens')
+            ->take(12)
+            ->get();
+
         $novidades = Produto::with('imagens')
-            ->where('ativo', 'S')
-            ->orderBy('id_produto', 'desc') // Mais recentes primeiro
-            ->take(10)              // Pegamos 10 para o carrossel rodar
+            ->orderBy('id_produto', 'desc')
+            ->take(10)
             ->get();
 
         $avaliacoes = Avaliacao::with('usuario')
