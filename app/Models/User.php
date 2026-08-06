@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\Eloquent\Casts\Attribute; // Certifique-se que esta linha está aqui
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -23,12 +23,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'cpf',
-        'cpf_hash', // Este campo será um hash não reversível
+        'cpf_hash', // Hash não reversível, usado para checar unicidade do CPF
         'data_nasc',
         'telefone',
         'password',
         'access_level',
-        'telefone', // Certifique-se de que 'telefone' está aqui se você o usa
+        'google_id',
+        'avatar',
     ];
 
     /**
@@ -39,8 +40,9 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
-        'cpf', // Você pode deixar 'cpf' hidden se não quiser que ele apareça em arrays/json por padrão
-        'cpf_hash', // Pode deixar 'cpf_hash' hidden também
+        'cpf',
+        'cpf_hash',
+        'google_id',
     ];
 
     /**
@@ -52,19 +54,20 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'telefone_verified_at' => 'datetime',
         'password' => 'hashed',
-        'data_nasc' => 'date', // 'date' para que o Laravel trate como objeto Carbon
+        'data_nasc' => 'date',
     ];
 
     /**
-     * Get the user's CPF (decrypted).
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     * CPF é armazenado criptografado (Crypt::encryptString), que NÃO é
+     * determinístico — o mesmo CPF gera um valor cifrado diferente a cada
+     * vez. Por isso, validação de "CPF único" nunca deve comparar contra
+     * esta coluna. Use sempre `cpf_hash` (SHA-256, determinístico) para
+     * checar duplicidade — ver regra de validação em RegisteredUserController.
      */
     protected function cpf(): Attribute
     {
         return Attribute::make(
             get: fn($value) => $value ? Crypt::decryptString($value) : null,
-            // O set automaticamente criptografa e limpa o CPF antes de salvar
             set: fn($value) => $value ? Crypt::encryptString(preg_replace('/[^0-9]/', '', $value)) : null,
         );
     }
@@ -76,32 +79,6 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
-    /**
-     * Get the user's phone number (cleaned).
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    // public function setTelefoneAttribute($value)
-    // {
-    //     $this->attributes['telefone'] = preg_replace('/[^0-9]/', '', $value);
-    // }
-
-    // public function getTelefoneAttribute($value)
-    // {
-    //     $cleaned = preg_replace('/[^0-9]/', '', $value);
-    //     if (strlen($cleaned) === 11) { // Ex: 11999998888 -> (11) 99999-8888
-    //         return preg_replace('/^(\d{2})(\d{5})(\d{4})$/', '($1) $2-$3', $cleaned);
-    //     } elseif (strlen($cleaned) === 10) { // Ex: 1199998888 -> (11) 9999-8888
-    //         return preg_replace('/^(\d{2})(\d{4})(\d{4})$/', '($1) $2-$3', $cleaned);
-    //     }
-    //     return $value; // Retorna o valor original se não for 10 ou 11 dígitos.
-    // }
-
-    /**
-     * Check if the user has admin access level.
-     *
-     * @return bool
-     */
     public function isAdmin(): bool
     {
         return $this->access_level === 'admin';
