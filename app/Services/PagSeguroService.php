@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\PagSeguroUrl;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -16,10 +17,7 @@ class PagSeguroService
         // API V4 usa bearer token
         $this->bearerToken = config('pagseguro.bearer_token');
         $this->sandbox = config('pagseguro.sandbox', true);
-
-        $this->baseUrl = $this->sandbox
-            ? 'https://sandbox.api.pagseguro.com'
-            : 'https://api.pagseguro.com';
+        $this->baseUrl = PagSeguroUrl::v4();
     }
 
     /**
@@ -43,19 +41,18 @@ class PagSeguroService
             $url = "{$this->baseUrl}/orders/{$codigoTransacao}/refunds";
 
             Log::info("URL API V4: {$url}");
-            Log::info("Bearer Token (primeiros 20): " . substr($this->bearerToken, 0, 20) . "...");
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->bearerToken,
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
             ])->timeout(30)->post($url, [
-                        'amount' => [
-                            'value' => (int) ($valor * 100), // Em centavos
-                            'currency' => 'BRL',
-                        ],
-                        'reason' => $motivo ?: 'Cancelamento solicitado pelo cliente',
-                    ]);
+                'amount' => [
+                    'value' => (int) round($valor * 100), // Em centavos
+                    'currency' => 'BRL',
+                ],
+                'reason' => $motivo ?: 'Cancelamento solicitado pelo cliente',
+            ]);
 
             $statusCode = $response->status();
             $body = $response->json();
@@ -91,7 +88,6 @@ class PagSeguroService
                 'api' => 'v4',
                 'detalhes' => $body,
             ];
-
         } catch (\Exception $e) {
             Log::error("Exceção API V4: " . $e->getMessage());
             return [
@@ -125,11 +121,28 @@ class PagSeguroService
             }
 
             return null;
-
         } catch (\Exception $e) {
             Log::error("Erro ao verificar transação API V4: " . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Buscar detalhes completos de uma notificação de webhook a partir do
+     * notificationCode enviado pelo PagSeguro (fluxo antigo, ainda usado
+     * pelo WebhookController quando o payload não vem completo).
+     */
+    public function buscarNotificacao(string $notificationCode)
+    {
+        $url = "{$this->baseUrl}/notifications/{$notificationCode}";
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->bearerToken,
+            'Content-Type' => 'application/json',
+            'x-api-version' => '4',
+        ])->get($url);
+
+        return $response;
     }
 
     /**
@@ -138,15 +151,14 @@ class PagSeguroService
     public function testarConexao()
     {
         try {
-            // Tentar acessar endpoint de charges (menos restritivo)
             $url = "{$this->baseUrl}/charges";
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->bearerToken,
                 'Accept' => 'application/json',
             ])->timeout(10)->get($url, [
-                        'limit' => 1,
-                    ]);
+                'limit' => 1,
+            ]);
 
             $statusCode = $response->status();
             $body = $response->json();
@@ -157,7 +169,6 @@ class PagSeguroService
                 'data' => $body,
                 'error' => $response->failed() ? ($body['error_message'] ?? 'Erro desconhecido') : null,
             ];
-
         } catch (\Exception $e) {
             return [
                 'status' => 0,
@@ -178,7 +189,6 @@ class PagSeguroService
             'motivo' => $motivo,
         ]);
 
-        // Simular sucesso após 2 segundos
         sleep(2);
 
         return [

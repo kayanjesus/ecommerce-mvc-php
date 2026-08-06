@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\{Endereco, Pedido, PedidoItem, PagamentoCheckout, Cupom, User};
 use App\Notifications\NovoPedidoNotification;
+use App\Services\AdminNotificationService;
+use App\Support\PagSeguroUrl;
 use Illuminate\Support\Facades\{Auth, Http, Log, DB};
 use Darryldecode\Cart\Facades\CartFacade as Cart;
 use Illuminate\Support\Facades\Session;
@@ -14,6 +16,10 @@ use Carbon\Carbon;
 
 class PagamentoController extends Controller
 {
+    public function __construct(
+        private AdminNotificationService $adminNotificationService,
+    ) {}
+
     public function cep(Request $request)
     {
         $userId = Auth::id();
@@ -337,25 +343,6 @@ class PagamentoController extends Controller
     }
 
 
-    protected function notificarAdministradores(Pedido $pedido)
-    {
-        try {
-            $administradores = User::where('access_level', 'admin')->get();
-
-            foreach ($administradores as $admin) {
-                try {
-                    $admin->notify(new NovoPedidoNotification($pedido));
-                } catch (\Exception $e) {
-                    \Log::error("Falha ao notificar admin {$admin->id}: " . $e->getMessage());
-                    continue;
-                }
-            }
-        } catch (\Exception $e) {
-            \Log::error("Erro no processo de notificação: " . $e->getMessage());
-        }
-    }
-
-
     protected function verificarEValidarDadosSessao()
     {
         if (!session()->has('itens_checkout') || empty(session('itens_checkout'))) {
@@ -518,7 +505,7 @@ class PagamentoController extends Controller
             $formaPagamento = session('forma_pagamento');
             $usuario = Auth::user();
 
-            if (!$usuario) {
+            if (!$usuario) {    
                 return response()->json(['error' => true, 'message' => 'Usuário não autenticado. Redirecionando para login.'], 401);
             }
 
@@ -543,41 +530,27 @@ class PagamentoController extends Controller
             \Log::info('CPF FINAL enviado para PagSeguro:', ['cpf' => $cpfParaPagSeguro]);
 
 
-            
-            // --- CORREÇÃO: Obter telefone real do usuário ---
+            // Telefone real do usuário
             $telefoneUsuario = $usuario->telefone;
-
-            // Limpar qualquer formatação do telefone
             $telefoneLimpo = preg_replace('/[^0-9]/', '', $telefoneUsuario);
 
-            // Verificar se temos um telefone válido (pelo menos 10 dígitos)
             if (strlen($telefoneLimpo) >= 10) {
-                // Extrair DDD (2 primeiros dígitos)
                 $dddPagSeguro = substr($telefoneLimpo, 0, 2);
-                // Extrair número (o restante)
                 $numeroPagSeguro = substr($telefoneLimpo, 2);
 
-                // Garantir que o número tenha entre 8 e 9 dígitos (padrão brasileiro)
                 if (strlen($numeroPagSeguro) < 8) {
-                    // Adicionar zeros à esquerda se necessário
                     $numeroPagSeguro = str_pad($numeroPagSeguro, 8, '0', STR_PAD_LEFT);
                 }
 
                 \Log::info('Telefone REAL enviado para PagSeguro:', [
-                    'telefone_original' => $telefoneUsuario,
-                    'telefone_limpo' => $telefoneLimpo,
                     'ddd' => $dddPagSeguro,
                     'number' => $numeroPagSeguro
                 ]);
             } else {
-                // Se não houver telefone válido, usar placeholder como fallback
                 $dddPagSeguro = '11';
                 $numeroPagSeguro = '999999999';
-                \Log::warning('Usuário ' . $usuario->id . ' não possui telefone válido cadastrado. Usando placeholder.', [
-                    'telefone_cadastrado' => $telefoneUsuario
-                ]);
+                \Log::warning('Usuário ' . $usuario->id . ' não possui telefone válido cadastrado. Usando placeholder.');
             }
-
 
 
             $pedido = $this->criarPedido($itens, $endereco);
@@ -595,9 +568,15 @@ class PagamentoController extends Controller
             $redirectUrl = null;
 
             if ($formaPagamento === 'pix') {
-                $endpoint = 'https://sandbox.api.pagseguro.com/orders';
-                $token = env('PAGSEGURO_BEARER_TOKEN', 'YOUR_DEFAULT_SANDBOX_TOKEN_HERE'); // MUDANÇA AQUI!
+                // CORRIGIDO: endpoint dinâmico (sandbox/produção) via PagSeguroUrl,
+                // e token lido do config/pagseguro.php (fonte única de verdade),
+                // em vez de env('PAGSEGURO_BEARER_TOKEN') direto + URL hardcoded.
+                $endpoint = PagSeguroUrl::v4() . '/orders';
+                $token = config('pagseguro.bearer_token');
 
+                if (empty($token)) {
+                    throw new \Exception('Token do PagSeguro (PAGSEGURO_BEARER_TOKEN) não configurado.');
+                }
 
                 $shippingAddress = [
                     "street" => $endereco['rua'] ?? '',
@@ -622,8 +601,8 @@ class PagamentoController extends Controller
                         "phones" => [
                             [
                                 "country" => "55",
-                                "area" => $dddPagSeguro,       // Usando o DDD placeholder
-                                "number" => $numeroPagSeguro, // Usando o número placeholder
+                                "area" => $dddPagSeguro,
+                                "number" => $numeroPagSeguro,
                                 "type" => "MOBILE"
                             ]
                         ]
@@ -647,7 +626,7 @@ class PagamentoController extends Controller
                         "address" => $shippingAddress
                     ],
                     'notification_urls' => [
-                        env('WEBHOOK_URL', env('APP_URL')) . '/webhooks/pagseguro'
+                        rtrim(env('WEBHOOK_URL', env('APP_URL')), '/') . '/webhooks/pagseguro'
                     ]
                 ];
 
@@ -678,7 +657,6 @@ class PagamentoController extends Controller
                             'status' => $pagamentoCheckout->status,
                             'codigo_transacao' => $pagamentoCheckout->codigo_transacao
                         ]);
-
                     } else {
                         throw new \Exception('QR Code URL ou Pix Key não encontrados na resposta do PagSeguro.');
                     }
@@ -700,28 +678,24 @@ class PagamentoController extends Controller
                 ]);
 
                 $redirectUrl = route('pagamento.pagar', ['pedidoId' => $pedido->id_pedido]);
-
             } elseif ($formaPagamento === 'cartao') {
                 $pagamentoCheckout->status = 'aguardando_captura_cartao';
                 $pagamentoCheckout->save();
                 $redirectUrl = route('pagamento.sucesso', ['pedidoId' => $pedido->id_pedido]);
-
             } elseif ($formaPagamento === 'boleto') {
                 $pagamentoCheckout->status = 'boleto_gerado';
                 $pagamentoCheckout->save();
                 $redirectUrl = route('pagamento.sucesso', ['pedidoId' => $pedido->id_pedido]);
-
             } else {
                 throw new \Exception('Forma de pagamento inválida selecionada.');
             }
 
-            $this->notificarAdministradores($pedido);
+            $this->adminNotificationService->notificarNovoPedido($pedido);
             $this->finalizarCheckout();
 
             DB::commit();
 
             return response()->json(['success' => true, 'redirect' => $redirectUrl]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             Log::error('Erro de validação ao processar pagamento: ' . $e->getMessage(), $e->errors());
@@ -771,7 +745,6 @@ class PagamentoController extends Controller
                 'expirationDate' => $expirationDate,
                 'total' => $pedido->total
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('pagamento.erro')->with('erro', 'Pedido não encontrado.');
         } catch (\Exception $e) {
@@ -790,6 +763,4 @@ class PagamentoController extends Controller
         $pedido = Pedido::with('pagamentoCheckout')->findOrFail($pedidoId);
         return view('home.pagamento.sucesso', compact('pedido'));
     }
-
-
 }
