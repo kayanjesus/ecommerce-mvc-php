@@ -114,24 +114,24 @@
                 </div>
 
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 @endif
 
                 @if($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <h5 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i> Erros encontrados:</h5>
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                @if(!str_contains($error, 'Já existe um produto'))
-                                    <li>{{ $error }}</li>
-                                @endif
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i> Erros encontrados:</h5>
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                        @if(!str_contains($error, 'Já existe um produto'))
+                        <li>{{ $error }}</li>
+                        @endif
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 @endif
 
                 <div class="card">
@@ -143,37 +143,37 @@
                                 <div class="col-md-4">
                                     <div class="mb-4">
                                         <h5>Imagem Principal</h5>
-                                        
+
                                         <div id="mainImageContainer" class="mb-3">
                                             <div class="empty-image">
                                                 <i class="fas fa-image fa-3x mb-2"></i>
                                                 <span>Nenhuma imagem carregada</span>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label class="d-block mb-2">Galeria de Imagens</label>
                                             <div class="thumbnail-container" id="thumbnailsContainer">
                                                 <!-- Miniaturas serão adicionadas aqui via JavaScript -->
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Área para upload -->
                                         <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
                                             <i class="fas fa-cloud-upload-alt"></i>
                                             <p class="mb-0">Clique para adicionar imagens</p>
                                             <small class="text-muted">Arraste ou clique para fazer upload</small>
                                         </div>
-                                        
-                                        <input type="file" 
-                                               id="imageInput" 
-                                               name="imagens[]" 
-                                               accept="image/*" 
-                                               multiple 
-                                               style="display: none;" 
-                                               onchange="handleImageUpload(this)"
-                                               required>
-                                        
+
+                                        <input type="file"
+                                            id="imageInput"
+                                            name="imagens[]"
+                                            accept="image/*"
+                                            multiple
+                                            style="display: none;"
+                                            onchange="handleImageUpload(this)"
+                                            required>
+
                                         <!-- Campo hidden para imagem principal -->
                                         <input type="hidden" name="main_image_id" id="mainImageId" value="">
                                     </div>
@@ -186,17 +186,17 @@
                                         <div class="col-md-12">
                                             <div class="mb-3">
                                                 <label for="nome" class="form-label">Nome do Produto *</label>
-                                                <input type="text" 
-                                                       class="form-control {{ $errors->has('nome') ? 'is-invalid border-danger' : '' }}" 
-                                                       name="nome" 
-                                                       id="nome" 
-                                                       placeholder="Digite o nome do produto" 
-                                                       value="{{ old('nome') }}"
-                                                       required>
+                                                <input type="text"
+                                                    class="form-control {{ $errors->has('nome') ? 'is-invalid border-danger' : '' }}"
+                                                    name="nome"
+                                                    id="nome"
+                                                    placeholder="Digite o nome do produto"
+                                                    value="{{ old('nome') }}"
+                                                    required>
                                                 @if($errors->has('nome'))
-                                                    <div class="text-danger mt-1 fw-semibold">
-                                                        <small><i class="fas fa-exclamation-circle"></i> {{ $errors->first('nome') }}</small>
-                                                    </div>
+                                                <div class="text-danger mt-1 fw-semibold">
+                                                    <small><i class="fas fa-exclamation-circle"></i> {{ $errors->first('nome') }}</small>
+                                                </div>
                                                 @endif
                                             </div>
                                         </div>
@@ -207,10 +207,10 @@
                                                 <label class="form-label">Categorias *</label>
                                                 <select name="categorias[]" class="form-control categorias-select" multiple required>
                                                     @foreach ($categorias as $categoria)
-                                                        <option value="{{ $categoria->id_categoria }}"
-                                                            {{ in_array($categoria->id_categoria, old('categorias', [])) ? 'selected' : '' }}>
-                                                            {{ $categoria->nome_categoria }}
-                                                        </option>
+                                                    <option value="{{ $categoria->id_categoria }}"
+                                                        {{ in_array($categoria->id_categoria, old('categorias', [])) ? 'selected' : '' }}>
+                                                        {{ $categoria->nome_categoria }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                                 <small class="text-muted">Selecione uma ou mais categorias</small>
@@ -221,13 +221,13 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="descricao" class="form-label">Descrição/Variação *</label>
-                                                <input type="text" 
-                                                       class="form-control" 
-                                                       name="descricao" 
-                                                       id="descricao" 
-                                                       placeholder="Ex: Estilo, Características" 
-                                                       value="{{ old('descricao') }}"
-                                                       required>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    name="descricao"
+                                                    id="descricao"
+                                                    placeholder="Ex: Estilo, Características"
+                                                    value="{{ old('descricao') }}"
+                                                    required>
                                             </div>
                                         </div>
 
@@ -237,12 +237,12 @@
                                                 <label class="form-label">Cores *</label>
                                                 <select name="cores[]" id="cor" multiple required class="form-control cores-select">
                                                     @foreach ($cores as $cor)
-                                                        <option value="{{ $cor->id_cor }}" 
-                                                                data-hex="{{ $cor->codigo_hex }}"
-                                                                {{ in_array($cor->id_cor, old('cores', [])) ? 'selected' : '' }}>
-                                                            <span class="color-option" style="background-color: {{ $cor->codigo_hex }}"></span>
-                                                            {{ $cor->nome }}
-                                                        </option>
+                                                    <option value="{{ $cor->id_cor }}"
+                                                        data-hex="{{ $cor->codigo_hex }}"
+                                                        {{ in_array($cor->id_cor, old('cores', [])) ? 'selected' : '' }}>
+                                                        <span class="color-option" style="background-color: {{ $cor->codigo_hex }}"></span>
+                                                        {{ $cor->nome }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -256,6 +256,8 @@
                                                     <option value="" disabled {{ !old('estacao') ? 'selected' : '' }}>Selecione uma estação</option>
                                                     <option value="Verão" {{ old('estacao') == 'Verão' ? 'selected' : '' }}>Verão</option>
                                                     <option value="Inverno" {{ old('estacao') == 'Inverno' ? 'selected' : '' }}>Inverno</option>
+                                                    <option value="Primavera" {{ old('estacao') == 'Primavera' ? 'selected' : '' }}>Primavera</option>
+                                                    <option value="Outono" {{ old('estacao') == 'Outono' ? 'selected' : '' }}>Outono</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -264,13 +266,13 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="marca" class="form-label">Marca *</label>
-                                                <input type="text" 
-                                                       class="form-control" 
-                                                       name="marca" 
-                                                       id="marca" 
-                                                       placeholder="Ex: Nike, Zara" 
-                                                       value="{{ old('marca') }}"
-                                                       required>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    name="marca"
+                                                    id="marca"
+                                                    placeholder="Ex: Nike, Zara"
+                                                    value="{{ old('marca') }}"
+                                                    required>
                                             </div>
                                         </div>
 
@@ -278,14 +280,14 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="valor" class="form-label">Preço (R$) *</label>
-                                                <input type="number" 
-                                                       step="0.01" 
-                                                       class="form-control" 
-                                                       name="valor" 
-                                                       id="valor" 
-                                                       placeholder="Ex: 59.90" 
-                                                       value="{{ old('valor') }}"
-                                                       required>
+                                                <input type="number"
+                                                    step="0.01"
+                                                    class="form-control"
+                                                    name="valor"
+                                                    id="valor"
+                                                    placeholder="Ex: 59.90"
+                                                    value="{{ old('valor') }}"
+                                                    required>
                                             </div>
                                         </div>
 
@@ -295,10 +297,10 @@
                                                 <label class="form-label">Tamanhos *</label>
                                                 <select name="tamanhos[]" id="tamanho" multiple required class="form-control tamanhos-select">
                                                     @foreach ($tamanhos as $tamanho)
-                                                        <option value="{{ $tamanho->id_tamanho }}"
-                                                            {{ in_array($tamanho->id_tamanho, old('tamanhos', [])) ? 'selected' : '' }}>
-                                                            {{ $tamanho->nome }}
-                                                        </option>
+                                                    <option value="{{ $tamanho->id_tamanho }}"
+                                                        {{ in_array($tamanho->id_tamanho, old('tamanhos', [])) ? 'selected' : '' }}>
+                                                        {{ $tamanho->nome }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -308,13 +310,13 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="estoque" class="form-label">Estoque Total *</label>
-                                                <input type="number" 
-                                                       class="form-control" 
-                                                       name="estoque" 
-                                                       id="estoque" 
-                                                       placeholder="Quantidade total" 
-                                                       value="{{ old('estoque') }}"
-                                                       required>
+                                                <input type="number"
+                                                    class="form-control"
+                                                    name="estoque"
+                                                    id="estoque"
+                                                    placeholder="Quantidade total"
+                                                    value="{{ old('estoque') }}"
+                                                    required>
                                                 <small class="text-muted">Quantidade total em estoque</small>
                                             </div>
                                         </div>
@@ -323,13 +325,13 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="tecido" class="form-label">Tecido *</label>
-                                                <input type="text" 
-                                                       class="form-control" 
-                                                       name="tecido" 
-                                                       id="tecido" 
-                                                       placeholder="Ex: Algodão, Jeans" 
-                                                       value="{{ old('tecido') }}"
-                                                       required>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    name="tecido"
+                                                    id="tecido"
+                                                    placeholder="Ex: Algodão, Jeans"
+                                                    value="{{ old('tecido') }}"
+                                                    required>
                                             </div>
                                         </div>
 
@@ -337,13 +339,13 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="modelo" class="form-label">Modelo *</label>
-                                                <input type="text" 
-                                                       class="form-control" 
-                                                       name="modelo" 
-                                                       id="modelo" 
-                                                       placeholder="Ex: Camiseta Básica" 
-                                                       value="{{ old('modelo') }}"
-                                                       required>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    name="modelo"
+                                                    id="modelo"
+                                                    placeholder="Ex: Camiseta Básica"
+                                                    value="{{ old('modelo') }}"
+                                                    required>
                                             </div>
                                         </div>
                                     </div>
@@ -366,10 +368,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
+
     <script>
         // Inicialização do Select2
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('.categorias-select').select2({
                 placeholder: "Selecione as categorias",
                 allowClear: true,
@@ -379,7 +381,9 @@
             $('.cores-select').select2({
                 templateResult: formatColor,
                 templateSelection: formatColor,
-                escapeMarkup: function(m) { return m; },
+                escapeMarkup: function(m) {
+                    return m;
+                },
                 placeholder: "Selecione as cores",
                 width: '100%'
             });
@@ -415,10 +419,10 @@
                             src: e.target.result,
                             file: file
                         };
-                        
+
                         uploadedImages.push(imageData);
                         createThumbnail(imageData);
-                        
+
                         // Define a primeira imagem como principal
                         if (uploadedImages.length === 1) {
                             setAsMainImage(imageData.id);
@@ -432,11 +436,11 @@
         // Cria miniatura na galeria
         function createThumbnail(imageData) {
             const container = document.getElementById('thumbnailsContainer');
-            
+
             const wrapper = document.createElement('div');
             wrapper.className = 'thumbnail-wrapper';
             wrapper.dataset.imageId = imageData.id;
-            
+
             const thumbnail = document.createElement('img');
             thumbnail.className = 'thumbnail';
             thumbnail.src = imageData.src;
@@ -444,14 +448,14 @@
             thumbnail.onclick = function() {
                 setAsMainImage(imageData.id);
             };
-            
+
             const removeBtn = document.createElement('div');
             removeBtn.className = 'thumbnail-remove';
             removeBtn.innerHTML = '<i class="fas fa-times"></i>';
             removeBtn.onclick = function() {
                 removeImage(imageData.id);
             };
-            
+
             wrapper.appendChild(thumbnail);
             wrapper.appendChild(removeBtn);
             container.appendChild(wrapper);
@@ -463,23 +467,23 @@
             document.querySelectorAll('.thumbnail').forEach(thumb => {
                 thumb.classList.remove('active');
             });
-            
+
             // Adiciona a classe 'active' na miniatura clicada
             const thumbnail = document.querySelector(`.thumbnail[data-image-id="${imageId}"]`);
             if (thumbnail) {
                 thumbnail.classList.add('active');
             }
-            
+
             // Atualiza a imagem principal
             const mainImageContainer = document.getElementById('mainImageContainer');
             const imageData = uploadedImages.find(img => img.id === imageId);
-            
+
             if (imageData) {
                 mainImageContainer.innerHTML = `
                     <img src="${imageData.src}" class="product-main-image" alt="Imagem principal do produto">
                 `;
             }
-            
+
             // Atualiza o campo hidden
             mainImageIndex = imageId;
             document.getElementById('mainImageId').value = imageId;
@@ -489,14 +493,14 @@
         function removeImage(imageId) {
             // Remove do array
             uploadedImages = uploadedImages.filter(img => img.id !== imageId);
-            
+
             // Remove a miniatura
             const wrapper = document.querySelector(`.thumbnail-wrapper[data-image-id="${imageId}"]`);
             if (wrapper) {
                 wrapper.style.opacity = '0';
                 setTimeout(() => {
                     wrapper.remove();
-                    
+
                     // Se a imagem removida era a principal, define outra como principal
                     if (imageId === mainImageIndex) {
                         if (uploadedImages.length > 0) {
@@ -528,56 +532,56 @@
             const estacao = document.getElementById('estacao').value;
             const valor = document.getElementById('valor').value;
             const estoque = document.getElementById('estoque').value;
-            
+
             let isValid = true;
             let errorMessage = '';
-            
+
             if (!nome) {
                 isValid = false;
                 errorMessage += '• Nome do produto é obrigatório\n';
             }
-            
+
             if (!categorias || categorias.length === 0) {
                 isValid = false;
                 errorMessage += '• Selecione pelo menos uma categoria\n';
             }
-            
+
             if (!cores || cores.length === 0) {
                 isValid = false;
                 errorMessage += '• Selecione pelo menos uma cor\n';
             }
-            
+
             if (!tamanhos || tamanhos.length === 0) {
                 isValid = false;
                 errorMessage += '• Selecione pelo menos um tamanho\n';
             }
-            
+
             if (!estacao) {
                 isValid = false;
                 errorMessage += '• Selecione uma estação\n';
             }
-            
+
             if (!valor || parseFloat(valor) <= 0) {
                 isValid = false;
                 errorMessage += '• Preço deve ser maior que zero\n';
             }
-            
+
             if (!estoque || parseInt(estoque) < 0) {
                 isValid = false;
                 errorMessage += '• Estoque deve ser um número positivo\n';
             }
-            
+
             if (uploadedImages.length === 0) {
                 isValid = false;
                 errorMessage += '• É necessário carregar pelo menos uma imagem\n';
             }
-            
+
             if (!isValid) {
                 e.preventDefault();
                 alert('Por favor, corrija os seguintes erros:\n\n' + errorMessage);
                 return false;
             }
-            
+
             // Mostra loading
             const submitBtn = this.querySelector('button[type="submit"]');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cadastrando...';
@@ -585,14 +589,14 @@
         });
 
         // ============= TRATAMENTO DE ERROS =============
-        
+
         // Função para mostrar modal de erro
         function showErrorModal(message) {
             document.getElementById('modalErrorMessage').textContent = message;
             const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
             errorModal.show();
         }
-        
+
         // Função para focar no campo nome
         function focusOnNomeField() {
             const errorModal = bootstrap.Modal.getInstance(document.getElementById('errorModal'));
@@ -602,14 +606,14 @@
             document.getElementById('nome').focus();
             document.getElementById('nome').select();
         }
-        
+
         // Verifica se há erro de nome duplicado ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            @if($errors->has('nome') && old('duplicate_error') == 'nome')
-                setTimeout(function() {
-                    showErrorModal('{{ $errors->first("nome") }}');
-                    document.getElementById('nome').focus();
-                }, 300);
+            @if($errors -> has('nome') && old('duplicate_error') == 'nome')
+            setTimeout(function() {
+                showErrorModal('{{ $errors->first("nome") }}');
+                document.getElementById('nome').focus();
+            }, 300);
             @endif
         });
 
@@ -619,24 +623,24 @@
             if (nome.length < 3) {
                 return;
             }
-            
+
             // Remove qualquer sugestão anterior
             const existingSuggestion = document.getElementById('nomeSuggestion');
             if (existingSuggestion) {
                 existingSuggestion.remove();
             }
-            
+
             // Cria uma sugestão visual
             const suggestionDiv = document.createElement('div');
             suggestionDiv.id = 'nomeSuggestion';
             suggestionDiv.className = 'text-muted mt-1 small';
-            suggestionDiv.innerHTML = '<i class="fas fa-lightbulb"></i> Sugestão para URL: ' + 
+            suggestionDiv.innerHTML = '<i class="fas fa-lightbulb"></i> Sugestão para URL: ' +
                 nome.toLowerCase()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/[^a-z0-9-]/g, '');
-            
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+
             this.parentNode.appendChild(suggestionDiv);
         });
 
@@ -648,7 +652,7 @@
                 return false;
             }
             isSubmitting = true;
-            
+
             // Adiciona um pequeno delay para mostrar o loading
             setTimeout(() => {
                 const submitBtn = this.querySelector('button[type="submit"]');
@@ -656,7 +660,6 @@
                 submitBtn.disabled = true;
             }, 100);
         });
-
     </script>
 
     <style>
@@ -668,21 +671,21 @@
             background-position: right calc(0.375em + 0.1875rem) center;
             background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
         }
-        
+
         .is-invalid:focus {
             border-color: #dc3545;
             box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
         }
-        
+
         .border-danger {
             border-width: 2px !important;
         }
-        
+
         /* Estilo para mensagem de erro específica */
         .text-danger small i {
             margin-right: 5px;
         }
-        
+
         /* Estilo para sugestão */
         #nomeSuggestion {
             font-size: 0.85rem;
@@ -691,10 +694,11 @@
             border-radius: 4px;
             border-left: 3px solid #6c757d;
         }
-        
+
         #nomeSuggestion i {
             color: #ffc107;
         }
     </style>
 </body>
+
 </html>

@@ -73,7 +73,7 @@ class ProdutoController extends Controller
                 'cores.*' => 'exists:cores,id_cor',
                 'tamanhos' => 'required|array',
                 'tamanhos.*' => 'exists:tamanhos,id_tamanho',
-                'estacao' => 'required|in:Verão,Inverno',
+                'estacao' => 'required|in:Verão,Inverno,Primavera,Outono',
                 'marca' => 'required|string|max:255',
                 'valor' => 'required|numeric|min:0',
                 'estoque' => 'required|integer|min:0',
@@ -212,7 +212,6 @@ class ProdutoController extends Controller
 
             return redirect()->route('adm.cdtproduto')
                 ->with('success', 'Produto cadastrado com sucesso! As imagens foram otimizadas para WebP automaticamente.');
-
         } catch (QueryException $e) {
             DB::rollBack();
 
@@ -236,7 +235,6 @@ class ProdutoController extends Controller
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Erro ao conectar com o banco de dados. Por favor, tente novamente.']);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -314,7 +312,7 @@ class ProdutoController extends Controller
                 'cores.*' => 'exists:cores,id_cor',
                 'tamanhos' => 'required|array',
                 'tamanhos.*' => 'exists:tamanhos,id_tamanho',
-                'estacao' => 'required|in:Verão,Inverno',
+                'estacao' => 'required|in:Verão,Inverno,Primavera,Outono',
                 'marca' => 'required|string|max:255',
                 'valor' => 'required|numeric|min:0',
                 'estoque' => 'required|integer|min:0',
