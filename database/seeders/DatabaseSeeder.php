@@ -10,6 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CoresSeeder::class,
+            CategoriasSeeder::class,
+            TamanhosSeeder::class,
         ]);
     }
 }
