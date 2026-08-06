@@ -93,13 +93,13 @@
                 </div>
 
                 @if($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
                 @endif
 
                 {{-- As mensagens de sucesso/erro vão aparecer como popups --}}
@@ -118,19 +118,19 @@
                                         <h5>Imagem Principal</h5>
 
                                         @php
-                                            $mainImage = $produto->imagens->where('principal', true)->first() ?? $produto->imagens->first();
+                                        $mainImage = $produto->imagens->where('principal', true)->first() ?? $produto->imagens->first();
                                         @endphp
 
                                         <div id="mainImageContainer">
                                             @if($mainImage)
-                                                <img src="{{ asset($mainImage->caminho) }}"
-                                                    alt="{{ $produto->nome_produto }}" class="product-main-image"
-                                                    id="productMainImage">
+                                            <img src="{{ asset($mainImage->caminho) }}"
+                                                alt="{{ $produto->nome_produto }}" class="product-main-image"
+                                                id="productMainImage">
                                             @else
-                                                <div class="empty-image">
-                                                    <i class="fas fa-image fa-3x mb-2"></i>
-                                                    <span>Nenhuma imagem principal</span>
-                                                </div>
+                                            <div class="empty-image">
+                                                <i class="fas fa-image fa-3x mb-2"></i>
+                                                <span>Nenhuma imagem principal</span>
+                                            </div>
                                             @endif
                                         </div>
 
@@ -138,17 +138,17 @@
                                             <label class="d-block mb-2">Galeria de Imagens</label>
                                             <div class="thumbnail-container" id="thumbnailsContainer">
                                                 @foreach($produto->imagens as $imagem)
-                                                    <div class="thumbnail-wrapper" data-image-id="{{ $imagem->id }}">
-                                                        <img src="{{ asset($imagem->caminho) }}"
-                                                            class="thumbnail {{ $imagem->principal ? 'active' : '' }}"
-                                                            data-image-id="{{ $imagem->id }}"
-                                                            onclick="setAsMainImage(this, {{ $imagem->id }})"
-                                                            alt="Imagem do produto">
-                                                        <div class="thumbnail-remove"
-                                                            onclick="removeImage(this, {{ $imagem->id }})">
-                                                            <i class="fas fa-times"></i>
-                                                        </div>
+                                                <div class="thumbnail-wrapper" data-image-id="{{ $imagem->id }}">
+                                                    <img src="{{ asset($imagem->caminho) }}"
+                                                        class="thumbnail {{ $imagem->principal ? 'active' : '' }}"
+                                                        data-image-id="{{ $imagem->id }}"
+                                                        onclick="setAsMainImage(this, {{ $imagem->id }})"
+                                                        alt="Imagem do produto">
+                                                    <div class="thumbnail-remove"
+                                                        onclick="removeImage(this, {{ $imagem->id }})">
+                                                        <i class="fas fa-times"></i>
                                                     </div>
+                                                </div>
                                                 @endforeach
                                             </div>
                                         </div>
@@ -177,26 +177,26 @@
                                         </div>
                                         <div class="card-body">
                                             @forelse($produto->avaliacao as $avaliacao)
-                                                <div class="avaliacao-item mb-3">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <strong>{{ $avaliacao->usuario->name ?? 'Usuário' }}</strong>
-                                                        <div class="text-warning">
-                                                            @for($i = 1; $i <= 5; $i++)
-                                                                <i
-                                                                    class="bi bi-star{{ $i <= $avaliacao->nota ? '-fill' : '' }}"></i>
+                                            <div class="avaliacao-item mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <strong>{{ $avaliacao->usuario->name ?? 'Usuário' }}</strong>
+                                                    <div class="text-warning">
+                                                        @for($i = 1; $i <= 5; $i++)
+                                                            <i
+                                                            class="bi bi-star{{ $i <= $avaliacao->nota ? '-fill' : '' }}"></i>
                                                             @endfor
-                                                        </div>
                                                     </div>
-                                                    <p class="mb-2">{{ $avaliacao->comentario }}</p>
-                                                    <small class="text-muted">
-                                                        {{ \Carbon\Carbon::parse($avaliacao->created_at)->format('d/m/Y H:i') }}
-                                                    </small>
                                                 </div>
-                                                @if(!$loop->last)
-                                                    <hr class="my-2">
-                                                @endif
+                                                <p class="mb-2">{{ $avaliacao->comentario }}</p>
+                                                <small class="text-muted">
+                                                    {{ \Carbon\Carbon::parse($avaliacao->created_at)->format('d/m/Y H:i') }}
+                                                </small>
+                                            </div>
+                                            @if(!$loop->last)
+                                            <hr class="my-2">
+                                            @endif
                                             @empty
-                                                <p class="text-muted mb-0">Nenhuma avaliação ainda.</p>
+                                            <p class="text-muted mb-0">Nenhuma avaliação ainda.</p>
                                             @endforelse
                                         </div>
                                     </div>
@@ -222,9 +222,9 @@
                                                 <select name="categorias[]" class="form-control categorias-select"
                                                     multiple required>
                                                     @foreach ($categorias as $categoria)
-                                                        <option value="{{ $categoria->id_categoria }}" {{ in_array($categoria->id_categoria, old('categorias', $produto->categorias->pluck('id_categoria')->toArray())) ? 'selected' : '' }}>
-                                                            {{ $categoria->nome_categoria }}
-                                                        </option>
+                                                    <option value="{{ $categoria->id_categoria }}" {{ in_array($categoria->id_categoria, old('categorias', $produto->categorias->pluck('id_categoria')->toArray())) ? 'selected' : '' }}>
+                                                        {{ $categoria->nome_categoria }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                                 <small class="text-muted">Selecione uma ou mais categorias</small>
@@ -247,12 +247,12 @@
                                                 <select name="cores[]" class="form-control cores-select" multiple
                                                     required>
                                                     @foreach ($cores as $cor)
-                                                        <option value="{{ $cor->id_cor }}" data-hex="{{ $cor->codigo_hex }}"
-                                                            {{ in_array($cor->id_cor, old('cores', $produto->variacoes->pluck('cor_id')->toArray())) ? 'selected' : '' }}>
-                                                            <span class="color-option"
-                                                                style="background-color: {{ $cor->codigo_hex }}"></span>
-                                                            {{ $cor->nome }}
-                                                        </option>
+                                                    <option value="{{ $cor->id_cor }}" data-hex="{{ $cor->codigo_hex }}"
+                                                        {{ in_array($cor->id_cor, old('cores', $produto->variacoes->pluck('cor_id')->toArray())) ? 'selected' : '' }}>
+                                                        <span class="color-option"
+                                                            style="background-color: {{ $cor->codigo_hex }}"></span>
+                                                        {{ $cor->nome }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -274,9 +274,9 @@
                                                 <select name="tamanhos[]" class="form-control tamanhos-select" multiple
                                                     required>
                                                     @foreach ($tamanhos as $tamanho)
-                                                        <option value="{{ $tamanho->id_tamanho }}" {{ in_array($tamanho->id_tamanho, old('tamanhos', $produto->variacoes->pluck('tamanho_id')->toArray())) ? 'selected' : '' }}>
-                                                            {{ $tamanho->nome }}
-                                                        </option>
+                                                    <option value="{{ $tamanho->id_tamanho }}" {{ in_array($tamanho->id_tamanho, old('tamanhos', $produto->variacoes->pluck('tamanho_id')->toArray())) ? 'selected' : '' }}>
+                                                        {{ $tamanho->nome }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -340,45 +340,6 @@
                                                     rows="4">{{ old('descricao', $produto->descricao) }}</textarea>
                                             </div>
                                         </div>
-
-                                        <!-- Histórico de Movimentação -->
-                                        <div class="col-12">
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <h6 class="mb-0">Histórico de Movimentação</h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-sm table-hover">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Data</th>
-                                                                    <th>Tipo</th>
-                                                                    <th>Quantidade</th>
-                                                                    <th>Responsável</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <!-- Exemplo de dados - você deve substituir pelos dados reais do seu sistema -->
-                                                                <tr class="history-row">
-                                                                    <td>10/03/2024</td>
-                                                                    <td><span class="badge bg-success">Entrada</span>
-                                                                    </td>
-                                                                    <td>50</td>
-                                                                    <td>Admin</td>
-                                                                </tr>
-                                                                <tr class="history-row">
-                                                                    <td>05/03/2024</td>
-                                                                    <td><span class="badge bg-danger">Saída</span></td>
-                                                                    <td>10</td>
-                                                                    <td>Sistema</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -409,11 +370,11 @@
             // Mostra confirmação
             confirmar(
                 'Deseja salvar as alterações feitas no produto?',
-                function () {
+                function() {
                     // Se clicou em SIM
                     salvarAlteracoes();
                 },
-                function () {
+                function() {
                     // Se clicou em NÃO
                     console.log('Edição cancelada');
                 }
@@ -429,7 +390,7 @@
             const load = loading('Salvando alterações...');
 
             // Pequeno delay para o loading aparecer
-            setTimeout(function () {
+            setTimeout(function() {
                 // Envia o formulário
                 document.getElementById('editProductForm').submit();
             }, 500);
@@ -474,7 +435,7 @@
         let newImages = [];
 
         // Inicialização do Select2
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('.categorias-select').select2({
                 placeholder: "Selecione as categorias",
                 allowClear: true,
@@ -484,7 +445,9 @@
             $('.cores-select').select2({
                 templateResult: formatColor,
                 templateSelection: formatColor,
-                escapeMarkup: function (m) { return m; },
+                escapeMarkup: function(m) {
+                    return m;
+                },
                 placeholder: "Selecione as cores",
                 width: '100%'
             });
@@ -567,7 +530,7 @@
 
                 Array.from(input.files).forEach((file, index) => {
                     const reader = new FileReader();
-                    reader.onload = function (e) {
+                    reader.onload = function(e) {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'thumbnail-wrapper';
                         wrapper.dataset.newIndex = index;
@@ -576,14 +539,14 @@
                         thumbnail.className = 'thumbnail';
                         thumbnail.src = e.target.result;
                         thumbnail.dataset.newIndex = index;
-                        thumbnail.onclick = function () {
+                        thumbnail.onclick = function() {
                             setNewImageAsMain(this, index);
                         };
 
                         const removeBtn = document.createElement('div');
                         removeBtn.className = 'thumbnail-remove';
                         removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                        removeBtn.onclick = function () {
+                        removeBtn.onclick = function() {
                             removeNewImage(this, index);
                         };
 
