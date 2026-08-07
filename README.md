@@ -191,11 +191,11 @@ not as an exact spec of the final version.
 
 👨‍💻 AUTHORS
 ----------------------------------------------------------------------
-KAYAN DA SILVA JESUS
-ISABELLA MURAKAMI ROCHA
-RAÍSSA NASCIMENTO MORAES
-LEONARDO PEREIRA BRAGA
-LUCAS VINÍCIUS SANTOS ROCHA
+KAYAN DA SILVA JESUS;
+ISABELLA MURAKAMI ROCHA;
+RAÍSSA NASCIMENTO MORAES;
+LEONARDO PEREIRA BRAGA;
+LUCAS VINÍCIUS SANTOS ROCHA;
 
 Institution: Etec Jardim Ângela
 Course: Systems Development
