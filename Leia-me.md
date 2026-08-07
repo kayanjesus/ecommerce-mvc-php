@@ -203,11 +203,11 @@ de modelagem geral, não como especificação exata da versão final.
 
 👨‍💻 AUTORES
 ----------------------------------------------------------------------
-KAYAN DA SILVA JESUS
-ISABELLA MURAKAMI ROCHA
-RAÍSSA NASCIMENTO MORAES
-LEONARDO PEREIRA BRAGA
-LUCAS VINÍCIUS SANTOS ROCHA
+KAYAN DA SILVA JESUS;
+ISABELLA MURAKAMI ROCHA;
+RAÍSSA NASCIMENTO MORAES;
+LEONARDO PEREIRA BRAGA;
+LUCAS VINÍCIUS SANTOS ROCHA;
 
 Instituição: Etec Jardim Ângela
 Curso: Desenvolvimento de Sistemas
